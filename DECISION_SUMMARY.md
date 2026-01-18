@@ -6,6 +6,7 @@ This document records architecture and tooling decisions, why they were made, an
 ## Quick Summary (current working direction)
 - Deployment hosting preference: Amplify.
 - API style preference: GraphQL.
+- Auth preference: NextAuth + Cognito.
 
 ## Investigation Inputs
 - Requirements emphasize AWS services, persistent user state, and a Next.js app.
