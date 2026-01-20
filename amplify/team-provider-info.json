@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-epilot-dev-8116b-authRole",
+      "UnauthRoleArn": "arn:aws:iam::555262464812:role/amplify-epilot-dev-8116b-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::555262464812:role/amplify-epilot-dev-8116b-authRole",
+      "Region": "eu-north-1",
+      "DeploymentBucketName": "amplify-epilot-dev-8116b-deployment",
+      "UnauthRoleName": "amplify-epilot-dev-8116b-unauthRole",
+      "StackName": "amplify-epilot-dev-8116b",
+      "StackId": "arn:aws:cloudformation:eu-north-1:555262464812:stack/amplify-epilot-dev-8116b/351d6180-f606-11f0-935c-0aead9dc5401",
+      "AmplifyAppId": "d3797sawyxy6gy"
+    },
+    "categories": {
+      "auth": {
+        "epilotAuth": {}
+      }
+    }
+  }
+}
