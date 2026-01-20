@@ -1,0 +1,10 @@
+# Minimal schema so AppSync can deploy.
+# We'll replace/extend this with Price/Guess/UserState soon.
+
+type Query {
+  health: String!
+}
+
+schema {
+  query: Query
+}
