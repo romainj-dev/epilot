@@ -6,6 +6,7 @@ import styles from './Auth.module.scss'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { signIn } from 'next-auth/react'
 
 interface AuthSignInProps {
   setError: (error: string | null) => void
@@ -31,10 +32,19 @@ export function AuthSignIn({ setError }: AuthSignInProps) {
 
     setIsLoading(true)
 
-    // Mock auth - simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    const result = await signIn('credentials', {
+      email: signInEmail,
+      password: signInPassword,
+      redirect: false,
+      callbackUrl: '/dashboard',
+    })
 
-    // Mock success - route to dashboard
+    if (result?.error) {
+      setError(t('errors.invalidCredentials'))
+      setIsLoading(false)
+      return
+    }
+
     router.push('/dashboard')
   }
 

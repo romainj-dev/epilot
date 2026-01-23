@@ -39,26 +39,30 @@
       "createOne": "Create one"
     },
     "errors": {
-      "missingFields": "Please fill in all fields"
+      "missingFields": "Please fill in all fields",
+      "invalidCredentials": "Invalid email or password"
     }
   },
   "authSignUp": {
     "labels": {
       "email": "Email",
       "password": "Password",
-      "confirmPassword": "Confirm password"
+      "confirmPassword": "Confirm password",
+      "confirmCode": "Confirmation code"
     },
     "placeholders": {
       "email": "you@example.com",
       "password": "Create a password",
-      "confirmPassword": "Confirm your password"
+      "confirmPassword": "Confirm your password",
+      "confirmCode": "Enter the code from your email"
     },
     "hints": {
       "password": "Must be at least 8 characters"
     },
     "button": {
       "submit": "Create account",
-      "loading": "Creating account..."
+      "loading": "Creating account...",
+      "confirm": "Confirm email"
     },
     "divider": "or",
     "switch": {
@@ -68,7 +72,13 @@
     "errors": {
       "missingFields": "Please fill in all fields",
       "passwordMismatch": "Passwords do not match",
-      "passwordTooShort": "Password must be at least 8 characters"
+      "passwordTooShort": "Password must be at least 8 characters",
+      "signUpFailed": "Sign up failed. Please try again.",
+      "confirmFailed": "Confirmation failed. Please check the code."
+    },
+    "messages": {
+      "checkEmail": "Check your email for the confirmation code.",
+      "confirmationSuccess": "Email confirmed. You can sign in now."
     }
   },
   "header": {
@@ -78,7 +88,7 @@
     },
     "cta": {
       "signIn": "Sign In",
-      "getStarted": "Get Started"
+      "dashboard": "Dashboard"
     }
   }
 }

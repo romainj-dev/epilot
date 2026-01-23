@@ -1,8 +1,11 @@
-# Minimal schema so AppSync can deploy.
+# Minimal real schema so AppSync has resolvers.
 # We'll replace/extend this with Price/Guess/UserState soon.
 
+# Minimal placeholder schema).
+# Replace with real domain types later.
+
 type Query {
-  health: String!
+  noop: String
 }
 
 schema {

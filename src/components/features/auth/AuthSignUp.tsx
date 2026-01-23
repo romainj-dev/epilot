@@ -15,6 +15,10 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
   const router = useRouter()
   const t = useTranslations('authSignUp')
   const [isLoading, setIsLoading] = useState(false)
+  const [isConfirming, setIsConfirming] = useState(false)
+  const [pendingEmail, setPendingEmail] = useState('')
+  const [confirmationCode, setConfirmationCode] = useState('')
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
 
   // Sign up state
   const [signUpEmail, setSignUpEmail] = useState('')
@@ -24,6 +28,7 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+    setStatusMessage(null)
 
     if (!signUpEmail || !signUpPassword || !signUpConfirmPassword) {
       setError(t('errors.missingFields'))
@@ -42,15 +47,71 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
 
     setIsLoading(true)
 
-    // Mock auth - simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    const response = await fetch('/api/cognito/signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: signUpEmail,
+        password: signUpPassword,
+      }),
+    })
 
-    // Mock success - route to dashboard
-    router.push('/dashboard')
+    if (!response.ok) {
+      const data = (await response.json().catch(() => null)) as {
+        error?: string
+      } | null
+      setError(data?.error ?? t('errors.signUpFailed'))
+      setIsLoading(false)
+      return
+    }
+
+    setPendingEmail(signUpEmail)
+    setIsConfirming(true)
+    setStatusMessage(t('messages.checkEmail'))
+    setIsLoading(false)
+  }
+
+  async function handleConfirm(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError(null)
+    setStatusMessage(null)
+
+    if (!pendingEmail || !confirmationCode) {
+      setError(t('errors.missingFields'))
+      return
+    }
+
+    setIsLoading(true)
+
+    const response = await fetch('/api/cognito/confirm', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: pendingEmail,
+        code: confirmationCode,
+      }),
+    })
+
+    if (!response.ok) {
+      const data = (await response.json().catch(() => null)) as {
+        error?: string
+      } | null
+      setError(data?.error ?? t('errors.confirmFailed'))
+      setIsLoading(false)
+      return
+    }
+
+    setStatusMessage(t('messages.confirmationSuccess'))
+    setIsConfirming(false)
+    setIsLoading(false)
+    router.refresh()
   }
 
   return (
-    <form onSubmit={handleSignUp} className={styles.form}>
+    <form
+      onSubmit={isConfirming ? handleConfirm : handleSignUp}
+      className={styles.form}
+    >
       <TextInput
         id="signup-email"
         label={t('labels.email')}
@@ -58,7 +119,7 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
         placeholder={t('placeholders.email')}
         value={signUpEmail}
         onChange={(e) => setSignUpEmail(e.target.value)}
-        disabled={isLoading}
+        disabled={isLoading || isConfirming}
         autoComplete="email"
       />
 
@@ -69,7 +130,7 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
         placeholder={t('placeholders.password')}
         value={signUpPassword}
         onChange={(e) => setSignUpPassword(e.target.value)}
-        disabled={isLoading}
+        disabled={isLoading || isConfirming}
         autoComplete="new-password"
         hint={t('hints.password')}
       />
@@ -81,19 +142,38 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
         placeholder={t('placeholders.confirmPassword')}
         value={signUpConfirmPassword}
         onChange={(e) => setSignUpConfirmPassword(e.target.value)}
-        disabled={isLoading}
+        disabled={isLoading || isConfirming}
         autoComplete="new-password"
       />
+
+      {isConfirming && (
+        <TextInput
+          id="signup-code"
+          label={t('labels.confirmCode')}
+          type="text"
+          placeholder={t('placeholders.confirmCode')}
+          value={confirmationCode}
+          onChange={(e) => setConfirmationCode(e.target.value)}
+          disabled={isLoading}
+          autoComplete="one-time-code"
+        />
+      )}
+
+      {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
 
       <Button
         type="submit"
         className={styles.submitButton}
         disabled={
-          isLoading || !signUpEmail || !signUpPassword || !signUpConfirmPassword
+          isLoading ||
+          !signUpEmail ||
+          !signUpPassword ||
+          !signUpConfirmPassword ||
+          (isConfirming && !confirmationCode)
         }
         isLoading={isLoading}
       >
-        {t('button.submit')}
+        {isConfirming ? t('button.confirm') : t('button.submit')}
       </Button>
     </form>
   )
