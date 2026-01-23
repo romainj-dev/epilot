@@ -1,0 +1,84 @@
+{
+  "root": {
+    "meta": {
+      "title": "PredictBTC - Predict the Market, Win Big",
+      "description": "A thrilling trading prediction game where you guess if BTC/USD will go higher or lower in 60 seconds. Test your instincts and compete for the leaderboard."
+    }
+  },
+  "authPage": {
+    "meta": {
+      "title": "Sign In | PredictBTC",
+      "description": "Sign in or create an account to start predicting BTC price movements"
+    }
+  },
+  "authTabs": {
+    "backToHome": "Back to home",
+    "title": "Welcome",
+    "description": "Sign in to start predicting BTC price movements",
+    "tabs": {
+      "signIn": "Sign in",
+      "signUp": "Create account"
+    }
+  },
+  "authSignIn": {
+    "labels": {
+      "email": "Email",
+      "password": "Password"
+    },
+    "placeholders": {
+      "email": "you@example.com",
+      "password": "Enter your password"
+    },
+    "button": {
+      "submit": "Sign in",
+      "loading": "Signing in..."
+    },
+    "divider": "or",
+    "switch": {
+      "noAccount": "Don't have an account?",
+      "createOne": "Create one"
+    },
+    "errors": {
+      "missingFields": "Please fill in all fields"
+    }
+  },
+  "authSignUp": {
+    "labels": {
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password"
+    },
+    "placeholders": {
+      "email": "you@example.com",
+      "password": "Create a password",
+      "confirmPassword": "Confirm your password"
+    },
+    "hints": {
+      "password": "Must be at least 8 characters"
+    },
+    "button": {
+      "submit": "Create account",
+      "loading": "Creating account..."
+    },
+    "divider": "or",
+    "switch": {
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "errors": {
+      "missingFields": "Please fill in all fields",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 8 characters"
+    }
+  },
+  "header": {
+    "logo": {
+      "prefix": "Predict",
+      "accent": "BTC"
+    },
+    "cta": {
+      "signIn": "Sign In",
+      "getStarted": "Get Started"
+    }
+  }
+}
