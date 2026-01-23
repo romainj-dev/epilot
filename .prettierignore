@@ -1,0 +1,11 @@
+node_modules/
+.next
+.pnpm-store
+out
+build
+dist
+coverage
+*.lock
+pnpm-lock.yaml
+.env*.local
+amplify/
