@@ -1,0 +1,69 @@
+.card {
+  width: 100%;
+  max-width: 28rem;
+  background: oklch(from var(--card) l c h / 0.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid oklch(from var(--border) l c h / 0.4);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.header {
+  text-align: center;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  transition: color 0.2s;
+  margin-bottom: 1rem;
+  width: fit-content;
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
+
+.backIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.description {
+  color: var(--muted-foreground);
+}
+
+.tabsList {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.tabsTrigger {
+  flex: 1;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--destructive);
+  background: oklch(from var(--destructive) l c h / 0.1);
+  border: 1px solid oklch(from var(--destructive) l c h / 0.2);
+  border-radius: 0.5rem;
+}
+
+.errorIcon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
