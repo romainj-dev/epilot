@@ -1,0 +1,35 @@
+.main {
+  min-height: 100vh;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  padding: 10rem 1rem;
+  position: relative;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+}
+
+.gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom right,
+    oklch(from var(--primary) l c h / 0.05),
+    transparent,
+    oklch(from var(--secondary) l c h / 0.05)
+  );
+}
+
+.gridPattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  background-image:
+    linear-gradient(to right, oklch(0.3 0.02 260 / 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.3 0.02 260 / 0.15) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
