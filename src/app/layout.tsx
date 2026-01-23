@@ -3,7 +3,6 @@ import type { Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { NextIntlClientProvider } from 'next-intl'
-import { Header } from '@/components/layout/header/Header'
 import { Toaster } from '@/components/ui/toast/Toaster'
 import { defaultLocale } from '@/lib/i18n'
 import './globals.css'
@@ -38,8 +37,7 @@ export default async function RootLayout({
     <html lang={defaultLocale}>
       <body className={`${geist.className} ${styles.body}`}>
         <NextIntlClientProvider>
-          <Header />
-          <main>{children}</main>
+          {children}
           <Toaster />
           <Analytics />
         </NextIntlClientProvider>

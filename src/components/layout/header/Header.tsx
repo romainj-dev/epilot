@@ -1,10 +1,14 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { Button } from '@/components/ui/button/Button'
 import { BitcoinIcon } from '@/components/icons/BitcoinIcon'
 import styles from './Header.module.scss'
 
-export async function Header() {
+interface HeaderProps {
+  center?: React.ReactNode
+  right: React.ReactNode
+}
+
+export async function Header({ center, right }: HeaderProps) {
   const t = await getTranslations('header')
 
   return (
@@ -22,14 +26,9 @@ export async function Header() {
             </span>
           </Link>
 
-          <div className={styles.cta}>
-            <Button variant="ghost" size="sm" asChild className={styles.signIn}>
-              <Link href="/auth">{t('cta.signIn')}</Link>
-            </Button>
-            <Button size="sm" asChild className={styles.getStarted}>
-              <Link href="/auth">{t('cta.getStarted')}</Link>
-            </Button>
-          </div>
+          {center ?? null}
+
+          {right ?? null}
         </div>
       </div>
     </header>
