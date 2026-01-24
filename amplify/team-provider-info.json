@@ -19,10 +19,17 @@
       "api": {
         "epilot": {}
       },
+      "custom": {
+        "priceSnapshotScheduler": {}
+      },
       "function": {
         "epilotAuthPostConfirmation": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
           "s3Key": "amplify-builds/epilotAuthPostConfirmation-6e337961656349445450-build.zip"
+        },
+        "priceSnapshotJob": {
+          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
+          "s3Key": "amplify-builds/priceSnapshotJob-5651485978374e74714f-build.zip"
         }
       }
     }

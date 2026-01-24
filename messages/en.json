@@ -1,13 +1,13 @@
 {
   "root": {
     "meta": {
-      "title": "PredictBTC - Predict the Market, Win Big",
+      "title": "BitBet - Predict the Market, Win Big",
       "description": "A thrilling trading prediction game where you guess if BTC/USD will go higher or lower in 60 seconds. Test your instincts and compete for the leaderboard."
     }
   },
   "authPage": {
     "meta": {
-      "title": "Sign In | PredictBTC",
+      "title": "Sign In | BitBet",
       "description": "Sign in or create an account to start predicting BTC price movements"
     }
   },
@@ -83,8 +83,8 @@
   },
   "header": {
     "logo": {
-      "prefix": "Predict",
-      "accent": "BTC"
+      "prefix": "Bit",
+      "accent": "Bet"
     },
     "cta": {
       "signIn": "Sign In",

@@ -23,9 +23,15 @@ type Guess
 
 type PriceSnapshot
   @model
-  @auth(rules: [{ allow: private, provider: userPools }]) {
+  @auth(
+    rules: [
+      { allow: private, provider: userPools }
+      { allow: public, provider: apiKey, operations: [create] }
+    ]
+  ) {
   id: ID!
   capturedAt: AWSDateTime!
+  sourceUpdatedAt: AWSDateTime
   priceUsd: Float!
   source: String
 }

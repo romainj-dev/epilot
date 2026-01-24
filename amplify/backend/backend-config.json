@@ -67,8 +67,28 @@
       "service": "Cognito"
     }
   },
+  "custom": {
+    "priceSnapshotScheduler": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "priceSnapshotJob"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "CloudFormation"
+    }
+  },
   "function": {
     "epilotAuthPostConfirmation": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "priceSnapshotJob": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -88,6 +108,22 @@
         {
           "category": "function",
           "resourceName": "epilotAuthPostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_function_priceSnapshotJob_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "priceSnapshotJob"
+        }
+      ]
+    },
+    "AMPLIFY_function_priceSnapshotJob_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "priceSnapshotJob"
         }
       ]
     }

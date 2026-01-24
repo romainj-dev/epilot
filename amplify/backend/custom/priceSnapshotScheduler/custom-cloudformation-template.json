@@ -1,0 +1,130 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"Amplify\",\"createdWith\":\"14.2.3\",\"stackType\":\"custom-CloudFormation\",\"metadata\":{\"whyContinueWithGen1\":\"Prefer not to answer\"}}",
+  "Parameters": {
+    "env": {
+      "Type": "String"
+    },
+    "functionpriceSnapshotJobArn": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "PriceSnapshotEnabledParameter": {
+      "Type": "AWS::SSM::Parameter",
+      "Properties": {
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "/epilot/",
+              {
+                "Ref": "env"
+              },
+              "/price-snapshot-enabled"
+            ]
+          ]
+        },
+        "Type": "String",
+        "Value": "false",
+        "Description": "Toggle to enable/disable the price snapshot job."
+      }
+    },
+    "PriceSnapshotIntervalParameter": {
+      "Type": "AWS::SSM::Parameter",
+      "Properties": {
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "/epilot/",
+              {
+                "Ref": "env"
+              },
+              "/price-snapshot-interval-seconds"
+            ]
+          ]
+        },
+        "Type": "String",
+        "Value": "60",
+        "Description": "Interval in seconds between price snapshots."
+      }
+    },
+    "PriceSnapshotStateMachineRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "states.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "PriceSnapshotStateMachineInvokeLambda",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "lambda:InvokeFunction"
+                  ],
+                  "Resource": {
+                    "Ref": "functionpriceSnapshotJobArn"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "PriceSnapshotStateMachine": {
+      "Type": "AWS::StepFunctions::StateMachine",
+      "Properties": {
+        "StateMachineType": "EXPRESS",
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "PriceSnapshotStateMachineRole",
+            "Arn"
+          ]
+        },
+        "StateMachineName": {
+          "Fn::Join": [
+            "",
+            [
+              "priceSnapshotScheduler-",
+              {
+                "Ref": "env"
+              }
+            ]
+          ]
+        },
+        "DefinitionString": {
+          "Fn::Sub": [
+            "{\n  \"Comment\": \"Price snapshot scheduler loop\",\n  \"StartAt\": \"InvokePriceSnapshot\",\n  \"States\": {\n    \"InvokePriceSnapshot\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:states:::lambda:invoke\",\n      \"Parameters\": {\n        \"FunctionName\": \"${lambdaArn}\"\n      },\n      \"OutputPath\": \"$.Payload\",\n      \"Next\": \"IsEnabled\"\n    },\n    \"IsEnabled\": {\n      \"Type\": \"Choice\",\n      \"Choices\": [\n        {\n          \"Variable\": \"$.enabled\",\n          \"BooleanEquals\": true,\n          \"Next\": \"WaitInterval\"\n        }\n      ],\n      \"Default\": \"StopLoop\"\n    },\n    \"WaitInterval\": {\n      \"Type\": \"Wait\",\n      \"SecondsPath\": \"$.intervalSeconds\",\n      \"Next\": \"InvokePriceSnapshot\"\n    },\n    \"StopLoop\": {\n      \"Type\": \"Succeed\"\n    }\n  }\n}",
+            {
+              "lambdaArn": {
+                "Ref": "functionpriceSnapshotJobArn"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "PriceSnapshotStateMachineArn": {
+      "Value": {
+        "Ref": "PriceSnapshotStateMachine"
+      }
+    }
+  }
+}

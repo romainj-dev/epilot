@@ -1,0 +1,13 @@
+[
+  {
+    "Action": [
+      "ssm:GetParameter"
+    ],
+    "Resource": [
+      "arn:aws:ssm:eu-north-1:555262464812:parameter/epilot/dev/appsync-api-key",
+      "arn:aws:ssm:eu-north-1:555262464812:parameter/epilot/dev/coingecko-api-key",
+      "arn:aws:ssm:eu-north-1:555262464812:parameter/epilot/dev/price-snapshot-enabled",
+      "arn:aws:ssm:eu-north-1:555262464812:parameter/epilot/dev/price-snapshot-interval-seconds"
+    ]
+  }
+]

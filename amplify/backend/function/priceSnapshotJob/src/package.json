@@ -1,0 +1,9 @@
+{
+  "name": "priceSnapshotJob",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-ssm": "^3.750.0"
+  }
+}
