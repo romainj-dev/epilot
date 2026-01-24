@@ -25,13 +25,22 @@ export async function POST(request: Request) {
 
   const username = String(email).toLowerCase().trim()
 
-  await cognito.send(
-    new ConfirmSignUpCommand({
-      ClientId: clientId,
-      Username: username,
-      ConfirmationCode: String(code).trim(),
-    })
-  )
+  try {
+    await cognito.send(
+      new ConfirmSignUpCommand({
+        ClientId: clientId,
+        Username: username,
+        ConfirmationCode: String(code).trim(),
+      })
+    )
+  } catch (error) {
+    const err = error as { name?: string; message?: string }
+    console.error('ConfirmSignUp failed', err)
+    return NextResponse.json(
+      { error: err?.name ?? 'ConfirmSignUpFailed' },
+      { status: 500 }
+    )
+  }
 
   return NextResponse.json({ ok: true })
 }

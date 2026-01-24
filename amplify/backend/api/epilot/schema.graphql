@@ -1,13 +1,71 @@
-# Minimal real schema so AppSync has resolvers.
-# We'll replace/extend this with Price/Guess/UserState soon.
-
-# Minimal placeholder schema).
-# Replace with real domain types later.
-
-type Query {
-  noop: String
+type Guess
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "owner"
+        provider: userPools
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  owner: String! @auth(rules: [{ allow: owner, operations: [read] }])
+  createdAt: AWSDateTime!
+  settleAt: AWSDateTime!
+  guessPrice: Float!
+  startPrice: Float!
+  endPrice: Float
+  status: GuessStatus!
+  result: GuessResult
 }
 
-schema {
-  query: Query
+type PriceSnapshot
+  @model
+  @auth(rules: [{ allow: private, provider: userPools }]) {
+  id: ID!
+  capturedAt: AWSDateTime!
+  priceUsd: Float!
+  source: String
+}
+
+type UserState
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "owner"
+        provider: userPools
+        operations: [create, read, update, delete]
+      }
+      { allow: public, provider: apiKey, operations: [create] }
+    ]
+  ) {
+  id: ID!
+  owner: String!
+    @auth(
+      rules: [
+        { allow: owner, operations: [read] }
+        { allow: public, provider: apiKey, operations: [create] }
+      ]
+    )
+  email: AWSEmail!
+  username: String!
+  score: Int!
+  streak: Int!
+  lastUpdatedAt: AWSDateTime!
+}
+
+enum GuessStatus {
+  PENDING
+  SETTLED
+  FAILED
+}
+
+enum GuessResult {
+  UP
+  DOWN
+  EQUAL
 }

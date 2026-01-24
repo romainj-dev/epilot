@@ -1,11 +1,17 @@
 {
   "version": "1",
   "cognitoConfig": {
+    "identityPoolName": "epilot31343d33_identitypool_31343d33",
+    "allowUnauthenticatedIdentities": false,
     "resourceNameTruncated": "epilotf62b3e6f",
     "userPoolName": "epilot_userpool",
-    "autoVerifiedAttributes": ["email"],
+    "autoVerifiedAttributes": [
+      "email"
+    ],
     "mfaConfiguration": "OFF",
-    "mfaTypes": ["SMS Text Message"],
+    "mfaTypes": [
+      "SMS Text Message"
+    ],
     "smsAuthenticationMessage": "Your authentication code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
     "emailVerificationSubject": "Your verification code",
@@ -13,39 +19,69 @@
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
-    "requiredAttributes": ["email"],
+    "requiredAttributes": [
+      "email"
+    ],
     "aliasAttributes": [],
     "userpoolClientGenerateSecret": false,
     "userpoolClientRefreshTokenValidity": 30,
-    "userpoolClientWriteAttributes": ["email"],
-    "userpoolClientReadAttributes": ["email"],
+    "userpoolClientWriteAttributes": [
+      "email"
+    ],
+    "userpoolClientReadAttributes": [
+      "email"
+    ],
     "userpoolClientLambdaRole": "epilotf62b3e6f_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
     "sharedId": "f62b3e6f",
     "resourceName": "epilotAuth",
-    "authSelections": "userPoolOnly",
+    "authSelections": "identityPoolAndUserPool",
     "useDefault": "manual",
-    "usernameAttributes": ["email"],
+    "usernameAttributes": [
+      "email"
+    ],
     "userPoolGroups": false,
     "adminQueries": false,
-    "triggers": {},
+    "triggers": {
+      "PostConfirmation": [
+        "custom"
+      ]
+    },
     "hostedUI": false,
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
     "useEnabledMfas": true,
     "authRoleArn": {
-      "Fn::GetAtt": ["AuthRole", "Arn"]
+      "Fn::GetAtt": [
+        "AuthRole",
+        "Arn"
+      ]
     },
     "unauthRoleArn": {
-      "Fn::GetAtt": ["UnauthRole", "Arn"]
+      "Fn::GetAtt": [
+        "UnauthRole",
+        "Arn"
+      ]
     },
     "breakCircularDependency": true,
-    "dependsOn": [],
-    "authProviders": [],
+    "dependsOn": [
+      {
+        "category": "function",
+        "resourceName": "epilotAuthPostConfirmation",
+        "triggerProvider": "Cognito",
+        "attributes": [
+          "Arn",
+          "Name"
+        ]
+      }
+    ],
     "parentStack": {
       "Ref": "AWS::StackId"
     },
-    "permissions": []
+    "permissions": [],
+    "authProviders": [],
+    "authTriggerConnections": "[\n  {\n    \"triggerType\": \"PostConfirmation\",\n    \"lambdaFunctionName\": \"epilotAuthPostConfirmation\"\n  }\n]",
+    "thirdPartyAuth": false
   }
 }

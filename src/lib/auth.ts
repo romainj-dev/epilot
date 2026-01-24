@@ -54,10 +54,11 @@ export const authOptions: NextAuthOptions = {
 
         const payload = decodeIdTokenPayload(idToken)
         const userId = payload?.sub ?? email
+        const userEmail = payload?.email ?? email
 
         return {
           id: userId,
-          email: payload?.email ?? email,
+          email: userEmail,
           cognitoIdToken: idToken,
         }
       },

@@ -9,7 +9,8 @@
       "UnauthRoleName": "amplify-epilot-dev-8116b-unauthRole",
       "StackName": "amplify-epilot-dev-8116b",
       "StackId": "arn:aws:cloudformation:eu-north-1:555262464812:stack/amplify-epilot-dev-8116b/351d6180-f606-11f0-935c-0aead9dc5401",
-      "AmplifyAppId": "d3797sawyxy6gy"
+      "AmplifyAppId": "d3797sawyxy6gy",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-epilot-dev-8116b-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
@@ -17,6 +18,12 @@
       },
       "api": {
         "epilot": {}
+      },
+      "function": {
+        "epilotAuthPostConfirmation": {
+          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
+          "s3Key": "amplify-builds/epilotAuthPostConfirmation-6e337961656349445450-build.zip"
+        }
       }
     }
   }

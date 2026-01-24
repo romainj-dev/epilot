@@ -12,5 +12,7 @@
       "StartCommand": "pnpm start"
     }
   },
-  "providers": ["awscloudformation"]
+  "providers": [
+    "awscloudformation"
+  ]
 }
