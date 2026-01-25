@@ -10,16 +10,22 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar/Avatar'
 import { LogOut, User } from 'lucide-react'
 import { signOut } from 'next-auth/react'
+import { useUserState } from '@/components/features/user-state/UserStateProvider'
+import { useState } from 'react'
 
 export function UserPopover() {
-  const score = 0
-  const mockUser = {
-    email: 'player@bitbet.io',
-    username: 'CryptoTrader42',
-  }
+  const { userState } = useUserState()
+  const { score = 0, username, email } = userState ?? {}
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   async function handleLogout() {
-    await signOut({ callbackUrl: '/' })
+    setIsLoggingOut(true)
+    try {
+      await signOut({ callbackUrl: '/' })
+    } catch (error) {
+      console.error(error)
+      setIsLoggingOut(false)
+    }
   }
 
   return (
@@ -34,31 +40,36 @@ export function UserPopover() {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className={styles.popoverContent}>
-        <div>
-          <div className={styles.userInfo}>
-            <p className={styles.username}>{mockUser.username}</p>
-            <p className={styles.email}>{mockUser.email}</p>
-          </div>
-
-          <div className={styles.statsBox}>
-            <div className={styles.statsRow}>
-              <span className={styles.statsLabel}>Current Score</span>
-              <span className={styles.statsValue}>
-                {score >= 0 ? '+' : ''}
-                {score}
-              </span>
+        {userState && (
+          <div>
+            <div className={styles.userInfo}>
+              <>
+                <p className={styles.username}>{username}</p>
+                <p className={styles.email}>{email}</p>
+              </>
             </div>
-          </div>
 
-          <Button
-            variant="outline"
-            className={styles.logoutButton}
-            onClick={handleLogout}
-          >
-            <LogOut className={styles.logoutIcon} />
-            Log out
-          </Button>
-        </div>
+            <div className={styles.statsBox}>
+              <div className={styles.statsRow}>
+                <span className={styles.statsLabel}>Current Score</span>
+                <span className={styles.statsValue}>
+                  {score >= 0 ? `+${score}` : score}
+                </span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              className={styles.logoutButton}
+              onClick={handleLogout}
+              isLoading={isLoggingOut}
+              disabled={isLoggingOut}
+            >
+              <LogOut className={styles.logoutIcon} />
+              Log out
+            </Button>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   )

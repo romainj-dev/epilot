@@ -1,0 +1,8 @@
+query GetUserState($id: ID!) {
+  getUserState(id: $id) {
+    id
+    score
+    username
+    email
+  }
+}

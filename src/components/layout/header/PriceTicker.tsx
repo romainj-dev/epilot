@@ -5,6 +5,7 @@ import { BitcoinIcon } from '@/components/icons/BitcoinIcon'
 import { Skeleton } from '@/components/ui/skeleton/Skeleton'
 import { Badge } from '@/components/ui/badge/Badge'
 import { usePriceSnapshot } from '@/components/features/price-snapshot/PriceSnapshotProvider'
+import { useUserState } from '@/components/features/user-state/UserStateProvider'
 
 function formatPrice(p: number) {
   return new Intl.NumberFormat('en-US', {
@@ -17,7 +18,9 @@ function formatPrice(p: number) {
 
 export function PriceTicker() {
   const { snapshot } = usePriceSnapshot()
-  const score = 0
+  const { userState } = useUserState()
+  const score = userState?.score
+
   const price = snapshot?.priceUsd ?? null
   const isLoadingPrice = !snapshot
 
@@ -34,11 +37,16 @@ export function PriceTicker() {
       </div>
 
       <Badge
-        variant={score >= 0 ? 'default' : 'destructive'}
+        variant={
+          score === undefined
+            ? 'outline'
+            : score >= 0
+              ? 'default'
+              : 'destructive'
+        }
         className={styles.scoreBadge}
       >
-        Score: {score >= 0 ? '+' : ''}
-        {score}
+        Score: {score === undefined ? '' : score >= 0 ? `+${score}` : score}
       </Badge>
     </div>
   )

@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import { PriceTicker } from '@/components/layout/header/PriceTicker'
 import { UserPopover } from '@/components/layout/header/UserPopover'
 import { PriceSnapshotProvider } from '@/components/features/price-snapshot/PriceSnapshotProvider'
+import { UserStateProvider } from '@/components/features/user-state/UserStateProvider'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -20,8 +21,10 @@ export default async function DashboardLayout({
 
   return (
     <PriceSnapshotProvider>
-      <Header center={<PriceTicker />} right={<UserPopover />} />
-      <main>{children}</main>
+      <UserStateProvider userId={session.user.id}>
+        <Header center={<PriceTicker />} right={<UserPopover />} />
+        <main>{children}</main>
+      </UserStateProvider>
     </PriceSnapshotProvider>
   )
 }
