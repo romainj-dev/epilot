@@ -19,7 +19,11 @@ type StreamMessage =
 export async function GET(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   const idToken = token?.cognitoIdToken as string | undefined
-  const tokenExpiry = typeof token?.exp === 'number' ? token.exp : null
+  // Use Cognito token expiry (not NextAuth JWT exp) for accurate stream lifetime
+  const tokenExpiry =
+    typeof token?.cognitoTokenExpiry === 'number'
+      ? token.cognitoTokenExpiry
+      : null
 
   if (!idToken) {
     return new Response('Unauthorized', { status: 401 })

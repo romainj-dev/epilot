@@ -14,7 +14,7 @@ import { signOut } from 'next-auth/react'
 export function UserPopover() {
   const score = 0
   const mockUser = {
-    email: 'player@predictbtc.io',
+    email: 'player@bitbet.io',
     username: 'CryptoTrader42',
   }
 

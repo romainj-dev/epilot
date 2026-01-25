@@ -36,6 +36,12 @@ A real‑time web app where players guess whether BTC/USD will be **higher or lo
 - AWS CLI configured
 - Amplify CLI installed
 
+## Documentation
+
+- [`SETUP.MD`](./SETUP.MD) – Full step-by-step setup guide
+- [`AUTH.md`](./AUTH.md) – Authentication flow, token lifecycle, and security configuration
+- [`DECISION_SUMMARY.md`](./DECISION_SUMMARY.md) – Architecture and tooling decisions
+
 ## Local Setup
 
 > The full step‑by‑step setup is documented in [`SETUP.MD`](./SETUP.MD).
