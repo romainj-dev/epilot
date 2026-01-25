@@ -29,7 +29,7 @@
         },
         "priceSnapshotJob": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/priceSnapshotJob-5651485978374e74714f-build.zip"
+          "s3Key": "amplify-builds/priceSnapshotJob-7a665733336a546d417a-build.zip"
         }
       }
     }

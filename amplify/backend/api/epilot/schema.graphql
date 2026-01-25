@@ -25,11 +25,17 @@ type PriceSnapshot
   @model
   @auth(
     rules: [
-      { allow: private, provider: userPools }
-      { allow: public, provider: apiKey, operations: [create] }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: public, provider: apiKey, operations: [create, read] }
     ]
   ) {
   id: ID!
+  pk: String!
+    @index(
+      name: "byPkCapturedAt"
+      queryField: "priceSnapshotsByPk"
+      sortKeyFields: ["capturedAt"]
+    )
   capturedAt: AWSDateTime!
   sourceUpdatedAt: AWSDateTime
   priceUsd: Float!

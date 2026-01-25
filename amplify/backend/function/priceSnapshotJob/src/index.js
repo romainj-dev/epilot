@@ -71,6 +71,7 @@ exports.handler = async () => {
       query: mutation,
       variables: {
         input: {
+          pk: 'PriceSnapshot',
           capturedAt,
           priceUsd,
           sourceUpdatedAt,

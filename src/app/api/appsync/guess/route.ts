@@ -1,34 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
-const endpoint = process.env.APPSYNC_ENDPOINT as string
-
-if (!endpoint) {
-  throw new Error('Missing APPSYNC_ENDPOINT env var.')
-}
+import { assertAppSyncSuccess, callAppSync } from '@/lib/appsync'
 
 type CreateGuessInput = {
   guessPrice: number
   startPrice: number
   settleAt: string
-}
-
-async function callAppSync<T>(
-  query: string,
-  variables: Record<string, unknown>,
-  idToken: string
-) {
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      Authorization: idToken,
-    },
-    body: JSON.stringify({ query, variables }),
-  })
-
-  const json = (await response.json()) as T
-  return json
 }
 
 export async function GET(req: NextRequest) {
@@ -57,12 +35,16 @@ export async function GET(req: NextRequest) {
   `
 
   const result = await callAppSync<{
-    data?: { listGuesses?: { items: unknown[] } }
-    errors?: unknown[]
-  }>(query, { limit: 10 }, idToken)
+    listGuesses?: { items: unknown[] }
+  }>({ query, variables: { limit: 10 }, idToken })
 
-  if (result.errors) {
-    return NextResponse.json({ errors: result.errors }, { status: 500 })
+  try {
+    assertAppSyncSuccess(result, 'AppSync list guesses failed')
+  } catch (error) {
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 500 }
+    )
   }
 
   return NextResponse.json({ items: result.data?.listGuesses?.items ?? [] })
@@ -102,11 +84,10 @@ export async function POST(req: NextRequest) {
   `
 
   const result = await callAppSync<{
-    data?: { createGuess?: unknown }
-    errors?: unknown[]
-  }>(
+    createGuess?: unknown
+  }>({
     query,
-    {
+    variables: {
       input: {
         guessPrice,
         startPrice,
@@ -115,11 +96,16 @@ export async function POST(req: NextRequest) {
         status: 'PENDING',
       },
     },
-    idToken
-  )
+    idToken,
+  })
 
-  if (result.errors) {
-    return NextResponse.json({ errors: result.errors }, { status: 500 })
+  try {
+    assertAppSyncSuccess(result, 'AppSync create guess failed')
+  } catch (error) {
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 500 }
+    )
   }
 
   return NextResponse.json({ item: result.data?.createGuess ?? null })
