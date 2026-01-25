@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:debug": "next build --debug-prerender",
-    "prebuild": "pnpm run type-check",
+    "prebuild": "pnpm run type-check & pnpm run codegen",
     "start": "next start",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",

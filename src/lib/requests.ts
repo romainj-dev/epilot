@@ -13,26 +13,27 @@ export class AppSyncError extends Error {
   }
 }
 
-const appSyncEndpoint = process.env.APPSYNC_ENDPOINT
+const APPSYNC_ENDPOINT = process.env.APPSYNC_ENDPOINT as string
+const APPSYNC_API_KEY = process.env.APPSYNC_API_KEY as string
 
-if (!appSyncEndpoint) {
-  throw new Error('Missing APPSYNC_ENDPOINT env var.')
+if (!APPSYNC_ENDPOINT || !APPSYNC_API_KEY) {
+  throw new Error('Missing APPSYNC_ENDPOINT or APPSYNC_API_KEY env var.')
 }
-
-const resolvedEndpoint: string = appSyncEndpoint
 
 async function executeGraphQL<TData>(params: {
   query: string
   variables?: Record<string, unknown>
-  idToken: string
+  idToken?: string
 }): Promise<TData> {
   const { query, variables, idToken } = params
 
-  const response = await fetch(resolvedEndpoint, {
+  const response = await fetch(APPSYNC_ENDPOINT, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      Authorization: idToken,
+      ...(idToken
+        ? { Authorization: idToken }
+        : { 'x-api-key': APPSYNC_API_KEY }),
     },
     body: JSON.stringify({ query, variables }),
   })
@@ -67,7 +68,7 @@ async function executeGraphQL<TData>(params: {
 export async function fetchGraphQL<TData, TVariables>(params: {
   document: TypedDocumentNode<TData, TVariables>
   variables?: TVariables
-  idToken: string
+  idToken?: string
 }): Promise<TData> {
   const { document, variables, idToken } = params
   return executeGraphQL({
@@ -84,7 +85,7 @@ export async function fetchGraphQL<TData, TVariables>(params: {
 export async function fetchGraphQLProxy<TData>(params: {
   query: string
   variables?: Record<string, unknown>
-  idToken: string
+  idToken?: string
 }): Promise<TData> {
   return executeGraphQL(params)
 }

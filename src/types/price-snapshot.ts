@@ -1,8 +1,5 @@
-export type PriceSnapshot = {
-  id: string
-  pk: string
-  capturedAt: string
-  sourceUpdatedAt?: string | null
-  priceUsd: number
-  source?: string | null
-}
+import type { PriceSnapshotsByPkQuery } from '@/graphql/generated/graphql'
+
+export type PriceSnapshotStream = NonNullable<
+  NonNullable<PriceSnapshotsByPkQuery['priceSnapshotsByPk']>['items'][number]
+>

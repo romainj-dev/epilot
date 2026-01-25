@@ -1,70 +1,50 @@
-import { getToken } from 'next-auth/jwt'
 import { type NextRequest } from 'next/server'
 
 import {
   ModelSortDirection,
   PriceSnapshotsByPkDocument,
-  type PriceSnapshotsByPkQuery,
 } from '@/graphql/generated/graphql'
 import { fetchGraphQL } from '@/lib/requests'
+import type { PriceSnapshotStream } from '@/types/price-snapshot'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const SSE_KEEP_ALIVE_MS = 25_000
-const TOKEN_EXPIRY_BUFFER_MS = 60_000
-const MAX_TIMEOUT_MS = 2_147_483_647
 const POLL_INTERVAL_MS = 60_000
 const PRICE_SNAPSHOT_PK = 'PriceSnapshot'
 
-type PriceSnapshotItem = NonNullable<
-  NonNullable<PriceSnapshotsByPkQuery['priceSnapshotsByPk']>['items'][number]
->
-
 type StreamMessage =
-  | { type: 'snapshot'; payload: PriceSnapshotItem | null }
+  | { type: 'snapshot'; payload: PriceSnapshotStream | null }
   | { type: 'error'; payload: { message: string } }
 
 /**
  * Fetch the latest price snapshot via the GSI on capturedAt.
  */
-async function queryLatestPriceSnapshot(
-  idToken: string
-): Promise<PriceSnapshotItem | null> {
+async function queryLatestPriceSnapshot(): Promise<PriceSnapshotStream | null> {
+  const variables = {
+    pk: PRICE_SNAPSHOT_PK,
+    limit: 1,
+    sortDirection: ModelSortDirection.Desc,
+  }
+
   const data = await fetchGraphQL({
     document: PriceSnapshotsByPkDocument,
-    variables: {
-      pk: PRICE_SNAPSHOT_PK,
-      limit: 1,
-      sortDirection: ModelSortDirection.Desc,
-    },
-    idToken,
+    variables,
   })
 
   return data.priceSnapshotsByPk?.items[0] ?? null
 }
 
 export async function GET(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-  const idToken = token?.cognitoIdToken as string | undefined
-  // Use Cognito token expiry (not NextAuth JWT exp) for accurate stream lifetime
-  const tokenExpiry =
-    typeof token?.cognitoTokenExpiry === 'number'
-      ? token.cognitoTokenExpiry
-      : null
-
-  if (!idToken) {
-    return new Response('Unauthorized', { status: 401 })
-  }
-
   const encoder = new TextEncoder()
 
   const stream = new ReadableStream({
     start(controller) {
       let isClosed = false
-      let expiryTimeout: ReturnType<typeof setTimeout> | null = null
       let pollInterval: ReturnType<typeof setInterval> | null = null
       let lastSnapshotId: string | null = null
+
       const keepAlive = setInterval(() => {
         if (isClosed) {
           return
@@ -96,9 +76,6 @@ export async function GET(req: NextRequest) {
         console.log('[SSE] Closing stream')
         isClosed = true
         clearInterval(keepAlive)
-        if (expiryTimeout) {
-          clearTimeout(expiryTimeout)
-        }
         if (pollInterval) {
           clearInterval(pollInterval)
         }
@@ -107,32 +84,8 @@ export async function GET(req: NextRequest) {
 
       req.signal.addEventListener('abort', close)
 
-      if (tokenExpiry) {
-        const expiresAtMs =
-          tokenExpiry > 1_000_000_000_000 ? tokenExpiry : tokenExpiry * 1000
-        const closeAtMs = expiresAtMs - TOKEN_EXPIRY_BUFFER_MS
-        const delay = closeAtMs - Date.now()
-        if (delay <= 0) {
-          send({
-            type: 'error',
-            payload: { message: 'Auth token expired, reconnecting...' },
-          })
-          close()
-          return
-        }
-        if (delay > 0 && delay <= MAX_TIMEOUT_MS) {
-          expiryTimeout = setTimeout(() => {
-            send({
-              type: 'error',
-              payload: { message: 'Auth token expired, reconnecting...' },
-            })
-            close()
-          }, delay)
-        }
-      }
-
       const pollLatest = () => {
-        queryLatestPriceSnapshot(idToken)
+        queryLatestPriceSnapshot()
           .then((snapshot) => {
             if (!snapshot) {
               send({ type: 'snapshot', payload: null })

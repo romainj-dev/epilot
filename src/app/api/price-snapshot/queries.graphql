@@ -8,9 +8,7 @@ query PriceSnapshotsByPk(
       id
       pk
       capturedAt
-      sourceUpdatedAt
       priceUsd
-      source
     }
   }
 }

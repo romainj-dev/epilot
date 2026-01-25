@@ -14,10 +14,10 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      sourceUpdatedAt\n      priceUsd\n      source\n    }\n  }\n}": typeof types.PriceSnapshotsByPkDocument,
+    "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}": typeof types.PriceSnapshotsByPkDocument,
 };
 const documents: Documents = {
-    "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      sourceUpdatedAt\n      priceUsd\n      source\n    }\n  }\n}": types.PriceSnapshotsByPkDocument,
+    "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}": types.PriceSnapshotsByPkDocument,
 };
 
 /**
@@ -37,7 +37,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      sourceUpdatedAt\n      priceUsd\n      source\n    }\n  }\n}"): (typeof documents)["query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      sourceUpdatedAt\n      priceUsd\n      source\n    }\n  }\n}"];
+export function graphql(source: "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}"): (typeof documents)["query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

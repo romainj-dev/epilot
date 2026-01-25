@@ -1,7 +1,10 @@
+'use client'
+
 import styles from './PriceTicker.module.scss'
 import { BitcoinIcon } from '@/components/icons/BitcoinIcon'
 import { Skeleton } from '@/components/ui/skeleton/Skeleton'
 import { Badge } from '@/components/ui/badge/Badge'
+import { usePriceSnapshot } from '@/components/features/price-snapshot/PriceSnapshotProvider'
 
 function formatPrice(p: number) {
   return new Intl.NumberFormat('en-US', {
@@ -13,9 +16,10 @@ function formatPrice(p: number) {
 }
 
 export function PriceTicker() {
+  const { snapshot } = usePriceSnapshot()
   const score = 0
-  const isLoadingPrice = false
-  const price = 112.8
+  const price = snapshot?.priceUsd ?? null
+  const isLoadingPrice = !snapshot
 
   return (
     <div className={styles.center}>
