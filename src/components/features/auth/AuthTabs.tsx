@@ -24,6 +24,7 @@ import { AuthSignUp } from './AuthSignUp'
 
 export function AuthTabs() {
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin')
   const t = useTranslations('authTabs')
 
   return (
@@ -41,9 +42,12 @@ export function AuthTabs() {
 
       <CardContent>
         <Tabs
-          defaultValue="signin"
+          value={activeTab}
           className="w-full"
-          onValueChange={() => setError(null)}
+          onValueChange={(value) => {
+            setActiveTab(value as typeof activeTab)
+            setError(null)
+          }}
         >
           <TabsList className={styles.tabsList}>
             <TabsTrigger value="signin" className={styles.tabsTrigger}>
@@ -67,7 +71,13 @@ export function AuthTabs() {
           </TabsContent>
 
           <TabsContent value="signup">
-            <AuthSignUp setError={setError} />
+            <AuthSignUp
+              setError={setError}
+              onConfirmed={() => {
+                setActiveTab('signin')
+                setError(null)
+              }}
+            />
           </TabsContent>
         </Tabs>
       </CardContent>

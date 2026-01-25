@@ -1,34 +1,35 @@
 'use client'
 
 import { Button } from '@/components/ui/button/Button'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import styles from './Auth.module.scss'
 import { useTranslations } from 'next-intl'
 import { TextInput } from '@/components/ui/form/TextInput'
+import { useToast } from '@/hooks/use-toast'
 
 interface AuthSignUpProps {
   setError: (error: string | null) => void
+  onConfirmed: () => void
 }
 
-export function AuthSignUp({ setError }: AuthSignUpProps) {
-  const router = useRouter()
+export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
   const t = useTranslations('authSignUp')
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
-  const [pendingEmail, setPendingEmail] = useState('')
-  const [confirmationCode, setConfirmationCode] = useState('')
-  const [statusMessage, setStatusMessage] = useState<string | null>(null)
 
   // Sign up state
   const [signUpEmail, setSignUpEmail] = useState('')
   const [signUpPassword, setSignUpPassword] = useState('')
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('')
 
+  // confirmation state
+  const pendingEmail = useRef<string | null>(null)
+  const [confirmationCode, setConfirmationCode] = useState('')
+
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
-    setStatusMessage(null)
 
     if (!signUpEmail || !signUpPassword || !signUpConfirmPassword) {
       setError(t('errors.missingFields'))
@@ -65,16 +66,14 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
       return
     }
 
-    setPendingEmail(signUpEmail)
+    pendingEmail.current = signUpEmail
     setIsConfirming(true)
-    setStatusMessage(t('messages.checkEmail'))
     setIsLoading(false)
   }
 
   async function handleConfirm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
-    setStatusMessage(null)
 
     if (!pendingEmail || !confirmationCode) {
       setError(t('errors.missingFields'))
@@ -87,7 +86,7 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        email: pendingEmail,
+        email: pendingEmail.current,
         code: confirmationCode,
       }),
     })
@@ -101,10 +100,8 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
       return
     }
 
-    setStatusMessage(t('messages.confirmationSuccess'))
-    setIsConfirming(false)
-    setIsLoading(false)
-    router.refresh()
+    toast({ description: t('messages.confirmationSuccess') })
+    onConfirmed()
   }
 
   return (
@@ -159,7 +156,9 @@ export function AuthSignUp({ setError }: AuthSignUpProps) {
         />
       )}
 
-      {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
+      {isConfirming && (
+        <p className={styles.statusMessage}>{t('messages.checkEmail')}</p>
+      )}
 
       <Button
         type="submit"
