@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 
+import { auth } from '@/lib/auth'
 import { AppSyncError, fetchGraphQLProxy } from '@/lib/requests'
 
 export const runtime = 'nodejs'
@@ -12,8 +12,8 @@ type GraphQLRequest = {
 }
 
 export async function POST(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-  const idToken = token?.cognitoIdToken as string | undefined
+  const session = await auth()
+  const idToken = session?.cognitoIdToken
 
   if (!idToken) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

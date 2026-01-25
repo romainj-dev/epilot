@@ -1,13 +1,12 @@
 import { Button } from '@/components/ui/button/Button'
-import { authOptions } from '@/lib/auth'
-import { getServerSession } from 'next-auth'
+import { auth } from '@/lib/auth'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import styles from './CTA.module.scss'
 
 export async function CTA() {
   const t = await getTranslations('header')
-  const session = await getServerSession(authOptions)
+  const session = await auth()
   const isAuthenticated = Boolean(session?.user)
 
   return (

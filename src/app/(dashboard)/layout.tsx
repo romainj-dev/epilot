@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
 import { Header } from '@/components/layout/header/Header'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 import { PriceTicker } from '@/components/layout/header/PriceTicker'
 import { UserPopover } from '@/components/layout/header/UserPopover'
 import { PriceSnapshotProvider } from '@/components/features/price-snapshot/PriceSnapshotProvider'
@@ -13,7 +12,7 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
 
   if (!session?.user) {
     redirect('/auth')

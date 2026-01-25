@@ -4,25 +4,77 @@ This document describes how authentication works in this application, the token 
 
 ## Overview
 
-The app uses **NextAuth** as the session layer with **AWS Cognito** as the identity provider. Tokens flow as follows:
+The app uses **Auth.js (NextAuth v5)** as the session layer with **AWS Cognito** as the identity provider. Tokens flow as follows:
 
 ```
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│   Browser   │ ──── │  NextAuth   │ ──── │   Cognito   │ ──── │   AppSync   │
+│   Browser   │ ──── │   Auth.js   │ ──── │   Cognito   │ ──── │   AppSync   │
 │  (cookies)  │      │   (BFF)     │      │ (user pool) │      │  (GraphQL)  │
 └─────────────┘      └─────────────┘      └─────────────┘      └─────────────┘
 ```
 
-- **Browser** holds an encrypted NextAuth session cookie (HttpOnly, Secure).
-- **NextAuth** manages session state and stores Cognito tokens in its JWT.
+- **Browser** holds an encrypted Auth.js session cookie (HttpOnly, Secure).
+- **Auth.js** manages session state and stores Cognito tokens in its JWT.
 - **Cognito** issues ID tokens, access tokens, and refresh tokens.
 - **AppSync** validates the Cognito ID token on each request.
+
+## NextAuth v5 Architecture
+
+With NextAuth v5, we use the new `auth()` pattern for a cleaner DX:
+
+```typescript
+// src/lib/auth.ts
+import NextAuth from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
+
+export const { auth, handlers, signIn, signOut } = NextAuth({
+  // ... configuration
+})
+```
+
+### Key Exports
+
+| Export | Purpose |
+|--------|---------|
+| `auth()` | Get session (replaces `getServerSession(authOptions)`) - **triggers jwt callback** |
+| `handlers` | Route handlers for `/api/auth/*` |
+| `signIn` | Server-side sign in |
+| `signOut` | Server-side sign out |
+
+### Usage in Server Components & API Routes
+
+```typescript
+// Server Component
+import { auth } from '@/lib/auth'
+
+export default async function Page() {
+  const session = await auth()
+  // session.cognitoIdToken available for server-side use
+}
+
+// API Route
+import { auth } from '@/lib/auth'
+
+export async function POST(req: NextRequest) {
+  const session = await auth()
+  const idToken = session?.cognitoIdToken
+  // Use idToken for AppSync requests
+}
+```
+
+### Why `auth()` Instead of `getToken()`
+
+The `getToken()` function only decodes the JWT cookie - it does **not** trigger the `jwt` callback where token refresh logic lives. Using `auth()` ensures:
+
+1. The `jwt` callback runs on every call
+2. Expired Cognito tokens are automatically refreshed
+3. Sessions with refresh errors are properly flagged
 
 ## Token Types & Lifetimes
 
 | Token | Issuer | Default Expiry | Purpose |
 |-------|--------|----------------|---------|
-| NextAuth Session (JWT) | NextAuth | 30 days | Browser session, holds embedded Cognito tokens |
+| Auth.js Session (JWT) | Auth.js | 30 days | Browser session, holds embedded Cognito tokens |
 | Cognito ID Token | Cognito | 1 hour | User identity claims, used to authenticate with AppSync |
 | Cognito Access Token | Cognito | 1 hour | API authorization (not currently used) |
 | Cognito Refresh Token | Cognito | 30 days | Obtain new ID/Access tokens without re-login |
@@ -31,14 +83,14 @@ The app uses **NextAuth** as the session layer with **AWS Cognito** as the ident
 
 The Cognito ID token expires after ~1 hour, but users stay logged in for up to 30 days thanks to automatic token refresh:
 
-1. **On login**: Both ID token and refresh token are stored in the NextAuth JWT.
-2. **On each authenticated request**: The `jwt` callback checks if the ID token is expiring (within 60 seconds).
+1. **On login**: Both ID token and refresh token are stored in the Auth.js JWT.
+2. **On each `auth()` call**: The `jwt` callback checks if the ID token is expiring (within 60 seconds).
 3. **If expiring**: Calls Cognito's `REFRESH_TOKEN_AUTH` flow to get a fresh ID token.
 4. **If refresh fails**: Sets `session.error = 'RefreshTokenError'` so the client can redirect to login.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                         NextAuth JWT Callback                            │
+│                         Auth.js JWT Callback                             │
 ├──────────────────────────────────────────────────────────────────────────┤
 │  1. Is cognitoTokenExpiry within 60s of now?                             │
 │     ├─ NO  → Return token as-is                                          │
@@ -48,42 +100,56 @@ The Cognito ID token expires after ~1 hour, but users stay logged in for up to 3
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Stored Token Fields
+## Session & Token Fields
 
-The NextAuth JWT contains these custom fields (see `src/types/next-auth.d.ts`):
+### Session Object (Server-Side)
+
+The session returned by `auth()` includes these fields (see `src/types/next-auth.d.ts`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user.id` | `string` | Cognito `sub` claim |
+| `user.email` | `string` | User email |
+| `cognitoIdToken` | `string` | Current Cognito ID token (JWT) - **server-side only** |
+| `cognitoTokenExpiry` | `number` | Unix timestamp (seconds) when the ID token expires |
+| `error` | `'RefreshTokenError'` | Set when token refresh fails |
+
+### JWT Token (Internal)
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `userId` | `string` | Cognito `sub` claim |
-| `cognitoIdToken` | `string` | Current Cognito ID token (JWT) |
-| `cognitoRefreshToken` | `string` | Cognito refresh token for obtaining new ID tokens |
-| `cognitoTokenExpiry` | `number` | Unix timestamp (seconds) when the ID token expires |
+| `cognitoIdToken` | `string` | Current Cognito ID token |
+| `cognitoRefreshToken` | `string` | Cognito refresh token |
+| `cognitoTokenExpiry` | `number` | Unix timestamp for ID token expiry |
 | `error` | `'RefreshTokenError'` | Set when token refresh fails |
 
-## SSE Stream Behavior
+## Public Routes with API Key Fallback
 
-The price snapshot stream (`/api/price-snapshot/stream`) uses the **Cognito token expiry** (not the NextAuth session expiry) to determine when to close the connection:
+The SSE stream (`/api/price-snapshot/stream`) is a public route that uses API key authentication instead of user tokens:
 
-- Stream closes 60 seconds before the Cognito ID token expires.
-- Client receives an error event: `"Auth token expired, reconnecting..."`.
-- Client should reconnect, which triggers a fresh token via the `jwt` callback.
+- Does not require user authentication
+- Uses `APPSYNC_API_KEY` environment variable
+- Provides real-time price updates to all users
+
+For GraphQL routes that need authenticated access, use `auth()` to get the session and extract `cognitoIdToken`.
 
 ---
 
 ## Safe Practices for Token Expiry Configuration
 
-### NextAuth Session Expiry
+### Auth.js Session Expiry
 
 Configure in `src/lib/auth.ts`:
 
 ```typescript
-export const authOptions: NextAuthOptions = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days (default)
   },
   // ...
-}
+})
 ```
 
 **Recommendations:**
@@ -116,10 +182,10 @@ Configure in the **AWS Cognito Console** under:
 
 To avoid authentication issues, ensure:
 
-1. **NextAuth `maxAge` ≥ Cognito refresh token validity**  
-   Otherwise, the NextAuth session expires before the refresh token, and users lose their session unexpectedly.
+1. **Auth.js `maxAge` ≥ Cognito refresh token validity**  
+   Otherwise, the Auth.js session expires before the refresh token, and users lose their session unexpectedly.
 
-2. **NextAuth `maxAge` > Cognito ID token validity**  
+2. **Auth.js `maxAge` > Cognito ID token validity**  
    Otherwise, sessions expire before the ID token can be refreshed.
 
 3. **Refresh buffer (60s) < ID token validity**  
@@ -130,7 +196,7 @@ To avoid authentication issues, ensure:
 **High Security (banking, healthcare):**
 
 ```
-NextAuth maxAge:        1 day
+Auth.js maxAge:         1 day
 Cognito ID Token:       15 minutes
 Cognito Refresh Token:  1 day
 ```
@@ -138,7 +204,7 @@ Cognito Refresh Token:  1 day
 **Balanced (typical SaaS):**
 
 ```
-NextAuth maxAge:        7 days
+Auth.js maxAge:         7 days
 Cognito ID Token:       1 hour (default)
 Cognito Refresh Token:  7 days
 ```
@@ -146,7 +212,7 @@ Cognito Refresh Token:  7 days
 **High Convenience (low-risk consumer app):**
 
 ```
-NextAuth maxAge:        30 days
+Auth.js maxAge:         30 days
 Cognito ID Token:       1 hour (default)
 Cognito Refresh Token:  30 days (default)
 ```
@@ -182,16 +248,15 @@ function AuthGuard({ children }) {
 
 | Symptom | Likely Cause | Solution |
 |---------|--------------|----------|
-| 401/403 from AppSync after ~1 hour | ID token expired, refresh not working | Ensure `cognitoRefreshToken` is stored and `REFRESH_TOKEN_AUTH` is enabled in Cognito |
-| Users logged out unexpectedly | NextAuth `maxAge` < Cognito refresh token validity | Align expiry settings per rules above |
-| "Token has expired" in SSE stream | Stream using wrong expiry field | Ensure stream uses `cognitoTokenExpiry`, not `exp` |
+| 401/403 from AppSync after ~1 hour | ID token expired, refresh not working | Ensure API routes use `auth()` not `getToken()` |
+| Users logged out unexpectedly | Auth.js `maxAge` < Cognito refresh token validity | Align expiry settings per rules above |
 | Refresh fails immediately after login | Refresh token not returned by Cognito | Ensure `USER_PASSWORD_AUTH` flow is enabled and returns refresh tokens |
 
 ---
 
 ## Related Files
 
-- [`src/lib/auth.ts`](src/lib/auth.ts) – NextAuth configuration, token refresh logic
+- [`src/lib/auth.ts`](src/lib/auth.ts) – Auth.js configuration, exports `auth`, `handlers`, `signIn`, `signOut`
 - [`src/types/next-auth.d.ts`](src/types/next-auth.d.ts) – Type augmentations for JWT/Session
-- [`src/app/api/price-snapshot/stream/route.ts`](src/app/api/price-snapshot/stream/route.ts) – SSE stream with token expiry handling
-- [`src/app/api/auth/[...nextauth]/route.ts`](src/app/api/auth/[...nextauth]/route.ts) – NextAuth route handler
+- [`src/app/api/auth/[...nextauth]/route.ts`](src/app/api/auth/[...nextauth]/route.ts) – Auth.js route handler
+- [`src/app/api/graphql/route.ts`](src/app/api/graphql/route.ts) – GraphQL proxy using `auth()` for token

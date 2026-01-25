@@ -1,4 +1,4 @@
-import type { NextAuthOptions } from 'next-auth'
+import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import {
   CognitoIdentityProviderClient,
@@ -20,7 +20,14 @@ if (!region || !clientId) {
 
 const cognito = new CognitoIdentityProviderClient({ region })
 
-export const authOptions: NextAuthOptions = {
+const AUTH_SECRET = process.env.AUTH_SECRET
+
+if (!AUTH_SECRET) {
+  throw new Error('Missing AUTH_SECRET env var.')
+}
+
+export const { auth, handlers, signIn, signOut } = NextAuth({
+  secret: AUTH_SECRET,
   session: { strategy: 'jwt' },
   pages: { signIn: '/auth' },
   providers: [
@@ -31,8 +38,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const email = credentials?.email?.toLowerCase().trim()
-        const password = credentials?.password
+        const email = (credentials?.email as string)?.toLowerCase().trim()
+        const password = credentials?.password as string
 
         if (!email || !password) return null
 
@@ -123,19 +130,23 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
+      // Expose cognitoIdToken and cognitoTokenExpiry for server-side use
+      session.cognitoIdToken = token.cognitoIdToken as string | undefined
+      session.cognitoTokenExpiry = token.cognitoTokenExpiry as
+        | number
+        | undefined
+
       if (session.user) {
-        ;(session.user as { id?: string }).id = token.userId as
-          | string
-          | undefined
+        session.user.id = token.userId as string
       }
       // Expose error to client so it can trigger re-login
       if (token.error) {
-        ;(session as { error?: string }).error = token.error as string
+        session.error = token.error as 'RefreshTokenError'
       }
       return session
     },
   },
-}
+})
 
 function decodeIdTokenPayload(token: string): CognitoIdTokenPayload | null {
   const [, payload] = token.split('.')
