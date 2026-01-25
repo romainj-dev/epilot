@@ -1,7 +1,10 @@
 {
+  "triggerSource": "PostConfirmation_ConfirmSignUp",
   "request": {
-    "userPoolId": "testID",
-    "userName": "testUser"
+    "userAttributes": {
+      "email": "test.user1@example.com",
+      "sub": "11111111-2222-3333-4444-555555555555-6"
+    }
   },
   "response": {}
 }

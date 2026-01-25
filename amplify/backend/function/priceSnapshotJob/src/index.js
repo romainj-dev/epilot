@@ -1,5 +1,7 @@
 const https = require('https')
-const { SSMClient, GetParameterCommand } = require('@aws-sdk/client-ssm')
+const { appsync, ssm, logger } = require('lambda-utils')
+
+const { makeAppSyncRequest } = appsync
 
 const DEFAULT_INTERVAL_SECONDS = 30
 const COINGECKO_URL =
@@ -9,8 +11,6 @@ const COINGECKO_URL =
 const COINGECKO_API_KEY_HEADER =
   process.env.COINGECKO_API_KEY_HEADER || 'x-cg-pro-api-key'
 
-let cachedApiKey = null
-
 exports.handler = async () => {
   const endpoint = process.env.APPSYNC_ENDPOINT
   const apiKeyPath = process.env.APPSYNC_API_KEY_SSM_PATH
@@ -19,7 +19,7 @@ exports.handler = async () => {
   const coinGeckoApiKeyPath = process.env.COINGECKO_API_KEY_SSM_PATH
 
   if (!endpoint || !apiKeyPath || !enabledPath || !intervalPath) {
-    console.error('Missing required env vars', {
+    logger.error('Missing required env vars', {
       endpoint,
       apiKeyPath,
       enabledPath,
@@ -29,29 +29,29 @@ exports.handler = async () => {
   }
 
   const [enabledValue, intervalValue] = await Promise.all([
-    getParameterValue(enabledPath),
-    getParameterValue(intervalPath),
+    ssm.getParameterValue(enabledPath),
+    ssm.getParameterValue(intervalPath),
   ])
 
   const isEnabled = parseEnabled(enabledValue)
   const intervalSeconds = parseInterval(intervalValue)
 
   if (!isEnabled) {
-    console.log('Price snapshot job disabled')
+    logger.info('Price snapshot job disabled')
     return { enabled: false, intervalSeconds }
   }
 
   try {
     const coinGeckoApiKey = coinGeckoApiKeyPath
-      ? await getParameterValue(coinGeckoApiKeyPath)
+      ? await ssm.getParameterValue(coinGeckoApiKeyPath)
       : null
     const { priceUsd, sourceUpdatedAt } = await fetchBitcoinPriceUsd(
       coinGeckoApiKey
     )
-    const apiKey = await getApiKey(apiKeyPath)
+    const apiKey = await ssm.getCachedParameter(apiKeyPath)
 
     if (!apiKey) {
-      console.error('Missing AppSync API key')
+      logger.error('Missing AppSync API key')
       return { enabled: true, intervalSeconds }
     }
 
@@ -80,9 +80,9 @@ exports.handler = async () => {
       },
     })
 
-    console.log('Price snapshot created', { capturedAt, priceUsd })
+    logger.info('Price snapshot created', { capturedAt, priceUsd })
   } catch (error) {
-    console.error('Price snapshot job failed', {
+    logger.error('Price snapshot job failed', {
       errorName: error?.name,
       errorMessage: error?.message,
     })
@@ -106,22 +106,6 @@ function parseInterval(value) {
     return DEFAULT_INTERVAL_SECONDS
   }
   return parsed
-}
-
-async function getParameterValue(name) {
-  const client = new SSMClient({ region: process.env.AWS_REGION })
-  const command = new GetParameterCommand({ Name: name, WithDecryption: true })
-  const response = await client.send(command)
-  return response.Parameter?.Value ?? null
-}
-
-async function getApiKey(parameterPath) {
-  if (cachedApiKey) {
-    return cachedApiKey
-  }
-
-  cachedApiKey = await getParameterValue(parameterPath)
-  return cachedApiKey
 }
 
 async function fetchBitcoinPriceUsd(apiKey) {
@@ -185,41 +169,3 @@ function httpsGetJson(urlString, apiKey) {
   })
 }
 
-function makeAppSyncRequest({ endpoint, apiKey, query, variables }) {
-  const url = new URL(endpoint)
-  const body = JSON.stringify({ query, variables })
-
-  return new Promise((resolve, reject) => {
-    const req = https.request(
-      {
-        hostname: url.hostname,
-        path: url.pathname,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-      },
-      (res) => {
-        let data = ''
-        res.on('data', (chunk) => (data += chunk))
-        res.on('end', () => {
-          try {
-            const result = JSON.parse(data)
-            if (result.errors && result.errors.length > 0) {
-              reject(new Error(`AppSync error: ${JSON.stringify(result.errors)}`))
-              return
-            }
-            resolve(result)
-          } catch (error) {
-            reject(error)
-          }
-        })
-      }
-    )
-
-    req.on('error', reject)
-    req.write(body)
-    req.end()
-  })
-}
