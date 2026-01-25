@@ -1,0 +1,9 @@
+scalar AWSDateTime
+scalar AWSEmail
+scalar AWSURL
+scalar AWSTimestamp
+scalar AWSDate
+scalar AWSTime
+scalar AWSPhone
+scalar AWSIPAddress
+scalar AWSJSON

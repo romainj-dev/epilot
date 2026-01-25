@@ -1,0 +1,16 @@
+query PriceSnapshotsByPk(
+  $pk: String!
+  $limit: Int
+  $sortDirection: ModelSortDirection
+) {
+  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {
+    items {
+      id
+      pk
+      capturedAt
+      sourceUpdatedAt
+      priceUsd
+      source
+    }
+  }
+}

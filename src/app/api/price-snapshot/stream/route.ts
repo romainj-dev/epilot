@@ -1,8 +1,12 @@
 import { getToken } from 'next-auth/jwt'
 import { type NextRequest } from 'next/server'
 
-import { queryLatestPriceSnapshot } from '@/app/api/appsync/price-snapshot/route'
-import type { PriceSnapshot } from '@/types/price-snapshot'
+import {
+  ModelSortDirection,
+  PriceSnapshotsByPkDocument,
+  type PriceSnapshotsByPkQuery,
+} from '@/graphql/generated/graphql'
+import { fetchGraphQL } from '@/lib/requests'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -11,10 +15,34 @@ const SSE_KEEP_ALIVE_MS = 25_000
 const TOKEN_EXPIRY_BUFFER_MS = 60_000
 const MAX_TIMEOUT_MS = 2_147_483_647
 const POLL_INTERVAL_MS = 60_000
+const PRICE_SNAPSHOT_PK = 'PriceSnapshot'
+
+type PriceSnapshotItem = NonNullable<
+  NonNullable<PriceSnapshotsByPkQuery['priceSnapshotsByPk']>['items'][number]
+>
 
 type StreamMessage =
-  | { type: 'snapshot'; payload: PriceSnapshot | null }
+  | { type: 'snapshot'; payload: PriceSnapshotItem | null }
   | { type: 'error'; payload: { message: string } }
+
+/**
+ * Fetch the latest price snapshot via the GSI on capturedAt.
+ */
+async function queryLatestPriceSnapshot(
+  idToken: string
+): Promise<PriceSnapshotItem | null> {
+  const data = await fetchGraphQL({
+    document: PriceSnapshotsByPkDocument,
+    variables: {
+      pk: PRICE_SNAPSHOT_PK,
+      limit: 1,
+      sortDirection: ModelSortDirection.Desc,
+    },
+    idToken,
+  })
+
+  return data.priceSnapshotsByPk?.items[0] ?? null
+}
 
 export async function GET(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })

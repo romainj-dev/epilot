@@ -4,6 +4,7 @@ import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Toaster } from '@/components/ui/toast/Toaster'
+import { QueryProvider } from '@/providers/QueryProvider'
 import { defaultLocale } from '@/lib/i18n'
 import './globals.css'
 import { getTranslations } from 'next-intl/server'
@@ -36,11 +37,13 @@ export default async function RootLayout({
   return (
     <html lang={defaultLocale}>
       <body className={`${geist.className} ${styles.body}`}>
-        <NextIntlClientProvider>
-          {children}
-          <Toaster />
-          <Analytics />
-        </NextIntlClientProvider>
+        <QueryProvider>
+          <NextIntlClientProvider>
+            {children}
+            <Toaster />
+            <Analytics />
+          </NextIntlClientProvider>
+        </QueryProvider>
       </body>
     </html>
   )
