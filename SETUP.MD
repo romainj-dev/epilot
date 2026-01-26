@@ -202,7 +202,9 @@ The price snapshot job runs via Step Functions. You need to start an execution:
 5. In the dialog, leave the input as `{}` or default
 6. Click **Start execution** to confirm
 
-The scheduler will now poll Bitcoin prices every 60 seconds (or your configured interval - ssm param: price-snapshot-interval-seconds).
+The scheduler will now fetch Bitcoin prices every 60 seconds (or your configured interval - ssm param: price-snapshot-interval-seconds) and write `PriceSnapshot` entries via AppSync.
+
+The web app receives updates via **Server-Sent Events** on `/api/price-snapshot/stream`. The Next.js BFF keeps a single AppSync subscription open and broadcasts new snapshots to connected clients.
 
 > 🛑 **To stop the scheduler**: Set the SSM parameter `/epilot/dev/price-snapshot-enabled` to `false`. The scheduler will stop after its next iteration.
 >

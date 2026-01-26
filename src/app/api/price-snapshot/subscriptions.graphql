@@ -1,0 +1,10 @@
+subscription OnCreatePriceSnapshot(
+  $filter: ModelSubscriptionPriceSnapshotFilterInput
+) {
+  onCreatePriceSnapshot(filter: $filter) {
+    id
+    pk
+    capturedAt
+    priceUsd
+  }
+}

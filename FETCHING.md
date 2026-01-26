@@ -193,20 +193,18 @@ export async function POST(req: NextRequest) {
 
 ### Server-Side Streaming (SSE)
 
-For real-time data, the app uses Server-Sent Events with server-side polling:
+For real-time data, the app uses **Server-Sent Events** where the BFF relays AppSync subscription events:
 
-```tsx
-// src/app/api/price-snapshot/stream/route.ts
-import { fetchGraphQL } from '@/lib/requests'
-import { PriceSnapshotsByPkDocument } from '@/graphql/generated/graphql'
+- Browser opens `EventSource('/api/price-snapshot/stream')`
+- The Next.js BFF maintains a single upstream AppSync subscription (`onCreatePriceSnapshot`)
+- Each new `PriceSnapshot` event is broadcast to all connected SSE clients
 
-// Polls AppSync and streams updates to the client
-const data = await fetchGraphQL({
-  document: PriceSnapshotsByPkDocument,
-  variables: { pk, limit: 1, sortDirection: ModelSortDirection.Desc },
-  idToken,
-})
-```
+Key files:
+
+- `src/app/api/price-snapshot/stream/route.ts` (SSE endpoint)
+- `src/app/api/price-snapshot/stream/price-snapshot-relay.ts` (fan-out to connected clients)
+- `src/app/api/price-snapshot/stream/appsync-realtime.ts` (AppSync realtime WebSocket client)
+- `src/app/api/price-snapshot/subscriptions.graphql` (subscription document)
 
 ## Key Files
 

@@ -15,10 +15,12 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}": typeof types.PriceSnapshotsByPkDocument,
+    "subscription OnCreatePriceSnapshot($filter: ModelSubscriptionPriceSnapshotFilterInput) {\n  onCreatePriceSnapshot(filter: $filter) {\n    id\n    pk\n    capturedAt\n    priceUsd\n  }\n}": typeof types.OnCreatePriceSnapshotDocument,
     "query GetUserState($id: ID!) {\n  getUserState(id: $id) {\n    id\n    score\n    username\n    email\n  }\n}": typeof types.GetUserStateDocument,
 };
 const documents: Documents = {
     "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}": types.PriceSnapshotsByPkDocument,
+    "subscription OnCreatePriceSnapshot($filter: ModelSubscriptionPriceSnapshotFilterInput) {\n  onCreatePriceSnapshot(filter: $filter) {\n    id\n    pk\n    capturedAt\n    priceUsd\n  }\n}": types.OnCreatePriceSnapshotDocument,
     "query GetUserState($id: ID!) {\n  getUserState(id: $id) {\n    id\n    score\n    username\n    email\n  }\n}": types.GetUserStateDocument,
 };
 
@@ -40,6 +42,10 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}"): (typeof documents)["query PriceSnapshotsByPk($pk: String!, $limit: Int, $sortDirection: ModelSortDirection) {\n  priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {\n    items {\n      id\n      pk\n      capturedAt\n      priceUsd\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "subscription OnCreatePriceSnapshot($filter: ModelSubscriptionPriceSnapshotFilterInput) {\n  onCreatePriceSnapshot(filter: $filter) {\n    id\n    pk\n    capturedAt\n    priceUsd\n  }\n}"): (typeof documents)["subscription OnCreatePriceSnapshot($filter: ModelSubscriptionPriceSnapshotFilterInput) {\n  onCreatePriceSnapshot(filter: $filter) {\n    id\n    pk\n    capturedAt\n    priceUsd\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

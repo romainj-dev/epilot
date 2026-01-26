@@ -1,6 +1,6 @@
 # BTC One-Minute Guessing Game
 
-A real-time web app where players guess whether BTC/USD will be **higher or lower after one minute**. The app shows the latest price (updated every 60 sec), tracks a persistent score, and enforces one active guess at a time.
+A real-time web app where players guess whether BTC/USD will be **higher or lower after one minute**. The app shows the latest price via live updates (default cadence is one snapshot per minute), tracks a persistent score, and enforces one active guess at a time.
 
 ## Features
 
@@ -64,6 +64,7 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
 - **Credentials Provider**: NextAuth uses the Credentials provider to exchange email/password with Cognito, storing sessions server-side.
 - **Dual Auth on AppSync**: Cognito auth for user requests, API key auth for Lambda-to-AppSync writes.
 - **Express Step Functions**: A looping state machine that invokes the price snapshot Lambda, waits the configured interval, then loops. Controlled via SSM parameters.
+- **Live price updates (SSE relay)**: The browser subscribes to `/api/price-snapshot/stream` (SSE). The BFF maintains an AppSync subscription (`onCreatePriceSnapshot`) and broadcasts new snapshots to all connected clients.
 
 ## Getting Started
 

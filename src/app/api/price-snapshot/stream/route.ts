@@ -4,6 +4,11 @@ import {
   ModelSortDirection,
   PriceSnapshotsByPkDocument,
 } from '@/graphql/generated/graphql'
+import {
+  addClient,
+  removeClient,
+  type StreamMessage,
+} from './price-snapshot-relay'
 import { fetchGraphQL } from '@/lib/requests'
 import type { PriceSnapshotStream } from '@/types/price-snapshot'
 
@@ -11,12 +16,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const SSE_KEEP_ALIVE_MS = 25_000
-const POLL_INTERVAL_MS = 60_000
 const PRICE_SNAPSHOT_PK = 'PriceSnapshot'
-
-type StreamMessage =
-  | { type: 'snapshot'; payload: PriceSnapshotStream | null }
-  | { type: 'error'; payload: { message: string } }
 
 /**
  * Fetch the latest price snapshot via the GSI on capturedAt.
@@ -40,10 +40,8 @@ export async function GET(req: NextRequest) {
   const encoder = new TextEncoder()
 
   const stream = new ReadableStream({
-    start(controller) {
+    async start(controller) {
       let isClosed = false
-      let pollInterval: ReturnType<typeof setInterval> | null = null
-      let lastSnapshotId: string | null = null
 
       const keepAlive = setInterval(() => {
         if (isClosed) {
@@ -76,42 +74,26 @@ export async function GET(req: NextRequest) {
         console.log('[SSE] Closing stream')
         isClosed = true
         clearInterval(keepAlive)
-        if (pollInterval) {
-          clearInterval(pollInterval)
-        }
+        removeClient(send)
         controller.close()
       }
 
       req.signal.addEventListener('abort', close)
 
-      const pollLatest = () => {
-        queryLatestPriceSnapshot()
-          .then((snapshot) => {
-            if (!snapshot) {
-              send({ type: 'snapshot', payload: null })
-              return
-            }
-            if (snapshot.id !== lastSnapshotId) {
-              lastSnapshotId = snapshot.id
-              send({ type: 'snapshot', payload: snapshot })
-            }
-          })
-          .catch((error) => {
-            send({
-              type: 'error',
-              payload: { message: (error as Error).message },
-            })
-            if (
-              (error as Error).message?.includes('Token has expired') ||
-              (error as Error).message?.includes('401')
-            ) {
-              close()
-            }
-          })
-      }
+      // Register with relay to receive broadcast updates
+      addClient(send)
 
-      pollLatest()
-      pollInterval = setInterval(pollLatest, POLL_INTERVAL_MS)
+      // Send initial snapshot immediately so clients don't wait
+      try {
+        const initialSnapshot = await queryLatestPriceSnapshot()
+        send({ type: 'snapshot', payload: initialSnapshot })
+      } catch (error) {
+        console.error('[SSE] Failed to fetch initial snapshot:', error)
+        send({
+          type: 'error',
+          payload: { message: (error as Error).message },
+        })
+      }
     },
     cancel() {
       // The abort listener handles cleanup.

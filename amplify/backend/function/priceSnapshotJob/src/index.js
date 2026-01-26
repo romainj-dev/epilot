@@ -63,10 +63,18 @@ exports.handler = async () => {
 
     const capturedAt = new Date().toISOString()
 
+    // IMPORTANT: AppSync subscriptions publish the *mutation result payload*.
+    // If we only select `id` here, subscription listeners will receive null for
+    // the other non-nullable fields (pk/capturedAt/priceUsd) and error out.
     const mutation = `
       mutation CreatePriceSnapshot($input: CreatePriceSnapshotInput!) {
         createPriceSnapshot(input: $input) {
           id
+          pk
+          capturedAt
+          priceUsd
+          sourceUpdatedAt
+          source
         }
       }
     `
