@@ -1,0 +1,121 @@
+.container {
+  min-width: 350px;
+  margin-top: 2.5rem;
+  background: oklch(from var(--card) l c h / 0.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid oklch(from var(--border) l c h / 0.4);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+
+  @media (min-width: 640px) {
+    padding: 1.25rem 2rem;
+  }
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.priceSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.currencyBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: oklch(from var(--primary) l c h / 0.1);
+}
+
+.currencyText {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.priceInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.pairLabel {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.priceValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+
+  @media (min-width: 640px) {
+    font-size: 1.25rem;
+  }
+}
+
+.priceValuePlaceholder {
+  min-width: 1px;
+  visibility: hidden;
+}
+
+.divider {
+  height: 2.5rem;
+  width: 1px;
+  background: oklch(from var(--border) l c h / 0.5);
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.liveDot {
+  position: relative;
+  display: flex;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.liveDotPing {
+  position: absolute;
+  display: inline-flex;
+  height: 100%;
+  width: 100%;
+  border-radius: 9999px;
+  background: var(--success);
+  opacity: 0.75;
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.liveDotCore {
+  position: relative;
+  display: inline-flex;
+  border-radius: 9999px;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--success);
+}
+
+.liveText {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}

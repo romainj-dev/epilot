@@ -1,0 +1,161 @@
+.section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 4rem;
+  overflow: hidden;
+}
+
+.watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.watermarkIcon {
+  width: 800px;
+  height: 800px;
+  color: oklch(from var(--primary) l c h / 0.03);
+  user-select: none;
+}
+
+.container {
+  position: relative;
+  z-index: 10;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 5rem 1rem;
+
+  @media (min-width: 640px) {
+    padding: 8rem 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 8rem 2rem;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.badge {
+  margin-bottom: 1.5rem;
+}
+
+.headline {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  max-width: 56rem;
+  text-wrap: balance;
+
+  @media (min-width: 640px) {
+    font-size: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 3.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 4.5rem;
+  }
+}
+
+.headlineMain {
+  color: var(--foreground);
+}
+
+.headlineGradient {
+  background: linear-gradient(
+    to right,
+    var(--primary),
+    var(--secondary),
+    var(--primary)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.subtitle {
+  margin-top: 1.5rem;
+  font-size: 1.125rem;
+  color: var(--muted-foreground);
+  max-width: 42rem;
+  text-wrap: pretty;
+  line-height: 1.625;
+
+  @media (min-width: 640px) {
+    font-size: 1.25rem;
+  }
+}
+
+.higher {
+  color: var(--success);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.lower {
+  color: var(--destructive);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trendIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ctaButtons {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+  }
+}
+
+.primaryCtaIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.bottomFade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8rem;
+  background: linear-gradient(to top, var(--background), transparent);
+  pointer-events: none;
+}

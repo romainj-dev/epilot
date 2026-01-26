@@ -1,0 +1,35 @@
+.center {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.priceIcon {
+  height: 1rem;
+  width: 1rem;
+  color: #f59e0b;
+}
+
+.priceBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  min-width: 150px;
+  backdrop-filter: blur(8px);
+
+  @media (max-width: 780px) {
+    display: none;
+  }
+}
+
+.scoreBadge {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  min-width: 120px;
+}

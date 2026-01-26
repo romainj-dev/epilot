@@ -90,5 +90,37 @@
       "signIn": "Sign In",
       "dashboard": "Dashboard"
     }
+  },
+  "homePage": {
+    "hero": {
+      "badge": "Live BTC Predictions",
+      "headline": {
+        "main": "Predict the Market.",
+        "emphasis": "Win Big."
+      },
+      "subtitle": {
+        "lead": "Will BTC go",
+        "higher": "higher",
+        "or": "or",
+        "lower": "lower",
+        "tail": "in 60 seconds? Test your market instincts in our fast-paced trading prediction game."
+      },
+      "cta": "Start Playing"
+    }
+  },
+  "priceSnapshot": {
+    "card": {
+      "currency": "BTC",
+      "pairLabel": "Bitcoin / USD",
+      "placeholderPrice": "$99,999.99",
+      "live": "Live"
+    },
+    "badge": {
+      "scoreLabel": "Score:"
+    },
+    "big": {
+      "loading": "Loading latest price...",
+      "latestLabel": "Latest BTC price"
+    }
   }
 }

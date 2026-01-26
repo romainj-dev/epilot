@@ -1,40 +1,27 @@
 'use client'
 
-import styles from './PriceTicker.module.scss'
+import { useTranslations } from 'next-intl'
+import styles from './PriceTickerBadge.module.scss'
 import { BitcoinIcon } from '@/components/icons/BitcoinIcon'
-import { Skeleton } from '@/components/ui/skeleton/Skeleton'
 import { Badge } from '@/components/ui/badge/Badge'
 import { usePriceSnapshot } from '@/components/features/price-snapshot/PriceSnapshotProvider'
 import { useUserState } from '@/components/features/user-state/UserStateProvider'
+import { getFormattedPrice } from './utils'
 
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(p)
-}
-
-export function PriceTicker() {
+export function PriceTickerBadge() {
+  const t = useTranslations('priceSnapshot.badge')
   const { snapshot } = usePriceSnapshot()
   const { userState } = useUserState()
   const score = userState?.score
-
-  const price = snapshot?.priceUsd ?? null
-  const isLoadingPrice = !snapshot
+  const scoreDisplay =
+    score === undefined ? '' : score >= 0 ? `+${score}` : `${score}`
 
   return (
     <div className={styles.center}>
-      {/* Live BTC Price Chip */}
-      <div className={styles.priceChip}>
+      <Badge variant={'outline'} className={styles.priceBadge}>
         <BitcoinIcon className={styles.priceIcon} />
-        {isLoadingPrice || price === null ? (
-          <Skeleton className="h-5 w-24" />
-        ) : (
-          <span className={styles.priceValue}>{formatPrice(price)}</span>
-        )}
-      </div>
+        <span>{getFormattedPrice({ snapshot })}</span>
+      </Badge>
 
       <Badge
         variant={
@@ -46,7 +33,7 @@ export function PriceTicker() {
         }
         className={styles.scoreBadge}
       >
-        Score: {score === undefined ? '' : score >= 0 ? `+${score}` : score}
+        {t('scoreLabel')} {scoreDisplay}
       </Badge>
     </div>
   )

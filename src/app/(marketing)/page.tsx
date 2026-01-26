@@ -1,11 +1,12 @@
 import { PriceSnapshotProvider } from '@/components/features/price-snapshot/PriceSnapshotProvider'
-import { PriceSnapshotTicker } from '@/components/features/price-snapshot/PriceSnapshotTicker'
+import { AnimatedBackground } from '@/components/layout/background/AnimatedBackground'
+import { HeroSection } from '@/components/features/home/HeroSection'
 
 export default function Home() {
   return (
     <PriceSnapshotProvider>
-      <div>HOME</div>
-      <PriceSnapshotTicker />
+      <AnimatedBackground />
+      <HeroSection />
     </PriceSnapshotProvider>
   )
 }

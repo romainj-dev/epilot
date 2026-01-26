@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Header } from '@/components/layout/header/Header'
 import { auth } from '@/lib/auth'
-import { PriceTicker } from '@/components/layout/header/PriceTicker'
+import { PriceTickerBadge } from '@/components/features/price-snapshot/PriceTickerBadge'
 import { UserPopover } from '@/components/layout/header/UserPopover'
 import { PriceSnapshotProvider } from '@/components/features/price-snapshot/PriceSnapshotProvider'
 import { UserStateProvider } from '@/components/features/user-state/UserStateProvider'
@@ -22,7 +22,7 @@ export default async function DashboardLayout({
   return (
     <PriceSnapshotProvider>
       <UserStateProvider userId={session.user.id}>
-        <Header center={<PriceTicker />} right={<UserPopover />} />
+        <Header center={<PriceTickerBadge />} right={<UserPopover />} />
         <main>{children}</main>
       </UserStateProvider>
     </PriceSnapshotProvider>
