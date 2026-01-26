@@ -34,12 +34,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
 ### Key Exports
 
-| Export | Purpose |
-|--------|---------|
-| `auth()` | Get session (replaces `getServerSession(authOptions)`) - **triggers jwt callback** |
-| `handlers` | Route handlers for `/api/auth/*` |
-| `signIn` | Server-side sign in |
-| `signOut` | Server-side sign out |
+| Export     | Purpose                                                                            |
+| ---------- | ---------------------------------------------------------------------------------- |
+| `auth()`   | Get session (replaces `getServerSession(authOptions)`) - **triggers jwt callback** |
+| `handlers` | Route handlers for `/api/auth/*`                                                   |
+| `signIn`   | Server-side sign in                                                                |
+| `signOut`  | Server-side sign out                                                               |
 
 ### Usage in Server Components & API Routes
 
@@ -72,12 +72,12 @@ The `getToken()` function only decodes the JWT cookie - it does **not** trigger 
 
 ## Token Types & Lifetimes
 
-| Token | Issuer | Default Expiry | Purpose |
-|-------|--------|----------------|---------|
-| Auth.js Session (JWT) | Auth.js | 30 days | Browser session, holds embedded Cognito tokens |
-| Cognito ID Token | Cognito | 1 hour | User identity claims, used to authenticate with AppSync |
-| Cognito Access Token | Cognito | 1 hour | API authorization (not currently used) |
-| Cognito Refresh Token | Cognito | 30 days | Obtain new ID/Access tokens without re-login |
+| Token                 | Issuer  | Default Expiry | Purpose                                                 |
+| --------------------- | ------- | -------------- | ------------------------------------------------------- |
+| Auth.js Session (JWT) | Auth.js | 30 days        | Browser session, holds embedded Cognito tokens          |
+| Cognito ID Token      | Cognito | 1 hour         | User identity claims, used to authenticate with AppSync |
+| Cognito Access Token  | Cognito | 1 hour         | API authorization (not currently used)                  |
+| Cognito Refresh Token | Cognito | 30 days        | Obtain new ID/Access tokens without re-login            |
 
 ## Token Refresh Flow
 
@@ -106,23 +106,23 @@ The Cognito ID token expires after ~1 hour, but users stay logged in for up to 3
 
 The session returned by `auth()` includes these fields (see `src/types/next-auth.d.ts`):
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `user.id` | `string` | Cognito `sub` claim |
-| `user.email` | `string` | User email |
-| `cognitoIdToken` | `string` | Current Cognito ID token (JWT) - **server-side only** |
-| `cognitoTokenExpiry` | `number` | Unix timestamp (seconds) when the ID token expires |
-| `error` | `'RefreshTokenError'` | Set when token refresh fails |
+| Field                | Type                  | Description                                           |
+| -------------------- | --------------------- | ----------------------------------------------------- |
+| `user.id`            | `string`              | Cognito `sub` claim                                   |
+| `user.email`         | `string`              | User email                                            |
+| `cognitoIdToken`     | `string`              | Current Cognito ID token (JWT) - **server-side only** |
+| `cognitoTokenExpiry` | `number`              | Unix timestamp (seconds) when the ID token expires    |
+| `error`              | `'RefreshTokenError'` | Set when token refresh fails                          |
 
 ### JWT Token (Internal)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `userId` | `string` | Cognito `sub` claim |
-| `cognitoIdToken` | `string` | Current Cognito ID token |
-| `cognitoRefreshToken` | `string` | Cognito refresh token |
-| `cognitoTokenExpiry` | `number` | Unix timestamp for ID token expiry |
-| `error` | `'RefreshTokenError'` | Set when token refresh fails |
+| Field                 | Type                  | Description                        |
+| --------------------- | --------------------- | ---------------------------------- |
+| `userId`              | `string`              | Cognito `sub` claim                |
+| `cognitoIdToken`      | `string`              | Current Cognito ID token           |
+| `cognitoRefreshToken` | `string`              | Cognito refresh token              |
+| `cognitoTokenExpiry`  | `number`              | Unix timestamp for ID token expiry |
+| `error`               | `'RefreshTokenError'` | Set when token refresh fails       |
 
 ## Public Routes with API Key Fallback
 
@@ -154,10 +154,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
 **Recommendations:**
 
-| Setting | Safe Range | Notes |
-|---------|------------|-------|
-| `maxAge` | 1 day – 30 days | Shorter = more secure, longer = better UX |
-| Absolute minimum | 1 hour | Must exceed Cognito ID token expiry to allow refresh |
+| Setting          | Safe Range      | Notes                                                |
+| ---------------- | --------------- | ---------------------------------------------------- |
+| `maxAge`         | 1 day – 30 days | Shorter = more secure, longer = better UX            |
+| Absolute minimum | 1 hour          | Must exceed Cognito ID token expiry to allow refresh |
 
 **Do NOT** set `maxAge` shorter than Cognito's ID token expiry (1 hour), or users will be logged out before the refresh can occur.
 
@@ -166,11 +166,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 Configure in the **AWS Cognito Console** under:  
 `User Pool → App Integration → App clients → [Your Client] → Auth session validity`
 
-| Token | Default | Configurable Range | Recommendation |
-|-------|---------|-------------------|----------------|
-| ID Token | 1 hour | 5 min – 1 day | Keep at 1 hour (balance security vs refresh frequency) |
-| Access Token | 1 hour | 5 min – 1 day | Keep at 1 hour |
-| Refresh Token | 30 days | 1 hour – 10 years | 7–30 days for most apps |
+| Token         | Default | Configurable Range | Recommendation                                         |
+| ------------- | ------- | ------------------ | ------------------------------------------------------ |
+| ID Token      | 1 hour  | 5 min – 1 day      | Keep at 1 hour (balance security vs refresh frequency) |
+| Access Token  | 1 hour  | 5 min – 1 day      | Keep at 1 hour                                         |
+| Refresh Token | 30 days | 1 hour – 10 years  | 7–30 days for most apps                                |
 
 **Security considerations:**
 
@@ -246,11 +246,11 @@ function AuthGuard({ children }) {
 
 ## Troubleshooting
 
-| Symptom | Likely Cause | Solution |
-|---------|--------------|----------|
-| 401/403 from AppSync after ~1 hour | ID token expired, refresh not working | Ensure API routes use `auth()` not `getToken()` |
-| Users logged out unexpectedly | Auth.js `maxAge` < Cognito refresh token validity | Align expiry settings per rules above |
-| Refresh fails immediately after login | Refresh token not returned by Cognito | Ensure `USER_PASSWORD_AUTH` flow is enabled and returns refresh tokens |
+| Symptom                               | Likely Cause                                      | Solution                                                               |
+| ------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| 401/403 from AppSync after ~1 hour    | ID token expired, refresh not working             | Ensure API routes use `auth()` not `getToken()`                        |
+| Users logged out unexpectedly         | Auth.js `maxAge` < Cognito refresh token validity | Align expiry settings per rules above                                  |
+| Refresh fails immediately after login | Refresh token not returned by Cognito             | Ensure `USER_PASSWORD_AUTH` flow is enabled and returns refresh tokens |
 
 ---
 

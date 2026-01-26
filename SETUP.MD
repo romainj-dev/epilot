@@ -47,11 +47,11 @@ amplify init
 
 You'll be prompted with questions:
 
-| Prompt | Recommended Answer |
-|--------|-------------------|
-| Enter a name for the environment | `dev` (or your preferred env name) |
-| Choose your default editor | Your preference |
-| Select the authentication method | `AWS profile` (recommended) |
+| Prompt                                    | Recommended Answer                 |
+| ----------------------------------------- | ---------------------------------- |
+| Enter a name for the environment          | `dev` (or your preferred env name) |
+| Choose your default editor                | Your preference                    |
+| Select the authentication method          | `AWS profile` (recommended)        |
 | Please choose the profile you want to use | Select your configured AWS profile |
 
 Amplify will create the necessary IAM roles and S3 bucket for deployments.
@@ -65,6 +65,7 @@ amplify push
 ```
 
 This creates:
+
 - **Cognito User Pool** - User authentication
 - **AppSync GraphQL API** - API layer with DynamoDB resolvers
 - **DynamoDB Tables** - Data storage
@@ -113,13 +114,13 @@ The Lambda functions read configuration from AWS Systems Manager Parameter Store
 
 ### Required Parameters
 
-| Name | Type | Value |
-|------|------|-------|
-| `/epilot/dev/appsync-endpoint` | String | Your AppSync GraphQL endpoint from step 5.1 |
-| `/epilot/dev/appsync-api-key` | SecureString | Your AppSync API key from step 5.2 |
-| `/epilot/dev/coingecko-api-key` | SecureString | Your CoinGecko API key |
-| `/epilot/dev/price-snapshot-enabled` | String | `true` |
-| `/epilot/dev/price-snapshot-interval-seconds` | String | `60` |
+| Name                                          | Type         | Value                                       |
+| --------------------------------------------- | ------------ | ------------------------------------------- |
+| `/epilot/dev/appsync-endpoint`                | String       | Your AppSync GraphQL endpoint from step 5.1 |
+| `/epilot/dev/appsync-api-key`                 | SecureString | Your AppSync API key from step 5.2          |
+| `/epilot/dev/coingecko-api-key`               | SecureString | Your CoinGecko API key                      |
+| `/epilot/dev/price-snapshot-enabled`          | String       | `true`                                      |
+| `/epilot/dev/price-snapshot-interval-seconds` | String       | `60`                                        |
 
 > **Note**: Replace `dev` with your environment name if you used something different in step 3.
 
@@ -185,6 +186,7 @@ APPSYNC_API_KEY=<your-appsync-api-key>
 ```
 
 Generate `AUTH_SECRET` with:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -203,6 +205,7 @@ The price snapshot job runs via Step Functions. You need to start an execution:
 The scheduler will now poll Bitcoin prices every 60 seconds (or your configured interval - ssm param: price-snapshot-interval-seconds).
 
 > 🛑 **To stop the scheduler**: Set the SSM parameter `/epilot/dev/price-snapshot-enabled` to `false`. The scheduler will stop after its next iteration.
+>
 > ```bash
 > aws ssm put-parameter --name "/epilot/dev/price-snapshot-enabled" --type "String" --value "false" --overwrite
 > ```
@@ -226,19 +229,24 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Troubleshooting
 
 ### "Missing APPSYNC_ENDPOINT or APPSYNC_API_KEY env var"
+
 Your `.env.local` is missing required values. Double-check all variables are set.
 
 ### Price not updating
+
 1. Check Step Functions execution is running (not failed/succeeded)
 2. Verify SSM parameter `/epilot/dev/price-snapshot-enabled` is `true`
 3. Check Lambda logs in CloudWatch for errors
 
 ### Authentication errors
+
 1. Verify `COGNITO_CLIENT_ID` matches the app client in Cognito Console
 2. Ensure `AWS_REGION` matches your deployment region
 
 ### Lambda permission errors
+
 The CloudFormation templates may contain hardcoded ARNs from the original developer's account. Check these files if you see IAM permission errors:
+
 - `amplify/backend/function/epilotAuthPostConfirmation/custom-policies.json`
 - `amplify/backend/function/epilotAuthPostConfirmation/epilotAuthPostConfirmation-cloudformation-template.json`
 

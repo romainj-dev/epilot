@@ -65,11 +65,11 @@ src/graphql/generated/
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm codegen` | Generate types from schema and query documents |
+| Command                | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `pnpm codegen`         | Generate types from schema and query documents   |
 | `pnpm amplify:compile` | Compile Amplify schema + run codegen (no deploy) |
-| `pnpm amplify:push` | Deploy to AWS + run codegen |
+| `pnpm amplify:push`    | Deploy to AWS + run codegen                      |
 
 ### Workflow
 
@@ -90,9 +90,7 @@ The app is wrapped with `QueryProvider` (TanStack Query) in the root layout:
 ```tsx
 // src/app/layout.tsx
 <QueryProvider>
-  <NextIntlClientProvider>
-    {children}
-  </NextIntlClientProvider>
+  <NextIntlClientProvider>{children}</NextIntlClientProvider>
 </QueryProvider>
 ```
 
@@ -182,13 +180,13 @@ import { fetchGraphQLProxy } from '@/lib/requests'
 export async function POST(req: NextRequest) {
   const token = await getToken({ req })
   const { query, variables } = await req.json()
-  
+
   const data = await fetchGraphQLProxy({
-    query,      // raw string from client
+    query, // raw string from client
     variables,
     idToken: token.cognitoIdToken,
   })
-  
+
   return NextResponse.json({ data })
 }
 ```
@@ -212,15 +210,15 @@ const data = await fetchGraphQL({
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/lib/requests.ts` | Server-side AppSync client (`fetchGraphQL`, `fetchGraphQLProxy`) |
-| `src/lib/requests-client.ts` | Client-side BFF client (`fetchGraphQLClient`) |
-| `src/app/api/graphql/route.ts` | GraphQL proxy endpoint |
-| `src/providers/QueryProvider.tsx` | TanStack Query provider |
-| `src/graphql/generated/` | Generated types and documents |
-| `src/graphql/aws-scalars.graphql` | AWS scalar type definitions |
-| `codegen.ts` | GraphQL Codegen configuration |
+| File                              | Purpose                                                          |
+| --------------------------------- | ---------------------------------------------------------------- |
+| `src/lib/requests.ts`             | Server-side AppSync client (`fetchGraphQL`, `fetchGraphQLProxy`) |
+| `src/lib/requests-client.ts`      | Client-side BFF client (`fetchGraphQLClient`)                    |
+| `src/app/api/graphql/route.ts`    | GraphQL proxy endpoint                                           |
+| `src/providers/QueryProvider.tsx` | TanStack Query provider                                          |
+| `src/graphql/generated/`          | Generated types and documents                                    |
+| `src/graphql/aws-scalars.graphql` | AWS scalar type definitions                                      |
+| `codegen.ts`                      | GraphQL Codegen configuration                                    |
 
 ## Authentication Flow
 
@@ -233,6 +231,7 @@ const data = await fetchGraphQL({
 ## Adding New Queries
 
 1. Create a `.graphql` file next to the code that uses it:
+
    ```graphql
    # src/app/api/my-feature/queries.graphql
    query GetMyData($id: ID!) {
@@ -246,10 +245,11 @@ const data = await fetchGraphQL({
 2. Run `pnpm codegen`
 
 3. Import and use the generated document:
+
    ```tsx
    import { GetMyDataDocument } from '@/graphql/generated/graphql'
    import { fetchGraphQL } from '@/lib/requests'
-   
+
    const data = await fetchGraphQL({
      document: GetMyDataDocument,
      variables: { id: '123' },

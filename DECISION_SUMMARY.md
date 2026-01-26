@@ -20,15 +20,15 @@ This document records architecture and tooling decisions, why they were made, an
 
 ## Settlement Flows: A (Lambda-only), B (Lambda + Tick Store), C (Large Scale)
 
-| Criteria                | Flow A: Lambda + EventBridge (API pull)        | Flow B: Lambda + Tick Store (1s/30s)                   | Flow C: Large Scale (stream ingestion + store)        |
-| ----------------------- | ---------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------- |
-| Triggering              | One-time EventBridge Scheduler at T+60         | One-time EventBridge Scheduler at T+60                 | Scheduler or batch settle at T+60                     |
-| Price source            | Live API call at execution time                | Stored tick at T+60 from periodic collector            | Stored tick at T+60 from real-time ingestion          |
-| Precision               | Low–Medium (scheduler + API latency)           | Medium–High (bounded by tick interval)                 | High (second-level or tick-level)                     |
-| Infra complexity        | Low                                            | Medium                                                 | High                                                  |
-| Cost                    | Low                                             | Low–Medium                                             | Medium–High                                           |
-| Scale suitability       | Few users                                      | Small–Medium                                           | High (thousands/millions)                             |
-| Dispute risk            | Higher (timing/API variance)                   | Medium (windowed by tick interval)                     | Low (deterministic stored data)                       |
+| Criteria          | Flow A: Lambda + EventBridge (API pull) | Flow B: Lambda + Tick Store (1s/30s)        | Flow C: Large Scale (stream ingestion + store) |
+| ----------------- | --------------------------------------- | ------------------------------------------- | ---------------------------------------------- |
+| Triggering        | One-time EventBridge Scheduler at T+60  | One-time EventBridge Scheduler at T+60      | Scheduler or batch settle at T+60              |
+| Price source      | Live API call at execution time         | Stored tick at T+60 from periodic collector | Stored tick at T+60 from real-time ingestion   |
+| Precision         | Low–Medium (scheduler + API latency)    | Medium–High (bounded by tick interval)      | High (second-level or tick-level)              |
+| Infra complexity  | Low                                     | Medium                                      | High                                           |
+| Cost              | Low                                     | Low–Medium                                  | Medium–High                                    |
+| Scale suitability | Few users                               | Small–Medium                                | High (thousands/millions)                      |
+| Dispute risk      | Higher (timing/API variance)            | Medium (windowed by tick interval)          | Low (deterministic stored data)                |
 
 ### Decision: Use Flow A for MVP, migrate to B, then C if needed
 

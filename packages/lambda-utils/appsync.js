@@ -1,6 +1,12 @@
 const https = require('https')
 
-function makeAppSyncRequest({ endpoint, apiKey, query, variables, onResponse }) {
+function makeAppSyncRequest({
+  endpoint,
+  apiKey,
+  query,
+  variables,
+  onResponse,
+}) {
   const url = new URL(endpoint)
   const body = JSON.stringify({ query, variables })
 
@@ -26,7 +32,9 @@ function makeAppSyncRequest({ endpoint, apiKey, query, variables, onResponse }) 
           try {
             const result = JSON.parse(data)
             if (result.errors && result.errors.length > 0) {
-              reject(new Error(`AppSync error: ${JSON.stringify(result.errors)}`))
+              reject(
+                new Error(`AppSync error: ${JSON.stringify(result.errors)}`)
+              )
               return
             }
             resolve(result)

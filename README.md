@@ -12,16 +12,16 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js (App Router), TypeScript, TanStack Query |
-| Styling | Tailwind CSS, Sass modules |
-| Auth | AWS Cognito + NextAuth (Credentials provider) |
-| API | AWS AppSync (GraphQL) |
-| Database | AWS DynamoDB |
-| Scheduler | AWS Lambda + Step Functions (Express) |
-| Secrets | AWS SSM Parameter Store |
-| Hosting | AWS Amplify |
+| Layer     | Technology                                       |
+| --------- | ------------------------------------------------ |
+| Frontend  | Next.js (App Router), TypeScript, TanStack Query |
+| Styling   | Tailwind CSS, Sass modules                       |
+| Auth      | AWS Cognito + NextAuth (Credentials provider)    |
+| API       | AWS AppSync (GraphQL)                            |
+| Database  | AWS DynamoDB                                     |
+| Scheduler | AWS Lambda + Step Functions (Express)            |
+| Secrets   | AWS SSM Parameter Store                          |
+| Hosting   | AWS Amplify                                      |
 
 ## Architecture
 
@@ -80,14 +80,14 @@ pnpm dev
 
 Create `.env.local` with:
 
-| Variable | Description |
-|----------|-------------|
-| `NEXTAUTH_URL` | `http://localhost:3000` for local dev |
-| `AUTH_SECRET` | Random string for NextAuth sessions |
-| `AWS_REGION` | Your AWS region (e.g., `eu-north-1`) |
-| `COGNITO_CLIENT_ID` | Cognito User Pool Client ID |
-| `APPSYNC_ENDPOINT` | AppSync GraphQL endpoint URL |
-| `APPSYNC_API_KEY` | AppSync API key |
+| Variable            | Description                           |
+| ------------------- | ------------------------------------- |
+| `NEXTAUTH_URL`      | `http://localhost:3000` for local dev |
+| `AUTH_SECRET`       | Random string for NextAuth sessions   |
+| `AWS_REGION`        | Your AWS region (e.g., `eu-north-1`)  |
+| `COGNITO_CLIENT_ID` | Cognito User Pool Client ID           |
+| `APPSYNC_ENDPOINT`  | AppSync GraphQL endpoint URL          |
+| `APPSYNC_API_KEY`   | AppSync API key                       |
 
 ## Development
 
