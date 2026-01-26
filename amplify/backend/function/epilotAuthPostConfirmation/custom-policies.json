@@ -4,7 +4,12 @@
       "ssm:GetParameter"
     ],
     "Resource": [
-      "arn:aws:ssm:eu-north-1:555262464812:parameter/epilot/dev/appsync-api-key"
+      {
+        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-endpoint"
+      },
+      {
+        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-api-key"
+      }
     ]
   }
 ]

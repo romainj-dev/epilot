@@ -1,52 +1,75 @@
-# BTC One‑Minute Guessing Game
+# BTC One-Minute Guessing Game
 
-A real‑time web app where players guess whether BTC/USD will be **higher or lower after one minute**. The app shows the latest price, tracks a persistent score, and enforces one active guess at a time. It’s built with a modern AWS‑native stack and designed for a fast, strongly‑typed developer experience.
+A real-time web app where players guess whether BTC/USD will be **higher or lower after one minute**. The app shows the latest price (updated every 60 sec), tracks a persistent score, and enforces one active guess at a time.
 
 ## Features
 
-- Real‑time BTC/USD price display
-- One active guess per player, resolved after **≥ 60s** and a price change
+- Real-time BTC/USD price display
+- One active guess per player, resolved after ≥60s and a price change
 - Persistent score per user (Cognito identity)
-- GraphQL API with subscriptions for live updates
-- Strongly typed client via GraphQL Codegen
+- GraphQL API with live updates
+- Automated price snapshot ingestion
 
 ## Tech Stack
 
-- **Next.js (App Router) + TypeScript**
-- **AWS Amplify** (hosting + CI/CD)
-- **AWS AppSync** (GraphQL API + subscriptions)
-- **AWS DynamoDB** (persistent game state)
-- **AWS Cognito + NextAuth** (auth, BFF session handling)
-- **TanStack Query** (data fetching/cache)
-- **Tailwind CSS** (styling)
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js (App Router), TypeScript, TanStack Query |
+| Styling | Tailwind CSS, Sass modules |
+| Auth | AWS Cognito + NextAuth (Credentials provider) |
+| API | AWS AppSync (GraphQL) |
+| Database | AWS DynamoDB |
+| Scheduler | AWS Lambda + Step Functions (Express) |
+| Secrets | AWS SSM Parameter Store |
+| Hosting | AWS Amplify |
 
-## Architecture Overview
+## Architecture
 
-- **Frontend (Next.js)** talks only to **Next.js server routes** (BFF). The browser never calls AWS services directly.
-- **NextAuth** handles Cognito auth and session cookies.
-- **AppSync** provides GraphQL queries/mutations/subscriptions.
-- **DynamoDB** stores user score + active guess state.
-- **Scheduled Lambda (EventBridge)** pulls CoinGecko price and publishes updates to AppSync for subscriptions.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Browser                                  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Next.js (BFF Layer)                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │ NextAuth    │  │ API Routes  │  │ Server Components       │  │
+│  │ (sessions)  │  │ (GraphQL)   │  │ (SSR)                   │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          ▼                   ▼                   ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  AWS Cognito    │  │  AWS AppSync    │  │  Step Functions │
+│  (User Pool)    │  │  (GraphQL API)  │  │  (Scheduler)    │
+└─────────────────┘  └────────┬────────┘  └────────┬────────┘
+                              │                    │
+                              ▼                    ▼
+                     ┌─────────────────┐  ┌─────────────────┐
+                     │  DynamoDB       │  │  Lambda         │
+                     │  - UserState    │  │  (price job)    │
+                     │  - PriceSnapshot│  └────────┬────────┘
+                     └─────────────────┘           │
+                                                   ▼
+                                          ┌─────────────────┐
+                                          │  CoinGecko API  │
+                                          └─────────────────┘
+```
 
-## Prerequisites
+### Key Design Decisions
 
-- Node.js LTS
-- pnpm
-- AWS account (free tier)
-- AWS CLI configured
-- Amplify CLI installed
+- **BFF Pattern**: The browser never calls AWS services directly. All requests go through Next.js server routes, which handle auth tokens and API calls.
+- **Credentials Provider**: NextAuth uses the Credentials provider to exchange email/password with Cognito, storing sessions server-side.
+- **Dual Auth on AppSync**: Cognito auth for user requests, API key auth for Lambda-to-AppSync writes.
+- **Express Step Functions**: A looping state machine that invokes the price snapshot Lambda, waits the configured interval, then loops. Controlled via SSM parameters.
 
-## Documentation
+## Getting Started
 
-- [`SETUP.MD`](./SETUP.MD) – Full step-by-step setup guide
-- [`AUTH.md`](./AUTH.md) – Authentication flow, token lifecycle, and security configuration
-- [`DECISION_SUMMARY.md`](./DECISION_SUMMARY.md) – Architecture and tooling decisions
+See the **[Developer Setup Guide](./SETUP.MD)** for complete instructions on bootstrapping with your own AWS account.
 
-## Local Setup
-
-> The full step‑by‑step setup is documented in [`SETUP.MD`](./SETUP.MD).
-
-Quick start:
+Quick start (if already configured):
 
 ```bash
 pnpm install
@@ -55,42 +78,52 @@ pnpm dev
 
 ## Environment Variables
 
-Create `.env.local`:
+Create `.env.local` with:
 
-```
-NEXTAUTH_URL=
-NEXTAUTH_SECRET=
-COGNITO_CLIENT_ID=
-COGNITO_CLIENT_SECRET=
-COGNITO_ISSUER=
-APPSYNC_URL=
-APPSYNC_REGION=
-```
+| Variable | Description |
+|----------|-------------|
+| `NEXTAUTH_URL` | `http://localhost:3000` for local dev |
+| `AUTH_SECRET` | Random string for NextAuth sessions |
+| `AWS_REGION` | Your AWS region (e.g., `eu-north-1`) |
+| `COGNITO_CLIENT_ID` | Cognito User Pool Client ID |
+| `APPSYNC_ENDPOINT` | AppSync GraphQL endpoint URL |
+| `APPSYNC_API_KEY` | AppSync API key |
 
-## Development Scripts
+## Development
 
 ```bash
-pnpm dev       # start dev server
-pnpm lint      # run lint
-pnpm format    # run prettier (if configured)
+pnpm dev       # Start dev server
+pnpm lint      # Run ESLint
+pnpm build     # Production build
 ```
 
-## Deployment
+## Project Structure
 
-Deployment is managed via **AWS Amplify**. See `SETUP.MD` for the full guide. In short:
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (dashboard)/        # Authenticated routes
+│   ├── (marketing)/        # Public routes (landing, auth)
+│   └── api/                # API routes (BFF)
+├── components/
+│   ├── features/           # Feature-specific components
+│   ├── layout/             # Header, navigation
+│   └── ui/                 # Reusable UI primitives
+├── graphql/                # GraphQL schema + generated types
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utilities, auth config
+└── providers/              # React context providers
 
-1. Initialize Amplify (`amplify init`)
-2. Add auth/api (`amplify add auth`, `amplify add api`)
-3. Push infra (`amplify push`)
-4. Connect repo in Amplify Console
-5. Deploy
+amplify/
+└── backend/
+    ├── api/epilot/         # AppSync schema + resolvers
+    ├── auth/epilotAuth/    # Cognito configuration
+    ├── function/           # Lambda functions
+    └── custom/             # Step Functions scheduler
+```
 
-## Project Conventions
+## Conventions
 
-- **BFF architecture:** all client calls go through Next.js server routes.
-- **Strong typing:** generated GraphQL types are the source of truth.
-- **One active guess per user:** enforced in API layer.
-
-## Status
-
-This README reflects the finalized architecture and setup expectations. Implementation details (schema, resolvers, UI, etc.) are built iteratively.
+- **Strong typing**: Generated GraphQL types are the source of truth
+- **One active guess**: Enforced at the API layer
+- **BFF architecture**: Client → Next.js routes → AWS services

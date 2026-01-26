@@ -93,8 +93,30 @@
             "REGION": {
               "Ref": "AWS::Region"
             },
-            "APPSYNC_ENDPOINT": "https://vcwo73eo2zfmbckjhwwctjpa3q.appsync-api.eu-north-1.amazonaws.com/graphql",
-            "APPSYNC_API_KEY_SSM_PATH": "/epilot/dev/appsync-api-key",
+            "APPSYNC_ENDPOINT_SSM_PATH": {
+              "Fn::Join": [
+                "",
+                [
+                  "/epilot/",
+                  {
+                    "Ref": "env"
+                  },
+                  "/appsync-endpoint"
+                ]
+              ]
+            },
+            "APPSYNC_API_KEY_SSM_PATH": {
+              "Fn::Join": [
+                "",
+                [
+                  "/epilot/",
+                  {
+                    "Ref": "env"
+                  },
+                  "/appsync-api-key"
+                ]
+              ]
+            },
             "GROUP": {
               "Ref": "GROUP"
             }
@@ -212,7 +234,12 @@
                 "ssm:GetParameter"
               ],
               "Resource": [
-                "arn:aws:ssm:eu-north-1:555262464812:parameter/epilot/dev/appsync-api-key"
+                {
+                  "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-endpoint"
+                },
+                {
+                  "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-api-key"
+                }
               ],
               "Effect": "Allow"
             }

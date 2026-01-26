@@ -26,21 +26,30 @@ exports.handler = async (event) => {
   const username = email.split('@')[0] || email;
   const now = new Date().toISOString();
 
-  const endpoint = process.env.APPSYNC_ENDPOINT;
+  const endpointPath = process.env.APPSYNC_ENDPOINT_SSM_PATH;
   const apiKeyPath = process.env.APPSYNC_API_KEY_SSM_PATH;
 
   logger.info('Environment config', {
-    endpoint,
+    endpointPath,
     apiKeyPath,
   });
 
-  if (!endpoint || !apiKeyPath) {
-    logger.error('Missing APPSYNC_ENDPOINT or APPSYNC_API_KEY_SSM_PATH env var');
+  if (!endpointPath || !apiKeyPath) {
+    logger.error('Missing APPSYNC_ENDPOINT_SSM_PATH or APPSYNC_API_KEY_SSM_PATH env var');
     return event;
   }
 
-  // Get API key from SSM (cached after first fetch)
-  const apiKey = await ssm.getCachedParameterOrNull(apiKeyPath);
+  // Get endpoint and API key from SSM (cached after first fetch)
+  const [endpoint, apiKey] = await Promise.all([
+    ssm.getCachedParameterOrNull(endpointPath),
+    ssm.getCachedParameterOrNull(apiKeyPath),
+  ]);
+
+  if (!endpoint) {
+    logger.error('Failed to retrieve AppSync endpoint from SSM');
+    return event;
+  }
+
   if (!apiKey) {
     logger.error('Failed to retrieve API key from SSM');
     return event;

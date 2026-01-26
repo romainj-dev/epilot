@@ -13,6 +13,11 @@
   background: oklch(from var(--card) l c h / 0.6);
   padding: 0.375rem 0.75rem;
   backdrop-filter: blur(8px);
+  min-width: 150px;
+
+  @media (max-width: 780px) {
+    display: none;
+  }
 }
 
 .priceIcon {
@@ -33,4 +38,5 @@
   font-family: var(--font-mono);
   font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
+  min-width: 120px;
 }

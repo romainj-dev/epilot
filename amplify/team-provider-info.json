@@ -25,11 +25,11 @@
       "function": {
         "epilotAuthPostConfirmation": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/epilotAuthPostConfirmation-414a706f3959617a662f-build.zip"
+          "s3Key": "amplify-builds/epilotAuthPostConfirmation-48477655765863424662-build.zip"
         },
         "priceSnapshotJob": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/priceSnapshotJob-344f5162516f556f4946-build.zip"
+          "s3Key": "amplify-builds/priceSnapshotJob-524973723179467a5855-build.zip"
         }
       }
     }

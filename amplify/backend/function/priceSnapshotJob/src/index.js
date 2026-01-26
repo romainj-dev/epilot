@@ -12,15 +12,15 @@ const COINGECKO_API_KEY_HEADER =
   process.env.COINGECKO_API_KEY_HEADER || 'x-cg-pro-api-key'
 
 exports.handler = async () => {
-  const endpoint = process.env.APPSYNC_ENDPOINT
+  const endpointPath = process.env.APPSYNC_ENDPOINT_SSM_PATH
   const apiKeyPath = process.env.APPSYNC_API_KEY_SSM_PATH
   const enabledPath = process.env.PRICE_SNAPSHOT_ENABLED_SSM_PATH
   const intervalPath = process.env.PRICE_SNAPSHOT_INTERVAL_SSM_PATH
   const coinGeckoApiKeyPath = process.env.COINGECKO_API_KEY_SSM_PATH
 
-  if (!endpoint || !apiKeyPath || !enabledPath || !intervalPath) {
+  if (!endpointPath || !apiKeyPath || !enabledPath || !intervalPath) {
     logger.error('Missing required env vars', {
-      endpoint,
+      endpointPath,
       apiKeyPath,
       enabledPath,
       intervalPath,
@@ -28,10 +28,16 @@ exports.handler = async () => {
     return { enabled: false, intervalSeconds: DEFAULT_INTERVAL_SECONDS }
   }
 
-  const [enabledValue, intervalValue] = await Promise.all([
+  const [enabledValue, intervalValue, endpoint] = await Promise.all([
     ssm.getParameterValue(enabledPath),
     ssm.getParameterValue(intervalPath),
+    ssm.getCachedParameter(endpointPath),
   ])
+
+  if (!endpoint) {
+    logger.error('Failed to retrieve AppSync endpoint from SSM')
+    return { enabled: false, intervalSeconds: DEFAULT_INTERVAL_SECONDS }
+  }
 
   const isEnabled = parseEnabled(enabledValue)
   const intervalSeconds = parseInterval(intervalValue)
