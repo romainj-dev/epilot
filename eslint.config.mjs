@@ -52,6 +52,13 @@ const eslintConfig = defineConfig([
       'no-restricted-imports': 'off',
     },
   },
+  {
+    files: ['amplify/**/*.{js,jsx,ts,tsx}', 'packages/**/*.{js,jsx,ts,tsx}'],
+    rules: {
+      // Commonjs modules - TODO migrate to ES modules
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
