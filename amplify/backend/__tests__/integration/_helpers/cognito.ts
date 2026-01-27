@@ -77,22 +77,23 @@ export class CognitoTestHelper {
       };
     } catch (error) {
       // Clean up if user was created but password set failed
-      try {
-        await this.deleteUser(username);
-      } catch {
-        // Ignore cleanup errors
-      }
+      await this.deleteUser(username);
       throw error;
     }
   }
 
   async deleteUser(username: string): Promise<void> {
-    await this.client.send(
-      new AdminDeleteUserCommand({
-        UserPoolId: this.userPoolId,
-        Username: username,
-      })
-    );
+    try {
+      await this.client.send(
+        new AdminDeleteUserCommand({
+          UserPoolId: this.userPoolId,
+            Username: username,
+          })
+        );
+    } catch (error) {
+      // Ignore cleanup errors
+      console.warn(`Failed to delete User ${this.userPoolId}:`, error);
+    }
   }
 
   async getIdToken(username: string, password: string): Promise<string> {

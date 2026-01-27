@@ -12,7 +12,7 @@ type Guess
   ) {
   id: ID!
   # Owner is auto-populated by Amplify auth resolvers on create
-  owner: String @auth(rules: [{ allow: owner, operations: [read] }])
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
   createdAt: AWSDateTime!
   settleAt: AWSDateTime!
   guessPrice: Float!
@@ -27,7 +27,7 @@ type PriceSnapshot
   @auth(
     rules: [
       { allow: private, provider: userPools, operations: [read] }
-      { allow: public, provider: apiKey, operations: [create, read] }
+      { allow: public, provider: apiKey, operations: [create, read, delete] }
     ]
   ) {
   id: ID!
@@ -53,6 +53,7 @@ type UserState
         provider: userPools
         operations: [create, read, update, delete]
       }
+      # apiKey needed for PostConfirmation Lambda to create UserState
       { allow: public, provider: apiKey, operations: [create] }
     ]
   ) {
@@ -60,7 +61,8 @@ type UserState
   owner: String!
     @auth(
       rules: [
-        { allow: owner, operations: [read] }
+        { allow: owner, operations: [read, delete] }
+        # apiKey needs to set owner field during create (PostConfirmation Lambda)
         { allow: public, provider: apiKey, operations: [create] }
       ]
     )

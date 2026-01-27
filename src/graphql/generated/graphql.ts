@@ -30,7 +30,7 @@ export type CreateGuessInput = {
   endPrice?: InputMaybe<Scalars['Float']['input']>;
   guessPrice: Scalars['Float']['input'];
   id?: InputMaybe<Scalars['ID']['input']>;
-  owner: Scalars['String']['input'];
+  owner?: InputMaybe<Scalars['String']['input']>;
   result?: InputMaybe<GuessResult>;
   settleAt: Scalars['AWSDateTime']['input'];
   startPrice: Scalars['Float']['input'];
@@ -74,7 +74,7 @@ export type Guess = {
   endPrice?: Maybe<Scalars['Float']['output']>;
   guessPrice: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
-  owner: Scalars['String']['output'];
+  owner?: Maybe<Scalars['String']['output']>;
   result?: Maybe<GuessResult>;
   settleAt: Scalars['AWSDateTime']['output'];
   startPrice: Scalars['Float']['output'];

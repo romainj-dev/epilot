@@ -18,7 +18,7 @@
     "test": "jest",
     "test:amplify": "pnpm run test:amplify:unit & pnpm run test:amplify:int",
     "test:amplify:unit": "jest --testMatch='**/amplify/backend/function/**/*.unit.test.js'",
-    "test:amplify:int": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --testMatch='**/amplify/backend/__tests__/integration/**/*.int.test.ts' --runInBand --testTimeout=30000",
+    "test:amplify:int": "AMPLIFY_INTEGRATION_TESTS=true node --experimental-vm-modules ./node_modules/jest/bin/jest.js --testMatch='**/amplify/backend/__tests__/integration/**/*.int.test.ts' --runInBand --testTimeout=30000",
     "test:bff": "jest --testMatch='**/src/app/api/**/*.test.ts'"
   },
   "dependencies": {

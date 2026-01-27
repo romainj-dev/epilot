@@ -10,7 +10,18 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   coverageProvider: 'v8',
   testEnvironment: 'jest-environment-node',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv:
+    process.env.AMPLIFY_INTEGRATION_TESTS === 'true'
+      ? undefined
+      : ['<rootDir>/jest.setup.ts'],
+  ...(process.env.AMPLIFY_INTEGRATION_TESTS === 'true'
+    ? {
+        globalSetup:
+          '<rootDir>/amplify/backend/__tests__/integration/_helpers/global-setup.js',
+        globalTeardown:
+          '<rootDir>/amplify/backend/__tests__/integration/_helpers/global-teardown.js',
+      }
+    : {}),
   moduleNameMapper: {
     // Map lambda-utils imports to the local package
     '^lambda-utils$': '<rootDir>/packages/lambda-utils/index.js',
