@@ -3,6 +3,8 @@ import 'server-only'
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import { print } from 'graphql'
 
+import { getAppSyncApiKey, getAppSyncEndpoint } from '@/lib/env'
+
 export class AppSyncError extends Error {
   constructor(
     message: string,
@@ -13,13 +15,6 @@ export class AppSyncError extends Error {
   }
 }
 
-const APPSYNC_ENDPOINT = process.env.APPSYNC_ENDPOINT as string
-const APPSYNC_API_KEY = process.env.APPSYNC_API_KEY as string
-
-if (!APPSYNC_ENDPOINT || !APPSYNC_API_KEY) {
-  throw new Error('Missing APPSYNC_ENDPOINT or APPSYNC_API_KEY env var.')
-}
-
 async function executeGraphQL<TData>(params: {
   query: string
   variables?: Record<string, unknown>
@@ -27,13 +22,13 @@ async function executeGraphQL<TData>(params: {
 }): Promise<TData> {
   const { query, variables, idToken } = params
 
-  const response = await fetch(APPSYNC_ENDPOINT, {
+  const response = await fetch(getAppSyncEndpoint(), {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       ...(idToken
         ? { Authorization: idToken }
-        : { 'x-api-key': APPSYNC_API_KEY }),
+        : { 'x-api-key': getAppSyncApiKey() }),
     },
     body: JSON.stringify({ query, variables }),
   })

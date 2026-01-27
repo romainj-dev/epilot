@@ -5,29 +5,27 @@ import {
   InitiateAuthCommand,
 } from '@aws-sdk/client-cognito-identity-provider'
 
+import { getAuthSecret, getAwsRegion, getCognitoClientId } from '@/lib/env'
+
 type CognitoIdTokenPayload = {
   sub?: string
   email?: string
   exp?: number
 }
 
-const region = process.env.AWS_REGION
-const clientId = process.env.COGNITO_CLIENT_ID
+let cognito: CognitoIdentityProviderClient | null = null
 
-if (!region || !clientId) {
-  throw new Error('Missing AWS_REGION or COGNITO_CLIENT_ID env vars.')
-}
-
-const cognito = new CognitoIdentityProviderClient({ region })
-
-const AUTH_SECRET = process.env.AUTH_SECRET
-
-if (!AUTH_SECRET) {
-  throw new Error('Missing AUTH_SECRET env var.')
+function getCognitoClient(): CognitoIdentityProviderClient {
+  if (!cognito) {
+    cognito = new CognitoIdentityProviderClient({ region: getAwsRegion() })
+  }
+  return cognito
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
-  secret: AUTH_SECRET,
+  // Keep env validation lazy: don't throw at import-time. If this is misconfigured,
+  // auth flows will fail when invoked (and CI/prod should provide this env var).
+  secret: getAuthSecret(),
   session: { strategy: 'jwt' },
   pages: { signIn: '/auth' },
   providers: [
@@ -43,10 +41,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         if (!email || !password) return null
 
-        const response = await cognito.send(
+        const response = await getCognitoClient().send(
           new InitiateAuthCommand({
             AuthFlow: 'USER_PASSWORD_AUTH',
-            ClientId: clientId,
+            ClientId: getCognitoClientId(),
             AuthParameters: {
               USERNAME: email,
               PASSWORD: password,
@@ -103,10 +101,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const refreshToken = token.cognitoRefreshToken as string | undefined
         if (refreshToken) {
           try {
-            const response = await cognito.send(
+            const response = await getCognitoClient().send(
               new InitiateAuthCommand({
                 AuthFlow: 'REFRESH_TOKEN_AUTH',
-                ClientId: clientId,
+                ClientId: getCognitoClientId(),
                 AuthParameters: {
                   REFRESH_TOKEN: refreshToken,
                 },

@@ -18,7 +18,8 @@
     "test": "jest",
     "test:amplify": "pnpm run test:amplify:unit & pnpm run test:amplify:int",
     "test:amplify:unit": "jest --testMatch='**/amplify/backend/function/**/*.unit.test.js'",
-    "test:amplify:int": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --testMatch='**/amplify/backend/__tests__/integration/**/*.int.test.ts' --runInBand --testTimeout=30000"
+    "test:amplify:int": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --testMatch='**/amplify/backend/__tests__/integration/**/*.int.test.ts' --runInBand --testTimeout=30000",
+    "test:bff": "jest --testMatch='**/src/app/api/**/*.test.ts'"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.974.0",
@@ -64,6 +65,7 @@
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-prettier": "^5.2.1",
     "jest": "^29.7.0",
+    "@jest/test-sequencer": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",
     "prettier": "^3.6.2",

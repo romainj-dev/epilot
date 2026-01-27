@@ -4,14 +4,11 @@ import {
   SignUpCommand,
 } from '@aws-sdk/client-cognito-identity-provider'
 
-const region = process.env.AWS_REGION
-const clientId = process.env.COGNITO_CLIENT_ID
+import { getAwsRegion, getCognitoClientId } from '@/lib/env'
 
-if (!region || !clientId) {
-  throw new Error('Missing AWS_REGION or COGNITO_CLIENT_ID env vars.')
+function getCognitoClient(): CognitoIdentityProviderClient {
+  return new CognitoIdentityProviderClient({ region: getAwsRegion() })
 }
-
-const cognito = new CognitoIdentityProviderClient({ region })
 
 export async function POST(request: Request) {
   const { email, password } = await request.json()
@@ -24,6 +21,9 @@ export async function POST(request: Request) {
   }
 
   const username = String(email).toLowerCase().trim()
+
+  const cognito = getCognitoClient()
+  const clientId = getCognitoClientId()
 
   await cognito.send(
     new SignUpCommand({

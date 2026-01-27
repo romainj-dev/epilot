@@ -326,3 +326,85 @@ These tests follow the **pragmatic approach** described earlier:
 - **Unit tests**: deterministic, fast, no AWS dependencies
 - **Integration tests**: minimal but real, validate service boundaries
 - **No Step Functions coverage**: Step Functions wiring is not tested (considered low-risk for this app)
+
+---
+
+## BFF / Next.js API Route Tests
+
+This section covers unit tests for the BFF (Backend-for-Frontend) routes under `src/app/api/*`. These tests validate request handling, auth gating, validation, and error mapping **without calling real AWS services**.
+
+### What's Covered
+
+#### 1) GraphQL Proxy Route (`/api/graphql`)
+
+**Location**: `src/app/api/graphql/route.test.ts`
+
+**Tests**:
+- **Auth gating**: requests without `cognitoIdToken` → `401`
+- **Request validation**: missing or invalid `query` → `400`
+- **Proxy wiring**: passes `{ query, variables, idToken }` to `fetchGraphQLProxy`
+- **Error mapping**:
+  - `AppSyncError` → `200` with `{ errors }` (GraphQL convention)
+  - Unknown error → `500` with `{ errors: [{ message }] }`
+
+#### 2) Cognito Signup & Confirm Routes
+
+**Location**: `src/app/api/cognito/signup/route.test.ts`, `src/app/api/cognito/confirm/route.test.ts`
+
+**Tests**:
+- **Validation**: missing required fields (email/password/code) → `400`
+- **Input normalization**: email is lowercased and trimmed, code is trimmed
+- **SDK wiring**: correct `SignUpCommand` / `ConfirmSignUpCommand` parameters
+- **Error mapping** (confirm route): Cognito exceptions → `500` with `{ error: <exception name> }`
+
+#### 3) Price Snapshot Relay Lifecycle
+
+**Location**: `src/app/api/price-snapshot/stream/price-snapshot-relay.test.ts`
+
+**Tests**:
+- **Upstream lifecycle**:
+  - First client → starts AppSync subscription
+  - Subsequent clients → do not restart subscription
+  - Last client disconnects → stops subscription
+- **Broadcast behavior**:
+  - Snapshots/errors are sent to all connected clients
+  - Client send errors are caught and don't crash the relay
+
+### How to Run
+
+```bash
+# Run all unit tests (Amplify Lambda + BFF)
+pnpm test
+
+# Run only BFF unit tests
+pnpm test:bff
+
+# Run only Amplify unit tests
+pnpm test:amplify:unit
+```
+
+### Requirements
+
+- **No AWS credentials needed** (all AWS SDK calls are mocked)
+- **No environment variables needed** for unit tests (env validation is lazy)
+- Tests run in **Node.js environment** (configured in Jest)
+
+### Mocking Strategy
+
+- **Auth**: `@/lib/auth` is mocked to return controlled session objects
+- **AppSync client**: `@/lib/requests` (`fetchGraphQLProxy`, `AppSyncError`) is mocked
+- **Cognito SDK**: `CognitoIdentityProviderClient.prototype.send` is mocked (AWS SDK v3)
+- **AppSync realtime**: `./appsync-realtime` module is mocked in relay tests
+
+### Maintenance
+
+- **Collocated tests**: each test file lives next to the route it tests (e.g., `route.test.ts`)
+- **Fast feedback**: BFF unit tests typically run in < 1 second total
+- **No flakiness**: all external dependencies are mocked, no network calls
+
+### Philosophy
+
+BFF tests follow the same **pragmatic approach**:
+- Focus on **high-signal behaviors**: auth, validation, error shaping, relay lifecycle
+- **Mock all I/O**: no real AWS, no real GraphQL calls
+- Keep tests **simple and readable** (no complex mocking frameworks beyond Jest)

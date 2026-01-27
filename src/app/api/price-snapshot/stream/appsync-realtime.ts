@@ -3,17 +3,11 @@ import 'server-only'
 import { print } from 'graphql'
 import { WebSocket, type RawData } from 'ws'
 
+import { getAppSyncApiKey, getAppSyncEndpoint } from '@/lib/env'
 import {
   OnCreatePriceSnapshotDocument,
   type OnCreatePriceSnapshotSubscription,
 } from '@/graphql/generated/graphql'
-
-const APPSYNC_ENDPOINT = process.env.APPSYNC_ENDPOINT as string
-const APPSYNC_API_KEY = process.env.APPSYNC_API_KEY as string
-
-if (!APPSYNC_ENDPOINT || !APPSYNC_API_KEY) {
-  throw new Error('Missing APPSYNC_ENDPOINT or APPSYNC_API_KEY env var.')
-}
 
 // Base64 may contain characters that are not safe in query params (+, /, =),
 // so we URL-encode the base64 strings.
@@ -31,7 +25,7 @@ function getAppSyncRealtimeUrl(httpEndpoint: string): string {
   const host = url.hostname.replace('appsync-api', 'appsync-realtime-api')
   const header = {
     host: url.hostname,
-    'x-api-key': APPSYNC_API_KEY,
+    'x-api-key': getAppSyncApiKey(),
   }
   const encodedHeader = encodeBase64(header)
   const encodedPayload = encodeBase64({})
@@ -81,9 +75,10 @@ function connect(onError?: (error: Error) => void): void {
     return
   }
 
-  const url = getAppSyncRealtimeUrl(APPSYNC_ENDPOINT)
+  const endpoint = getAppSyncEndpoint()
+  const url = getAppSyncRealtimeUrl(endpoint)
   console.log('[AppSync Realtime] Connecting to WebSocket', {
-    httpHost: new URL(APPSYNC_ENDPOINT).hostname,
+    httpHost: new URL(endpoint).hostname,
     realtimeHost: new URL(url).hostname,
   })
 
@@ -297,8 +292,8 @@ function subscribe(): void {
       }),
       extensions: {
         authorization: {
-          host: new URL(APPSYNC_ENDPOINT).hostname,
-          'x-api-key': APPSYNC_API_KEY,
+          host: new URL(getAppSyncEndpoint()).hostname,
+          'x-api-key': getAppSyncApiKey(),
         },
       },
     },
