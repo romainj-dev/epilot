@@ -11,7 +11,8 @@ type Guess
     ]
   ) {
   id: ID!
-  owner: String! @auth(rules: [{ allow: owner, operations: [read] }])
+  # Owner is auto-populated by Amplify auth resolvers on create
+  owner: String @auth(rules: [{ allow: owner, operations: [read] }])
   createdAt: AWSDateTime!
   settleAt: AWSDateTime!
   guessPrice: Float!

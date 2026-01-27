@@ -3,6 +3,7 @@ const https = require('https')
 function makeAppSyncRequest({
   endpoint,
   apiKey,
+  idToken,
   query,
   variables,
   onResponse,
@@ -11,15 +12,22 @@ function makeAppSyncRequest({
   const body = JSON.stringify({ query, variables })
 
   return new Promise((resolve, reject) => {
+    if (!apiKey && !idToken) {
+      reject(new Error('Either apiKey or idToken must be provided'))
+      return
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(apiKey ? { 'x-api-key': apiKey } : { Authorization: idToken }),
+    }
+
     const req = https.request(
       {
         hostname: url.hostname,
-        path: url.pathname,
+        path: url.pathname + url.search,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
+        headers,
       },
       (res) => {
         let data = ''
