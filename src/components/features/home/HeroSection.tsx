@@ -7,6 +7,20 @@ import { PriceTickerCard } from '@/components/features/price-snapshot/PriceTicke
 import { BitcoinIcon } from '@/components/icons/BitcoinIcon'
 import styles from './HeroSection.module.scss'
 
+interface HighlightProps {
+  className: string
+  Icon: React.JSXElementConstructor<{ className?: string }>
+  children: React.ReactNode
+}
+
+function Highlight({ className, Icon, children }: HighlightProps) {
+  return (
+    <span className={className}>
+      <Icon className={styles.highlightIcon} />
+      {children}
+    </span>
+  )
+}
 export function HeroSection() {
   const t = useTranslations('homePage.hero')
 
@@ -36,17 +50,18 @@ export function HeroSection() {
 
           {/* Subtitle */}
           <p className={styles.subtitle}>
-            {t('subtitle.lead')}{' '}
-            <span className={styles.higher}>
-              <TrendingUp className={styles.trendIcon} />
-              {t('subtitle.higher')}
-            </span>{' '}
-            {t('subtitle.or')}{' '}
-            <span className={styles.lower}>
-              <TrendingDown className={styles.trendIcon} />
-              {t('subtitle.lower')}
-            </span>{' '}
-            {t('subtitle.tail')}
+            {t.rich('subtitle', {
+              higher: (chunks) => (
+                <Highlight className={styles.higher} Icon={TrendingUp}>
+                  {chunks}
+                </Highlight>
+              ),
+              lower: (chunks) => (
+                <Highlight className={styles.lower} Icon={TrendingDown}>
+                  {chunks}
+                </Highlight>
+              ),
+            })}
           </p>
 
           {/* Live price mockup */}

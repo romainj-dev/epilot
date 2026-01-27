@@ -112,23 +112,23 @@
   }
 }
 
-.higher {
-  color: var(--success);
+@mixin subtitleHighlight($color) {
+  color: $color;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.higher {
+  @include subtitleHighlight(var(--success));
 }
 
 .lower {
-  color: var(--destructive);
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+  @include subtitleHighlight(var(--destructive));
 }
 
-.trendIcon {
+.highlightIcon {
   width: 1rem;
   height: 1rem;
 }

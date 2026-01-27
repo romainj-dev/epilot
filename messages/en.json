@@ -98,13 +98,7 @@
         "main": "Predict the Market.",
         "emphasis": "Win Big."
       },
-      "subtitle": {
-        "lead": "Will BTC go",
-        "higher": "higher",
-        "or": "or",
-        "lower": "lower",
-        "tail": "in 60 seconds? Test your market instincts in our fast-paced trading prediction game."
-      },
+      "subtitle": "Will BTC go <higher>higher</higher> or <lower>lower</lower> in 60 seconds? Test your market instincts in our fast-paced trading prediction game.",
       "cta": "Start Playing"
     }
   },
