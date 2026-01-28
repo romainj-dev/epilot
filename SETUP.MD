@@ -212,6 +212,12 @@ The web app receives updates via **Server-Sent Events** on `/api/price-snapshot/
 > aws ssm put-parameter --name "/epilot/dev/price-snapshot-enabled" --type "String" --value "false" --overwrite
 > ```
 
+## 8.1 Guess Settlement Pipeline (EventBridge Scheduler)
+
+Guess settlement is implemented as a one-shot schedule per guess:
+
+- Settlement requires that `PriceSnapshot` data exists around the guess timestamps. If the price snapshot scheduler is not running, guesses may end up `FAILED` due to missing snapshots.
+
 ## 9. Run the App
 
 ```bash
@@ -227,7 +233,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - [ ] Can log in
 - [ ] BTC price displays and updates
 - [ ] Can place a guess
-
+- [ ] After placing a guess, a schedule appears in EventBridge Scheduler group `guess-settlements`
+- [ ] After `settleAt`, the guess becomes `SETTLED` and user score updates
 ## Troubleshooting
 
 ### "Missing APPSYNC_ENDPOINT or APPSYNC_API_KEY env var"
@@ -239,6 +246,20 @@ Your `.env.local` is missing required values. Double-check all variables are set
 1. Check Step Functions execution is running (not failed/succeeded)
 2. Verify SSM parameter `/epilot/dev/price-snapshot-enabled` is `true`
 3. Check Lambda logs in CloudWatch for errors
+
+### Guess never settles / no schedule created
+
+1. Verify DynamoDB streams are enabled for the `Guess` table (Amplify `transform.conf.json` enables NEW_IMAGE).
+2. Check `scheduleGuessLambda` CloudWatch logs for errors (permissions or invalid `settleAt` format).
+3. In EventBridge Scheduler, confirm schedules are created under group `guess-settlements`.
+
+### Guess settles as FAILED (snapshots not found)
+
+This means `settleGuessLambda` could not resolve a snapshot with `sourceUpdatedAt <= createdAt` and/or `sourceUpdatedAt <= settleAt`.
+
+1. Ensure the price snapshot scheduler is running and writing `PriceSnapshot` rows.
+2. Check that snapshot rows have `pk = "PriceSnapshot"` and `sourceUpdatedAt` populated.
+3. Confirm there is at least one snapshot before the guess timestamps (createdAt/settleAt).
 
 ### Authentication errors
 

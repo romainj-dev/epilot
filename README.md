@@ -19,7 +19,7 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
 | Auth      | AWS Cognito + NextAuth (Credentials provider)    |
 | API       | AWS AppSync (GraphQL)                            |
 | Database  | AWS DynamoDB                                     |
-| Scheduler | AWS Lambda + Step Functions (Express)            |
+| Scheduler | AWS Step Functions (Express) + EventBridge Scheduler |
 | Secrets   | AWS SSM Parameter Store                          |
 | Hosting   | AWS Amplify                                      |
 
@@ -50,12 +50,23 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
                      ┌─────────────────┐  ┌─────────────────┐
                      │  DynamoDB       │  │  Lambda         │
                      │  - UserState    │  │  (price job)    │
+                     │  - Guess        │  └────────┬────────┘
                      │  - PriceSnapshot│  └────────┬────────┘
                      └─────────────────┘           │
                                                    ▼
                                           ┌─────────────────┐
                                           │  CoinGecko API  │
                                           └─────────────────┘
+
+                                         ┌──────────────────────┐
+                                         │ EventBridge Scheduler │
+                                         │ (one-shot per Guess)  │
+                                         └──────────┬───────────┘
+                                                    ▼
+                                            ┌─────────────────┐
+                                            │ Lambda          │
+                                            │ (settle guess)  │
+                                            └─────────────────┘
 ```
 
 ### Key Design Decisions
@@ -64,6 +75,8 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
 - **Credentials Provider**: NextAuth uses the Credentials provider to exchange email/password with Cognito, storing sessions server-side.
 - **Dual Auth on AppSync**: Cognito auth for user requests, API key auth for Lambda-to-AppSync writes.
 - **Express Step Functions**: A looping state machine that invokes the price snapshot Lambda, waits the configured interval, then loops. Controlled via SSM parameters.
+- **Guess settlement (EventBridge Scheduler)**: When a `Guess` is created, a DynamoDB Stream triggers `scheduleGuessLambda` which creates a one-time EventBridge Scheduler entry. At `settleAt`, Scheduler invokes `settleGuessLambda` to resolve snapshots, settle the guess, and update score.
+- **Settlement snapshot resolution**: For `createdAt` and `settleAt`, pick the **latest** `PriceSnapshot` with `sourceUpdatedAt <= timestamp`.
 - **Live price updates (SSE relay)**: The browser subscribes to `/api/price-snapshot/stream` (SSE). The BFF maintains an AppSync subscription (`onCreatePriceSnapshot`) and broadcasts new snapshots to all connected clients.
 
 ## Getting Started
@@ -119,8 +132,10 @@ amplify/
 └── backend/
     ├── api/epilot/         # AppSync schema + resolvers
     ├── auth/epilotAuth/    # Cognito configuration
-    ├── function/           # Lambda functions
-    └── custom/             # Step Functions scheduler
+    ├── function/           # Lambda functions (incl. priceSnapshotJob, scheduleGuessLambda, settleGuessLambda)
+    └── custom/             # CloudFormation add-ons
+        ├── priceSnapshotScheduler/    # Step Functions Express: loop that drives priceSnapshotJob
+        └── guessSettlementScheduler/  # EventBridge Scheduler: ScheduleGroup + invoke role for settleGuessLambda
 ```
 
 ## Conventions
