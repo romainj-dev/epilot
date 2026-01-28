@@ -116,7 +116,7 @@ type UserState
       }
       # apiKey needed for PostConfirmation Lambda to create UserState
       # and for settlement Lambda to update score
-      { allow: public, provider: apiKey, operations: [create, update] }
+      { allow: public, provider: apiKey, operations: [create, read, update] }
     ]
   ) {
   id: ID!
@@ -125,7 +125,7 @@ type UserState
       rules: [
         { allow: owner, operations: [read, delete] }
         # apiKey needs to set owner field during create (PostConfirmation Lambda)
-        { allow: public, provider: apiKey, operations: [create] }
+        { allow: public, provider: apiKey, operations: [read, create] }
       ]
     )
   email: AWSEmail!

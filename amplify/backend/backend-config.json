@@ -68,6 +68,19 @@
     }
   },
   "custom": {
+    "guessSettlementScheduler": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "settleGuessLambda"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "CloudFormation"
+    },
     "priceSnapshotScheduler": {
       "dependsOn": [
         {
@@ -89,6 +102,39 @@
       "service": "Lambda"
     },
     "priceSnapshotJob": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "scheduleGuessLambda": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "settleGuessLambda"
+        },
+        {
+          "attributes": [
+            "SchedulerRoleArn"
+          ],
+          "category": "custom",
+          "resourceName": "guessSettlementScheduler"
+        },
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput"
+          ],
+          "category": "api",
+          "resourceName": "epilot"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "settleGuessLambda": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -124,6 +170,38 @@
         {
           "category": "function",
           "resourceName": "priceSnapshotJob"
+        }
+      ]
+    },
+    "AMPLIFY_function_scheduleGuessLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "scheduleGuessLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_scheduleGuessLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "scheduleGuessLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_settleGuessLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "settleGuessLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_settleGuessLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "settleGuessLambda"
         }
       ]
     }

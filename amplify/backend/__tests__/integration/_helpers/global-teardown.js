@@ -29,13 +29,13 @@ module.exports = async () => {
         Username: payload.username,
       })
     )
-  } catch {
+  } catch (error) {
     console.warn(`Failed to delete User ${payload.username}:`, error)
   }
 
   try {
     fs.unlinkSync(filePath)
-  } catch {
+  } catch (error) {
     console.warn(`Failed to delete global-test-user.json:`, error)
   }
 }

@@ -1,0 +1,6 @@
+{
+  "functionName": "scheduleGuessLambda",
+  "resourceName": "scheduleGuessLambda",
+  "runtime": "nodejs"
+}
+

@@ -18,6 +18,9 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "custom": {
+    "guessSettlementScheduler": {
+      "SchedulerRoleArn": "string"
+    },
     "priceSnapshotScheduler": {
       "PriceSnapshotStateMachineArn": "string"
     }
@@ -31,6 +34,20 @@ export type AmplifyDependentResourcesAttributes = {
       "Region": "string"
     },
     "priceSnapshotJob": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
+    "scheduleGuessLambda": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
+    "settleGuessLambda": {
       "Arn": "string",
       "LambdaExecutionRole": "string",
       "LambdaExecutionRoleArn": "string",

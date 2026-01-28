@@ -60,6 +60,14 @@ function resolveTestConfigPartials(env = process.env) {
     env.LAMBDA_PRICE_SNAPSHOT_JOB_ARN ||
     amplifyMeta?.function?.priceSnapshotJob?.output?.Arn
 
+  const lambdaSettleGuessArn =
+    env.LAMBDA_SETTLE_GUESS_ARN ||
+    amplifyMeta?.function?.settleGuessLambda?.output?.Arn
+
+  const lambdaScheduleGuessArn =
+    env.LAMBDA_SCHEDULE_GUESS_ARN ||
+    amplifyMeta?.function?.scheduleGuessLambda?.output?.Arn
+
   return {
     region,
     appsyncEndpoint,
@@ -68,6 +76,8 @@ function resolveTestConfigPartials(env = process.env) {
     cognitoClientId,
     lambdaPostConfirmationArn,
     lambdaPriceSnapshotJobArn,
+    lambdaSettleGuessArn,
+    lambdaScheduleGuessArn,
   }
 }
 

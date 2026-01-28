@@ -1,0 +1,45 @@
+[
+  {
+    "Action": [
+      "scheduler:CreateSchedule"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/guess-settlements/*"
+      }
+    ]
+  },
+  {
+    "Action": [
+      "iam:PassRole"
+    ],
+    "Resource": [
+      {
+        "Ref": "customguessSettlementSchedulerSchedulerRoleArn"
+      }
+    ]
+  },
+  {
+    "Action": [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams"
+    ],
+    "Resource": [
+      {
+        "Fn::ImportValue": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Ref": "apiepilotGraphQLAPIIdOutput"
+              },
+              "GetAtt:GuessTable:StreamArn"
+            ]
+          ]
+        }
+      }
+    ]
+  }
+]

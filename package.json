@@ -15,6 +15,7 @@
     "codegen": "graphql-codegen --config codegen.ts",
     "amplify:push": "amplify push && pnpm codegen",
     "amplify:compile": "amplify api gql-compile",
+    "amplify:function:build": "amplify function build",
     "test": "jest",
     "test:amplify": "pnpm run test:amplify:unit & pnpm run test:amplify:int",
     "test:amplify:unit": "jest --testMatch='**/amplify/backend/function/**/*.unit.test.js'",

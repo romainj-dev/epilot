@@ -1,0 +1,9 @@
+{
+  "name": "settleGuessLambda",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "lambda-utils": "file:../../../../../packages/lambda-utils"
+  }
+}
+

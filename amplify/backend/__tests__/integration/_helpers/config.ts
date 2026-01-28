@@ -15,6 +15,8 @@ interface TestConfig {
   cognitoClientId: string;
   lambdaPostConfirmationArn?: string;
   lambdaPriceSnapshotJobArn?: string;
+  lambdaSettleGuessArn?: string;
+  lambdaScheduleGuessArn?: string;
 }
 
 export function getTestConfig(): TestConfig {
@@ -27,6 +29,8 @@ export function getTestConfig(): TestConfig {
       cognitoClientId?: string;
       lambdaPostConfirmationArn?: string;
       lambdaPriceSnapshotJobArn?: string;
+      lambdaSettleGuessArn?: string;
+      lambdaScheduleGuessArn?: string;
     };
   };
 
@@ -38,6 +42,8 @@ export function getTestConfig(): TestConfig {
     cognitoClientId,
     lambdaPostConfirmationArn,
     lambdaPriceSnapshotJobArn,
+    lambdaSettleGuessArn,
+    lambdaScheduleGuessArn,
   } = resolveTestConfigPartials();
 
   if (!region || !appsyncEndpoint || !appsyncApiKey || !cognitoUserPoolId || !cognitoClientId) {
@@ -59,5 +65,7 @@ export function getTestConfig(): TestConfig {
     cognitoClientId,
     lambdaPostConfirmationArn,
     lambdaPriceSnapshotJobArn,
+    lambdaSettleGuessArn,
+    lambdaScheduleGuessArn,
   };
 }

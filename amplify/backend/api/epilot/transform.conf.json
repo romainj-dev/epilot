@@ -1,4 +1,13 @@
 {
   "Version": 5,
-  "ElasticsearchWarning": true
+  "ElasticsearchWarning": true,
+  "OverrideConfig": {
+    "Guess": {
+      "stream": {
+        "streamSpecification": {
+          "streamViewType": "NEW_IMAGE"
+        }
+      }
+    }
+  }
 }

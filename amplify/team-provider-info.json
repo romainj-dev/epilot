@@ -20,7 +20,8 @@
         "epilot": {}
       },
       "custom": {
-        "priceSnapshotScheduler": {}
+        "priceSnapshotScheduler": {},
+        "guessSettlementScheduler": {}
       },
       "function": {
         "epilotAuthPostConfirmation": {
@@ -30,6 +31,14 @@
         "priceSnapshotJob": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
           "s3Key": "amplify-builds/priceSnapshotJob-31584436737575726678-build.zip"
+        },
+        "scheduleGuessLambda": {
+          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
+          "s3Key": "amplify-builds/scheduleGuessLambda-447a7069513559376d72-build.zip"
+        },
+        "settleGuessLambda": {
+          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
+          "s3Key": "amplify-builds/settleGuessLambda-556c6e6e787337517035-build.zip"
         }
       }
     }
