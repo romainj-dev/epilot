@@ -6,5 +6,6 @@ subscription OnCreatePriceSnapshot(
     pk
     capturedAt
     priceUsd
+    sourceUpdatedAt
   }
 }

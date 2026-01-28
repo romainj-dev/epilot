@@ -25,9 +25,9 @@ function Background() {
 
 export default function AuthPage() {
   return (
-    <main className={styles.main}>
+    <div className={styles.main}>
       <Background />
       <AuthTabs />
-    </main>
+    </div>
   )
 }

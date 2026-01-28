@@ -2,29 +2,110 @@
 
 import { useTranslations } from 'next-intl'
 import { usePriceSnapshot } from '@/components/features/price-snapshot/PriceSnapshotProvider'
-import { getFormattedPrice } from './utils'
+import { getFormattedPrice, formatUpdatedAt } from './utils'
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card/Card'
+import styles from './PriceTickerBig.module.scss'
+import { cn } from '@/lib/utils'
+
+interface TrendProps {
+  priceDirection: 'up' | 'down' | null
+}
+
+function Trend({ priceDirection }: TrendProps) {
+  function getTrendClass() {
+    if (priceDirection === 'up') return styles.trendUp
+    if (priceDirection === 'down') return styles.trendDown
+    return ''
+  }
+
+  return (
+    <span className={cn(styles.trendIcon, getTrendClass())}>
+      {priceDirection === 'up' ? (
+        <TrendingUp className={styles.trendIcon} />
+      ) : priceDirection === 'down' ? (
+        <TrendingDown className={styles.trendIcon} />
+      ) : null}
+    </span>
+  )
+}
+
+interface UpdatedAtProps {
+  updatedAt: string | null
+}
+
+function UpdatedAt({ updatedAt }: UpdatedAtProps) {
+  const t = useTranslations('priceSnapshot.big')
+
+  return (
+    <div className={cn(styles.timestamp, !updatedAt ? styles.hidden : '')}>
+      <Minus className={styles.timestampIcon} />
+      <span>
+        {t('lastUpdatedLabel')} {updatedAt}
+      </span>
+    </div>
+  )
+}
+
+interface PriceDisplayProps {
+  price: string | null
+  priceDirection: 'up' | 'down' | null
+}
+
+function PriceDisplay({ price, priceDirection }: PriceDisplayProps) {
+  const t = useTranslations('priceSnapshot.big')
+
+  function getFlashClass() {
+    if (priceDirection === 'up') return styles.flashUp
+    if (priceDirection === 'down') return styles.flashDown
+    return ''
+  }
+
+  return (
+    <div className={styles.priceWrapper}>
+      {!price ? (
+        <div className={cn(styles.priceDisplay, styles.hidden)}>
+          <span className={styles.priceValue}>{t('loading')}</span>
+        </div>
+      ) : (
+        <div className={cn(styles.priceDisplay, getFlashClass())}>
+          <span className={styles.priceValue}>{price}</span>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function PriceTickerBig() {
   const t = useTranslations('priceSnapshot.big')
-  const { snapshot, error } = usePriceSnapshot()
+  const { snapshot, error, priceDirection } = usePriceSnapshot()
 
-  if (error) {
-    return <p className="text-sm text-red-500">{error}</p>
-  }
-
-  if (!snapshot) {
-    return <p className="text-sm text-muted-foreground">{t('loading')}</p>
-  }
-
-  const formattedPrice = getFormattedPrice({ snapshot })
+  const price = getFormattedPrice({ snapshot })
+  const updatedAt = formatUpdatedAt({ snapshot })
+  const animationKey = updatedAt ?? 'LOADING'
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <p className="text-sm text-muted-foreground">{t('latestLabel')}</p>
-      <p className="text-3xl font-semibold">{formattedPrice}</p>
-      <p className="text-xs text-muted-foreground">
-        {new Date(snapshot.capturedAt).toLocaleTimeString()}
-      </p>
-    </div>
+    <Card className={styles.card}>
+      <CardContent className={styles.content}>
+        {error ? (
+          <p className={styles.error}>{t('error')}</p>
+        ) : (
+          <div className={styles.inner}>
+            <div className={styles.label}>
+              <span className={styles.labelText}>{t('pairLabel')}</span>
+              <Trend priceDirection={priceDirection} />
+            </div>
+
+            <PriceDisplay
+              key={animationKey}
+              price={price}
+              priceDirection={priceDirection}
+            />
+
+            <UpdatedAt updatedAt={updatedAt} />
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }

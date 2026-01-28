@@ -3,12 +3,14 @@ query PriceSnapshotsByPk(
   $limit: Int
   $sortDirection: ModelSortDirection
 ) {
+  # TODO: create reusable fragment with subscriptions.graphql
   priceSnapshotsByPk(pk: $pk, limit: $limit, sortDirection: $sortDirection) {
     items {
       id
       pk
       capturedAt
       priceUsd
+      sourceUpdatedAt
     }
   }
 }

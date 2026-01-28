@@ -1,10 +1,26 @@
+import { getTranslations } from 'next-intl/server'
+import styles from './page.module.scss'
+import { GuessAction } from '@/components/features/dashboard/GuessAction'
 import { PriceTickerBig } from '@/components/features/price-snapshot/PriceTickerBig'
+import { GuessHistory } from '@/components/features/dashboard/GuessHistory'
+
+export async function generateMetadata() {
+  const t = await getTranslations('dashboardPage')
+
+  return {
+    title: t('meta.title'),
+    description: t('meta.description'),
+  }
+}
 
 export default async function DashboardPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+    <div className={styles.main}>
       <PriceTickerBig />
-    </main>
+
+      <GuessAction />
+
+      <GuessHistory />
+    </div>
   )
 }

@@ -114,7 +114,54 @@
     },
     "big": {
       "loading": "Loading latest price...",
-      "latestLabel": "Latest BTC price"
+      "latestLabel": "Latest BTC price",
+      "pairLabel": "BTC / USD",
+      "lastUpdatedLabel": "Last updated:",
+      "error": "An error occurred while fetching the price"
+    }
+  },
+  "dashboardPage": {
+    "meta": {
+      "title": "Dashboard | BitBet",
+      "description": "Make your BTC price predictions and compete for the highest score."
+    }
+  },
+  "dashboardGuessAction": {
+    "buttons": {
+      "up": "UP",
+      "down": "DOWN"
+    },
+    "active": {
+      "title": "Active Prediction",
+      "entryPriceLabel": "Entry Price",
+      "placedAtLabel": "Placed At"
+    },
+    "status": {
+      "idle": "Place your prediction",
+      "waitingTime": "Waiting for 60s...",
+      "waitingPrice": "Waiting for price change..."
+    },
+    "countdown": "{seconds}s",
+    "idleHint": "Predict whether BTC will be higher or lower in 60 seconds"
+  },
+  "dashboardGuessHistory": {
+    "title": "Recent Predictions",
+    "empty": "No predictions yet. Place your first guess!",
+    "direction": {
+      "up": "UP",
+      "down": "DOWN"
+    },
+    "result": {
+      "win": "Win",
+      "loss": "Loss"
+    },
+    "table": {
+      "direction": "Direction",
+      "entry": "Entry",
+      "resolved": "Resolved",
+      "result": "Result",
+      "points": "Points",
+      "time": "Time"
     }
   }
 }
