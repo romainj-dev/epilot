@@ -7,10 +7,10 @@
 }
 
 .content {
-  padding: theme.spacing(6);
+  padding: theme.spacing(8);
 
-  @media (min-width: 768px) {
-    padding: theme.spacing(8);
+  @include theme.below(mobile) {
+    padding: theme.spacing(6);
   }
 }
 
@@ -70,13 +70,13 @@
 
 .priceValue {
   font-family: var(--font-mono);
-  font-size: theme.fontSize('5xl');
+  font-size: theme.fontSize('6xl');
   font-weight: theme.fontWeight(bold);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.025em;
 
-  @media (min-width: 768px) {
-    font-size: theme.fontSize('6xl');
+  @include theme.below(mobile) {
+    font-size: theme.fontSize('5xl');
   }
 }
 

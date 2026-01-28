@@ -6,10 +6,10 @@
   border: 1px solid oklch(from var(--border) l c h / 0.4);
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   border-radius: theme.radius('2xl');
-  padding: theme.spacing(4) theme.spacing(6);
+  padding: theme.spacing(5) theme.spacing(8);
 
-  @media (min-width: 640px) {
-    padding: theme.spacing(5) theme.spacing(8);
+  @include theme.below(mobile) {
+    padding: theme.spacing(4) theme.spacing(6);
   }
 }
 
@@ -53,13 +53,13 @@
 }
 
 .priceValue {
-  font-size: theme.fontSize(lg);
+  font-size: theme.fontSize(xl);
   font-weight: theme.fontWeight(bold);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 
-  @media (min-width: 640px) {
-    font-size: theme.fontSize(xl);
+  @include theme.below(mobile) {
+    font-size: theme.fontSize(lg);
   }
 }
 

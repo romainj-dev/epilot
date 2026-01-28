@@ -12,14 +12,14 @@
 .container {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 0 theme.spacing(4);
+  padding: 0 theme.spacing(8);
 
-  @media (min-width: 640px) {
-    padding: 0 theme.spacing(6);
+  @include theme.below(mobile) {
+    padding: 0 theme.spacing(4);
   }
 
-  @media (min-width: 1024px) {
-    padding: 0 theme.spacing(8);
+  @include theme.below(tablet) {
+    padding: 0 theme.spacing(6);
   }
 }
 

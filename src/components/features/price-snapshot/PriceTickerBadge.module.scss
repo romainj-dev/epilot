@@ -21,7 +21,7 @@
   min-width: 150px;
   backdrop-filter: blur(8px);
 
-  @media (max-width: 780px) {
+  @include theme.below(mobile) {
     display: none;
   }
 }

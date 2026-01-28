@@ -29,14 +29,14 @@
   z-index: 10;
   max-width: 80rem;
   margin: 0 auto;
-  padding: theme.spacing(20) theme.spacing(4);
+  padding: theme.spacing(32) theme.spacing(8);
 
-  @media (min-width: 640px) {
-    padding: theme.spacing(32) theme.spacing(6);
+  @include theme.below(mobile) {
+    padding: theme.spacing(20) theme.spacing(4);
   }
 
-  @media (min-width: 1024px) {
-    padding: theme.spacing(32) theme.spacing(8);
+  @include theme.below(tablet) {
+    padding: theme.spacing(32) theme.spacing(6);
   }
 }
 
@@ -52,22 +52,18 @@
 }
 
 .headline {
-  font-size: theme.fontSize('4xl');
+  font-size: theme.fontSize('7xl');
   font-weight: theme.fontWeight(bold);
   letter-spacing: -0.025em;
   max-width: 56rem;
   text-wrap: balance;
 
-  @media (min-width: 640px) {
-    font-size: theme.fontSize('5xl');
+  @include theme.below(mobile) {
+    font-size: theme.fontSize('4xl');
   }
 
-  @media (min-width: 768px) {
+  @include theme.below(tablet) {
     font-size: theme.fontSize('6xl');
-  }
-
-  @media (min-width: 1024px) {
-    font-size: theme.fontSize('7xl');
   }
 }
 
@@ -101,15 +97,15 @@
 
 .subtitle {
   margin-top: theme.spacing(6);
-  font-size: theme.fontSize('lg');
-  line-height: theme.lineHeight(lg);
+  font-size: theme.fontSize(xl);
+  line-height: theme.lineHeight(xl);
   color: var(--muted-foreground);
   max-width: 42rem;
   text-wrap: pretty;
 
-  @media (min-width: 640px) {
-    font-size: theme.fontSize(xl);
-    line-height: theme.lineHeight(xl);
+  @include theme.below(mobile) {
+    font-size: theme.fontSize('lg');
+    line-height: theme.lineHeight(lg);
   }
 }
 
@@ -137,12 +133,12 @@
 .ctaButtons {
   margin-top: theme.spacing(10);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: theme.spacing(4);
 
-  @media (min-width: 640px) {
-    flex-direction: row;
+  @include theme.below(mobile) {
+    flex-direction: column;
   }
 }
 

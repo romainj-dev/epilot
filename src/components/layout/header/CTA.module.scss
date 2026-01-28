@@ -5,9 +5,5 @@
 }
 
 .signIn {
-  display: none;
-
-  @media (min-width: 640px) {
-    display: flex;
-  }
+  display: flex;
 }

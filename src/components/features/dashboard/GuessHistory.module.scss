@@ -18,12 +18,12 @@
 
 /* Mobile cards view */
 .mobileView {
-  display: flex;
-  flex-direction: column;
-  gap: theme.spacing(3);
+  display: none;
 
-  @media (min-width: 768px) {
-    display: none;
+  @include theme.below(mobile) {
+    display: flex;
+    flex-direction: column;
+    gap: theme.spacing(3);
   }
 }
 
@@ -124,10 +124,10 @@
 
 /* Desktop table view */
 .desktopView {
-  display: none;
+  display: block;
 
-  @media (min-width: 768px) {
-    display: block;
+  @include theme.below(mobile) {
+    display: none;
   }
 }
 
