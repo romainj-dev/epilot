@@ -1,101 +1,101 @@
 .card {
-    background: oklch(from var(--card) l c h / 0.6);
-    backdrop-filter: blur(24px);
-    border: 1px solid oklch(from var(--border) l c h / 0.4);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    overflow: hidden;
-  }
-  
-  .content {
-    padding: 1.5rem;
-    
-    @media (min-width: 768px) {
-      padding: 2rem;
-    }
-  }
-  
-  .inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--muted-foreground);
-  }
-  
-  .labelText {
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  .trendIcon {
-    height: 1rem;
-    width: 1rem;
-    transition: color 0.2s;
-  }
-  
-  .trendUp {
-    color: var(--success);
-  }
-  
-  .trendDown {
-    color: var(--destructive);
-  }
-  
-  .priceWrapper {
-    position: relative;
-  }
+  background: oklch(from var(--card) l c h / 0.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid oklch(from var(--border) l c h / 0.4);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+}
 
-  .priceDisplay {
-    display: flex;
-    align-items: baseline;
-    gap: 0.25rem;
-    transition: color 0.3s;
-  }
+.content {
+  padding: theme.spacing(6);
 
-  .flashUp {
-    animation: price-flash-up 0.6s ease-in-out;
+  @media (min-width: 768px) {
+    padding: theme.spacing(8);
   }
-  
-  .flashDown {
-    animation: price-flash-down 0.6s ease-in-out;
-  }
-  
-  .priceValue {
-    font-family: var(--font-mono);
-    font-size: 3rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.025em;
-    
-    @media (min-width: 768px) {
-      font-size: 3.75rem;
-    }
-  }
-  
-  .timestamp {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-  }
-  
-  .timestampIcon {
-    height: 0.75rem;
-    width: 0.75rem;
-  }
+}
 
-  .hidden {
-    visibility: hidden;
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: theme.spacing(4);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: theme.spacing(2);
+  color: var(--muted-foreground);
+}
+
+.labelText {
+  font-size: theme.fontSize(sm);
+  font-weight: theme.fontWeight(medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trendIcon {
+  height: 1rem;
+  width: 1rem;
+  transition: color 0.2s;
+}
+
+.trendUp {
+  color: var(--success);
+}
+
+.trendDown {
+  color: var(--destructive);
+}
+
+.priceWrapper {
+  position: relative;
+}
+
+.priceDisplay {
+  display: flex;
+  align-items: baseline;
+  gap: theme.spacing(1);
+  transition: color 0.3s;
+}
+
+.flashUp {
+  animation: price-flash-up 0.6s ease-in-out;
+}
+
+.flashDown {
+  animation: price-flash-down 0.6s ease-in-out;
+}
+
+.priceValue {
+  font-family: var(--font-mono);
+  font-size: theme.fontSize('5xl');
+  font-weight: theme.fontWeight(bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+
+  @media (min-width: 768px) {
+    font-size: theme.fontSize('6xl');
   }
+}
+
+.timestamp {
+  display: flex;
+  align-items: center;
+  gap: theme.spacing(2);
+  font-size: theme.fontSize('xs');
+  color: var(--muted-foreground);
+}
+
+.timestampIcon {
+  height: theme.spacing(3);
+  width: theme.spacing(3);
+}
+
+.hidden {
+  visibility: hidden;
+}
 
 @keyframes price-flash-up {
   0% {
@@ -115,11 +115,10 @@
   }
 }
 
-  .error {
-    color: var(--destructive);
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-align: center;
-    margin-top: 1rem;
-  }
-  
+.error {
+  color: var(--destructive);
+  font-size: theme.fontSize('sm');
+  font-weight: theme.fontWeight(medium);
+  text-align: center;
+  margin-top: theme.spacing(4);
+}

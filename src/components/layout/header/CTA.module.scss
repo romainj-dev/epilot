@@ -1,7 +1,7 @@
 .cta {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: theme.spacing(3);
 }
 
 .signIn {

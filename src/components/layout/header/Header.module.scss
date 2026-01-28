@@ -12,14 +12,14 @@
 .container {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 theme.spacing(4);
 
   @media (min-width: 640px) {
-    padding: 0 1.5rem;
+    padding: 0 theme.spacing(6);
   }
 
   @media (min-width: 1024px) {
-    padding: 0 2rem;
+    padding: 0 theme.spacing(8);
   }
 }
 
@@ -33,7 +33,7 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: theme.spacing(2);
 }
 
 .logoIconWrapper {
@@ -45,7 +45,7 @@
   inset: 0;
   background: oklch(from var(--primary) l c h / 0.2);
   filter: blur(12px);
-  border-radius: 9999px;
+  border-radius: theme.radius(full);
   transition: background 0.2s;
 
   .logo:hover & {
@@ -55,14 +55,14 @@
 
 .logoIcon {
   position: relative;
-  width: 2rem;
-  height: 2rem;
+  width: theme.spacing(8);
+  height: theme.spacing(8);
   color: var(--primary);
 }
 
 .logoText {
-  font-weight: 600;
-  font-size: 1.125rem;
+  font-weight: theme.fontWeight(medium);
+  font-size: theme.fontSize('lg');
   letter-spacing: -0.025em;
 }
 

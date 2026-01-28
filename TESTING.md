@@ -198,6 +198,7 @@ pnpm test:amplify:unit
 ```
 
 **Requirements**:
+
 - No AWS credentials needed (all dependencies are mocked)
 - No environment variables needed
 
@@ -244,6 +245,7 @@ pnpm test:amplify:int
 These tests call **real AWS services** and require:
 
 1. **A deployed Amplify environment** (typically `dev` or `sandbox`):
+
    ```bash
    amplify init
    amplify push
@@ -263,6 +265,7 @@ These tests call **real AWS services** and require:
    - **Amplify-generated config files** (local convenience fallback)
 
    Environment variables you can set:
+
    ```bash
    export AWS_REGION=us-east-1
    export APPSYNC_ENDPOINT=https://xxxxx.appsync-api.us-east-1.amazonaws.com/graphql
@@ -289,6 +292,7 @@ These tests call **real AWS services** and require:
    - `appsync:GraphQL` (implicit via HTTPS calls with API key or Cognito token)
 
    Set via `aws configure` or environment variables:
+
    ```bash
    export AWS_ACCESS_KEY_ID=xxxxx
    export AWS_SECRET_ACCESS_KEY=xxxxx
@@ -303,14 +307,14 @@ These tests call **real AWS services** and require:
 
 **Common failures**:
 
-| Error | Likely Cause | Fix |
-|-------|-------------|-----|
-| `Missing required test config` | Env vars or Amplify config files missing | Run `amplify push` or set env vars |
-| `AppSync GraphQL error: Unauthorized` | API key expired or invalid | Re-run `amplify push` to refresh API key |
-| `Cognito: InvalidParameterException` | `USER_PASSWORD_AUTH` not enabled | Enable in Cognito User Pool app client settings |
-| `AccessDeniedException` | IAM permissions missing | Add required Cognito/Lambda permissions to your AWS profile |
-| `Lambda execution failed` | SSM parameters not seeded | Follow `SETUP.MD` to seed SSM parameters |
-| `Amplify config files are stale` | Config from a different environment/account | Re-run `amplify pull` or explicitly set env vars |
+| Error                                 | Likely Cause                                | Fix                                                         |
+| ------------------------------------- | ------------------------------------------- | ----------------------------------------------------------- |
+| `Missing required test config`        | Env vars or Amplify config files missing    | Run `amplify push` or set env vars                          |
+| `AppSync GraphQL error: Unauthorized` | API key expired or invalid                  | Re-run `amplify push` to refresh API key                    |
+| `Cognito: InvalidParameterException`  | `USER_PASSWORD_AUTH` not enabled            | Enable in Cognito User Pool app client settings             |
+| `AccessDeniedException`               | IAM permissions missing                     | Add required Cognito/Lambda permissions to your AWS profile |
+| `Lambda execution failed`             | SSM parameters not seeded                   | Follow `SETUP.MD` to seed SSM parameters                    |
+| `Amplify config files are stale`      | Config from a different environment/account | Re-run `amplify pull` or explicitly set env vars            |
 
 **Debugging tips**:
 
@@ -335,6 +339,7 @@ These tests call **real AWS services** and require:
 ### Philosophy
 
 These tests follow the **pragmatic approach** described earlier:
+
 - **Unit tests**: deterministic, fast, no AWS dependencies
 - **Integration tests**: minimal but real, validate service boundaries
 - **No Step Functions coverage**: Step Functions wiring is not tested (considered low-risk for this app)
@@ -352,6 +357,7 @@ This section covers unit tests for the BFF (Backend-for-Frontend) routes under `
 **Location**: `src/app/api/graphql/route.test.ts`
 
 **Tests**:
+
 - **Auth gating**: requests without `cognitoIdToken` → `401`
 - **Request validation**: missing or invalid `query` → `400`
 - **Proxy wiring**: passes `{ query, variables, idToken }` to `fetchGraphQLProxy`
@@ -364,6 +370,7 @@ This section covers unit tests for the BFF (Backend-for-Frontend) routes under `
 **Location**: `src/app/api/cognito/signup/route.test.ts`, `src/app/api/cognito/confirm/route.test.ts`
 
 **Tests**:
+
 - **Validation**: missing required fields (email/password/code) → `400`
 - **Input normalization**: email is lowercased and trimmed, code is trimmed
 - **SDK wiring**: correct `SignUpCommand` / `ConfirmSignUpCommand` parameters
@@ -374,6 +381,7 @@ This section covers unit tests for the BFF (Backend-for-Frontend) routes under `
 **Location**: `src/app/api/price-snapshot/stream/price-snapshot-relay.test.ts`
 
 **Tests**:
+
 - **Upstream lifecycle**:
   - First client → starts AppSync subscription
   - Subsequent clients → do not restart subscription
@@ -417,6 +425,7 @@ pnpm test:amplify:unit
 ### Philosophy
 
 BFF tests follow the same **pragmatic approach**:
+
 - Focus on **high-signal behaviors**: auth, validation, error shaping, relay lifecycle
 - **Mock all I/O**: no real AWS, no real GraphQL calls
 - Keep tests **simple and readable** (no complex mocking frameworks beyond Jest)

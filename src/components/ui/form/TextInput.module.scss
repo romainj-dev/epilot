@@ -1,15 +1,15 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: theme.spacing(2);
 }
 
 .label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: theme.fontSize('sm');
+  font-weight: theme.fontWeight(medium);
 }
 
 .hint {
-  font-size: 0.75rem;
+  font-size: theme.fontSize('xs');
   color: var(--muted-foreground);
 }

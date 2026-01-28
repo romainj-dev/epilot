@@ -2,7 +2,7 @@
   position: relative;
   height: 2.5rem;
   width: 2.5rem;
-  border-radius: 9999px;
+  border-radius: theme.radius(full);
 }
 
 .avatar {
@@ -26,25 +26,25 @@
 }
 
 .userInfo {
-  margin-bottom: 1rem;
+  margin-bottom: theme.spacing(4);
 }
 
 .username {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: theme.fontSize('sm');
+  font-weight: theme.fontWeight(medium);
 }
 
 .email {
-  font-size: 0.75rem;
+  font-size: theme.fontSize('xs');
   color: var(--muted-foreground);
 }
 
 .statsBox {
-  border-radius: 0.5rem;
+  border-radius: theme.radius(lg);
   border: 1px solid oklch(from var(--border) l c h / 0.6);
   background: oklch(from var(--muted) l c h / 0.3);
-  padding: 0.75rem;
-  margin-bottom: 1rem;
+  padding: theme.spacing(3);
+  margin-bottom: theme.spacing(4);
 }
 
 .statsRow {
@@ -54,26 +54,26 @@
 }
 
 .statsLabel {
-  font-size: 0.75rem;
+  font-size: theme.fontSize('xs');
   color: var(--muted-foreground);
 }
 
 .statsValue {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: theme.fontSize('sm');
+  font-weight: theme.fontWeight(medium);
   font-variant-numeric: tabular-nums;
 }
 
 .logoutButton {
   width: 100%;
   justify-content: flex-start;
-  gap: 0.5rem;
+  gap: theme.spacing(2);
   background: transparent;
 }
 
 .logoutIcon {
   height: 1rem;
   width: 1rem;
-  margin-right: 0.5rem;
+  margin-right: theme.spacing(2);
 }

@@ -1,7 +1,7 @@
 .center {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: theme.spacing(4);
 }
 
 .priceIcon {
@@ -13,9 +13,9 @@
 .priceBadge {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
+  gap: theme.spacing(2);
+  padding: theme.spacing(1) theme.spacing(3);
+  font-size: theme.fontSize('sm');
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   min-width: 150px;
@@ -27,8 +27,8 @@
 }
 
 .scoreBadge {
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
+  padding: theme.spacing(1) theme.spacing(3);
+  font-size: theme.fontSize('sm');
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   min-width: 120px;

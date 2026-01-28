@@ -1,8 +1,8 @@
 .main {
   max-width: 42rem;
   margin: 0 auto;
-  padding: 10rem 1rem;
+  padding: theme.spacing(40) theme.spacing(4);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: theme.spacing(8);
 }

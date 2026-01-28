@@ -113,7 +113,7 @@
       "scoreLabel": "Score:"
     },
     "big": {
-      "loading": "Loading latest price...",
+      "loading": "Loading...",
       "latestLabel": "Latest BTC price",
       "pairLabel": "BTC / USD",
       "lastUpdatedLabel": "Last updated:",

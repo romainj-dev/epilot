@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 4rem;
+  padding-top: theme.spacing(16);
   overflow: hidden;
 }
 
@@ -29,14 +29,14 @@
   z-index: 10;
   max-width: 80rem;
   margin: 0 auto;
-  padding: 5rem 1rem;
+  padding: theme.spacing(20) theme.spacing(4);
 
   @media (min-width: 640px) {
-    padding: 8rem 1.5rem;
+    padding: theme.spacing(32) theme.spacing(6);
   }
 
   @media (min-width: 1024px) {
-    padding: 8rem 2rem;
+    padding: theme.spacing(32) theme.spacing(8);
   }
 }
 
@@ -48,26 +48,26 @@
 }
 
 .badge {
-  margin-bottom: 1.5rem;
+  margin-bottom: theme.spacing(6);
 }
 
 .headline {
-  font-size: 2.25rem;
-  font-weight: 700;
+  font-size: theme.fontSize('4xl');
+  font-weight: theme.fontWeight(bold);
   letter-spacing: -0.025em;
   max-width: 56rem;
   text-wrap: balance;
 
   @media (min-width: 640px) {
-    font-size: 3rem;
+    font-size: theme.fontSize('5xl');
   }
 
   @media (min-width: 768px) {
-    font-size: 3.75rem;
+    font-size: theme.fontSize('6xl');
   }
 
   @media (min-width: 1024px) {
-    font-size: 4.5rem;
+    font-size: theme.fontSize('7xl');
   }
 }
 
@@ -100,24 +100,25 @@
 }
 
 .subtitle {
-  margin-top: 1.5rem;
-  font-size: 1.125rem;
+  margin-top: theme.spacing(6);
+  font-size: theme.fontSize('lg');
+  line-height: theme.lineHeight(lg);
   color: var(--muted-foreground);
   max-width: 42rem;
   text-wrap: pretty;
-  line-height: 1.625;
 
   @media (min-width: 640px) {
-    font-size: 1.25rem;
+    font-size: theme.fontSize(xl);
+    line-height: theme.lineHeight(xl);
   }
 }
 
 @mixin subtitleHighlight($color) {
   color: $color;
-  font-weight: 500;
+  font-weight: theme.fontWeight(medium);
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: theme.spacing(1);
 }
 
 .higher {
@@ -134,11 +135,11 @@
 }
 
 .ctaButtons {
-  margin-top: 2.5rem;
+  margin-top: theme.spacing(10);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: theme.spacing(4);
 
   @media (min-width: 640px) {
     flex-direction: row;
@@ -155,7 +156,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 8rem;
+  height: theme.spacing(32);
   background: linear-gradient(to top, var(--background), transparent);
   pointer-events: none;
 }

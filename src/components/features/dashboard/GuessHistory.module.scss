@@ -6,13 +6,13 @@
 }
 
 .cardTitle {
-  font-size: 1rem;
+  font-size: theme.fontSize('base');
 }
 
 .empty {
   padding: 2rem 0;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: theme.fontSize('sm');
   color: var(--muted-foreground);
 }
 
@@ -20,17 +20,17 @@
 .mobileView {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  
+  gap: theme.spacing(3);
+
   @media (min-width: 768px) {
     display: none;
   }
 }
 
 .mobileCard {
-  border-radius: 0.5rem;
+  border-radius: theme.radius(lg);
   border: 1px solid;
-  padding: 0.75rem;
+  padding: theme.spacing(3);
 }
 
 .mobileCardWin {
@@ -52,12 +52,12 @@
 .mobileCardLeft {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: theme.spacing(2);
 }
 
 .directionBadge {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: theme.fontSize('xs');
 }
 
 .directionUp {
@@ -71,20 +71,20 @@
 }
 
 .badgeIcon {
-  margin-right: 0.25rem;
+  margin-right: theme.spacing(1);
   height: 0.75rem;
   width: 0.75rem;
 }
 
 .timestamp {
-  font-size: 0.75rem;
+  font-size: theme.fontSize('xs');
   color: var(--muted-foreground);
 }
 
 .mobileCardResult {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: theme.spacing(1);
 }
 
 .resultIconWin {
@@ -101,31 +101,31 @@
 
 .pointsWin {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: theme.fontSize('sm');
+  font-weight: theme.fontWeight(medium);
   color: var(--success);
 }
 
 .pointsLoss {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: theme.fontSize('sm');
+  font-weight: theme.fontWeight(medium);
   color: var(--destructive);
 }
 
 .mobileCardPrices {
-  margin-top: 0.5rem;
+  margin-top: theme.spacing(2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: theme.fontSize('xs');
   color: var(--muted-foreground);
 }
 
 /* Desktop table view */
 .desktopView {
   display: none;
-  
+
   @media (min-width: 768px) {
     display: block;
   }
@@ -145,14 +145,14 @@
 
 .priceCell {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: theme.fontSize('sm');
   font-variant-numeric: tabular-nums;
 }
 
 .resultCell {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: theme.spacing(1);
 }
 
 .resultTextWin {
@@ -166,13 +166,13 @@
 .pointsCell {
   text-align: right;
   font-family: var(--font-mono);
-  font-weight: 600;
+  font-weight: theme.fontWeight(medium);
 }
 
 .timestampCell {
   text-align: right;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: theme.fontSize('sm');
   font-variant-numeric: tabular-nums;
   color: var(--muted-foreground);
 }

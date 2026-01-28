@@ -9,4 +9,4 @@ coverage
 pnpm-lock.yaml
 .env*.local
 amplify/
-graphql/generated/
+graphql/generated/*

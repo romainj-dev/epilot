@@ -13,6 +13,7 @@ import styles from './layout.module.scss'
 const geist = Geist({
   subsets: ['latin'],
   fallback: ['Geist Fallback', 'system-ui', 'sans-serif'],
+  weight: ['300', '400', '500', '700'],
 })
 
 export async function generateMetadata() {
