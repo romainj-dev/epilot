@@ -1,3 +1,27 @@
+# --------------------
+# Enums
+# --------------------
+
+enum GuessDirection {
+  UP
+  DOWN
+}
+
+enum GuessOutcome {
+  WIN
+  LOSS
+}
+
+enum GuessStatus {
+  PENDING
+  SETTLED
+  FAILED
+}
+
+# --------------------
+# Guess Model
+# --------------------
+
 type Guess
   @model
   @auth(
@@ -5,22 +29,50 @@ type Guess
       {
         allow: owner
         ownerField: "owner"
+        identityClaim: "sub"
         provider: userPools
         operations: [create, read, update, delete]
       }
+      # Settlement Lambda uses API key to update guesses
+      { allow: public, provider: apiKey, operations: [read, update] }
     ]
   ) {
   id: ID!
-  # Owner is auto-populated by Amplify auth resolvers on create
-  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
-  createdAt: AWSDateTime!
-  settleAt: AWSDateTime!
-  guessPrice: Float!
-  startPrice: Float!
-  endPrice: Float
+  owner: String
+    @index(
+      name: "guessesByOwnerCreatedAt"
+      queryField: "guessesByOwner"
+      sortKeyFields: ["createdAt"]
+    )
+    @auth(rules: [
+      { allow: owner, identityClaim: "sub", operations: [read, delete] },
+      { allow: public, provider: apiKey, operations: [read] }
+    ])
+
+  # Timestamps
+  createdAt: AWSDateTime! # When guess was placed (used for start price resolution)
+  settleAt: AWSDateTime! # Target settlement time (createdAt + 60s)
+
+  # User's prediction
+  direction: GuessDirection! # What the user predicted (UP or DOWN)
+
+  # Price snapshot references (resolved at settlement)
+  startPriceSnapshotId: ID # Nullable until settlement
+  endPriceSnapshotId: ID # Nullable until settlement
+
+  # Denormalized prices for query convenience (populated at settlement)
+  startPrice: Float # From startPriceSnapshot.priceUsd
+  endPrice: Float # From endPriceSnapshot.priceUsd
+
+  # Outcome
   status: GuessStatus!
-  result: GuessResult
+  result: GuessDirection # Actual price movement (UP/DOWN) - nullable until settled
+  outcome: GuessOutcome # WIN/LOSS - nullable until settled
 }
+
+# --------------------
+# PriceSnapshot Model
+# --------------------
 
 type PriceSnapshot
   @model
@@ -37,11 +89,20 @@ type PriceSnapshot
       queryField: "priceSnapshotsByPk"
       sortKeyFields: ["capturedAt"]
     )
+    @index(
+      name: "byPkSourceUpdatedAt"
+      queryField: "priceSnapshotsBySourceUpdatedAt"
+      sortKeyFields: ["sourceUpdatedAt"]
+    )
   capturedAt: AWSDateTime!
   sourceUpdatedAt: AWSDateTime
   priceUsd: Float!
   source: String
 }
+
+# --------------------
+# UserState Model
+# --------------------
 
 type UserState
   @model
@@ -54,7 +115,8 @@ type UserState
         operations: [create, read, update, delete]
       }
       # apiKey needed for PostConfirmation Lambda to create UserState
-      { allow: public, provider: apiKey, operations: [create] }
+      # and for settlement Lambda to update score
+      { allow: public, provider: apiKey, operations: [create, update] }
     ]
   ) {
   id: ID!
@@ -71,16 +133,4 @@ type UserState
   score: Int!
   streak: Int!
   lastUpdatedAt: AWSDateTime!
-}
-
-enum GuessStatus {
-  PENDING
-  SETTLED
-  FAILED
-}
-
-enum GuessResult {
-  UP
-  DOWN
-  EQUAL
 }

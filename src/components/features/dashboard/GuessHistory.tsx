@@ -2,6 +2,7 @@
 
 import { ArrowUp, ArrowDown, CheckCircle2, XCircle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+
 import {
   Card,
   CardContent,
@@ -17,11 +18,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table/Table'
-import type { Guess } from '@/graphql/generated/graphql'
+import {
+  type Guess,
+  GuessDirection,
+  GuessOutcome,
+  GuessStatus,
+} from '@/graphql/generated/graphql'
 import styles from './GuessHistory.module.scss'
 
-type GuessDirection = 'up' | 'down'
-type GuessOutcome = 'win' | 'loss'
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function formatPrice(p: number) {
   return new Intl.NumberFormat('en-US', {
@@ -39,30 +46,13 @@ function formatTimestamp(ts: string) {
   })
 }
 
-function getPredictedDirection(guess: Guess): GuessDirection {
-  // Schema: guessPrice is the predicted future price, startPrice is the price at guess time.
-  // Treat equal as "up" to keep the existing 2-option UI.
-  return guess.guessPrice >= guess.startPrice ? 'up' : 'down'
-}
-
-function getResolvedPrice(guess: Guess) {
-  // Placeholder: endPrice can be null (pending); keep UI stable by falling back.
-  return guess.endPrice ?? guess.startPrice
-}
-
-function getOutcome(guess: Guess): GuessOutcome {
-  // Placeholder win/loss computation so the UI can render consistently without game logic.
-  const predicted = getPredictedDirection(guess)
-  const resolvedPrice = getResolvedPrice(guess)
-  const wentUp = resolvedPrice >= guess.startPrice
-  const predictedUp = predicted === 'up'
-  return wentUp === predictedUp ? 'win' : 'loss'
-}
-
 function getPointsDelta(outcome: GuessOutcome) {
-  // Placeholder scoring to match the existing UI (+/-)
-  return outcome === 'win' ? 1 : -1
+  return outcome === GuessOutcome.Win ? 1 : -1
 }
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
 
 interface DirectionBadgeProps {
   direction: GuessDirection
@@ -75,19 +65,21 @@ function DirectionBadge({
   upLabel,
   downLabel,
 }: DirectionBadgeProps) {
+  const isUp = direction === GuessDirection.Up
+
   return (
     <Badge
       variant="outline"
       className={`${styles.directionBadge} ${
-        direction === 'up' ? styles.directionUp : styles.directionDown
+        isUp ? styles.directionUp : styles.directionDown
       }`}
     >
-      {direction === 'up' ? (
+      {isUp ? (
         <ArrowUp className={styles.badgeIcon} />
       ) : (
         <ArrowDown className={styles.badgeIcon} />
       )}
-      {direction === 'up' ? upLabel : downLabel}
+      {isUp ? upLabel : downLabel}
     </Badge>
   )
 }
@@ -102,22 +94,23 @@ function MobileHistory({ history, upLabel, downLabel }: MobileHistoryProps) {
   return (
     <div className={styles.mobileView}>
       {history.map((guess) => {
-        const direction = getPredictedDirection(guess)
-        const outcome = getOutcome(guess)
-        const pointsDelta = getPointsDelta(outcome)
-        const resolvedPrice = getResolvedPrice(guess)
+        // Only show settled guesses with outcome
+        if (!guess.outcome) return null
+
+        const pointsDelta = getPointsDelta(guess.outcome)
+        const isWin = guess.outcome === GuessOutcome.Win
 
         return (
           <div
             key={guess.id}
             className={`${styles.mobileCard} ${
-              outcome === 'win' ? styles.mobileCardWin : styles.mobileCardLoss
+              isWin ? styles.mobileCardWin : styles.mobileCardLoss
             }`}
           >
             <div className={styles.mobileCardHeader}>
               <div className={styles.mobileCardLeft}>
                 <DirectionBadge
-                  direction={direction}
+                  direction={guess.direction}
                   upLabel={upLabel}
                   downLabel={downLabel}
                 />
@@ -127,16 +120,12 @@ function MobileHistory({ history, upLabel, downLabel }: MobileHistoryProps) {
               </div>
 
               <div className={styles.mobileCardResult}>
-                {outcome === 'win' ? (
+                {isWin ? (
                   <CheckCircle2 className={styles.resultIconWin} />
                 ) : (
                   <XCircle className={styles.resultIconLoss} />
                 )}
-                <span
-                  className={
-                    outcome === 'win' ? styles.pointsWin : styles.pointsLoss
-                  }
-                >
+                <span className={isWin ? styles.pointsWin : styles.pointsLoss}>
                   {pointsDelta > 0 ? '+' : ''}
                   {pointsDelta}
                 </span>
@@ -145,7 +134,8 @@ function MobileHistory({ history, upLabel, downLabel }: MobileHistoryProps) {
 
             <div className={styles.mobileCardPrices}>
               <span>
-                {formatPrice(guess.startPrice)} → {formatPrice(resolvedPrice)}
+                {guess.startPrice ? formatPrice(guess.startPrice) : '—'} →{' '}
+                {guess.endPrice ? formatPrice(guess.endPrice) : '—'}
               </span>
             </div>
           </div>
@@ -195,32 +185,33 @@ function DesktopHistory({
 
         <TableBody>
           {history.map((guess) => {
-            const direction = getPredictedDirection(guess)
-            const outcome = getOutcome(guess)
-            const pointsDelta = getPointsDelta(outcome)
-            const resolvedPrice = getResolvedPrice(guess)
+            // Only show settled guesses with outcome
+            if (!guess.outcome) return null
+
+            const pointsDelta = getPointsDelta(guess.outcome)
+            const isWin = guess.outcome === GuessOutcome.Win
 
             return (
               <TableRow key={guess.id} className={styles.tableRow}>
                 <TableCell>
                   <DirectionBadge
-                    direction={direction}
+                    direction={guess.direction}
                     upLabel={upLabel}
                     downLabel={downLabel}
                   />
                 </TableCell>
 
                 <TableCell className={styles.priceCell}>
-                  {formatPrice(guess.startPrice)}
+                  {guess.startPrice ? formatPrice(guess.startPrice) : '—'}
                 </TableCell>
 
                 <TableCell className={styles.priceCell}>
-                  {formatPrice(resolvedPrice)}
+                  {guess.endPrice ? formatPrice(guess.endPrice) : '—'}
                 </TableCell>
 
                 <TableCell>
                   <div className={styles.resultCell}>
-                    {outcome === 'win' ? (
+                    {isWin ? (
                       <>
                         <CheckCircle2 className={styles.resultIconWin} />
                         <span className={styles.resultTextWin}>
@@ -240,9 +231,7 @@ function DesktopHistory({
 
                 <TableCell className={styles.pointsCell}>
                   <span
-                    className={
-                      outcome === 'win' ? styles.pointsWin : styles.pointsLoss
-                    }
+                    className={isWin ? styles.pointsWin : styles.pointsLoss}
                   >
                     {pointsDelta > 0 ? '+' : ''}
                     {pointsDelta}
@@ -279,13 +268,99 @@ function EmptyStateCard({ title, emptyText }: EmptyStateCardProps) {
   )
 }
 
+// ---------------------------------------------------------------------------
+// Hook: useGuessHistory (mocked for now)
+// ---------------------------------------------------------------------------
+
+interface UseGuessHistoryReturn {
+  history: Guess[]
+  isLoading: boolean
+  hasNextPage: boolean
+  fetchNextPage: () => void
+  isFetchingNextPage: boolean
+}
+
+/**
+ * Hook that fetches guess history.
+ * Currently mocked - will be connected to real API with infinite scroll later.
+ */
+function useGuessHistory(): UseGuessHistoryReturn {
+  // Mock data for demonstration
+  const mockHistory: Guess[] = [
+    {
+      __typename: 'Guess',
+      id: 'mock-1',
+      owner: 'mock-owner',
+      createdAt: new Date(Date.now() - 120000).toISOString(),
+      updatedAt: new Date(Date.now() - 60000).toISOString(),
+      settleAt: new Date(Date.now() - 60000).toISOString(),
+      direction: GuessDirection.Up,
+      status: GuessStatus.Settled,
+      startPriceSnapshotId: 'snapshot-1',
+      endPriceSnapshotId: 'snapshot-2',
+      startPrice: 98500,
+      endPrice: 99100,
+      result: GuessDirection.Up,
+      outcome: GuessOutcome.Win,
+    },
+    {
+      __typename: 'Guess',
+      id: 'mock-2',
+      owner: 'mock-owner',
+      createdAt: new Date(Date.now() - 240000).toISOString(),
+      updatedAt: new Date(Date.now() - 180000).toISOString(),
+      settleAt: new Date(Date.now() - 180000).toISOString(),
+      direction: GuessDirection.Down,
+      status: GuessStatus.Settled,
+      startPriceSnapshotId: 'snapshot-3',
+      endPriceSnapshotId: 'snapshot-4',
+      startPrice: 99200,
+      endPrice: 99400,
+      result: GuessDirection.Up,
+      outcome: GuessOutcome.Loss,
+    },
+    {
+      __typename: 'Guess',
+      id: 'mock-3',
+      owner: 'mock-owner',
+      createdAt: new Date(Date.now() - 360000).toISOString(),
+      updatedAt: new Date(Date.now() - 300000).toISOString(),
+      settleAt: new Date(Date.now() - 300000).toISOString(),
+      direction: GuessDirection.Up,
+      status: GuessStatus.Settled,
+      startPriceSnapshotId: 'snapshot-5',
+      endPriceSnapshotId: 'snapshot-6',
+      startPrice: 98000,
+      endPrice: 98800,
+      result: GuessDirection.Up,
+      outcome: GuessOutcome.Win,
+    },
+  ]
+
+  return {
+    history: mockHistory,
+    isLoading: false,
+    hasNextPage: false,
+    fetchNextPage: () => {},
+    isFetchingNextPage: false,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Main Component
+// ---------------------------------------------------------------------------
+
 export function GuessHistory() {
   const t = useTranslations('dashboardGuessHistory')
 
-  // Placeholders (GuessHistory does not receive props in this project).
-  const history: Guess[] = []
+  const { history } = useGuessHistory()
 
-  if (history.length === 0) {
+  // Filter out any pending guesses (they should appear in GuessAction, not here)
+  const settledHistory = history.filter(
+    (guess) => guess.status === GuessStatus.Settled && guess.outcome !== null
+  )
+
+  if (settledHistory.length === 0) {
     return <EmptyStateCard title={t('title')} emptyText={t('empty')} />
   }
 
@@ -297,14 +372,14 @@ export function GuessHistory() {
       <CardContent>
         {/* Mobile view - cards */}
         <MobileHistory
-          history={history}
+          history={settledHistory}
           upLabel={t('direction.up')}
           downLabel={t('direction.down')}
         />
 
         {/* Desktop view - table */}
         <DesktopHistory
-          history={history}
+          history={settledHistory}
           upLabel={t('direction.up')}
           downLabel={t('direction.down')}
           tResultWin={t('result.win')}

@@ -27,13 +27,16 @@ export type Scalars = {
 
 export type CreateGuessInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']['input']>;
+  direction: GuessDirection;
   endPrice?: InputMaybe<Scalars['Float']['input']>;
-  guessPrice: Scalars['Float']['input'];
+  endPriceSnapshotId?: InputMaybe<Scalars['ID']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
+  outcome?: InputMaybe<GuessOutcome>;
   owner?: InputMaybe<Scalars['String']['input']>;
-  result?: InputMaybe<GuessResult>;
+  result?: InputMaybe<GuessDirection>;
   settleAt: Scalars['AWSDateTime']['input'];
-  startPrice: Scalars['Float']['input'];
+  startPrice?: InputMaybe<Scalars['Float']['input']>;
+  startPriceSnapshotId?: InputMaybe<Scalars['ID']['input']>;
   status: GuessStatus;
 };
 
@@ -71,21 +74,28 @@ export type DeleteUserStateInput = {
 export type Guess = {
   __typename?: 'Guess';
   createdAt: Scalars['AWSDateTime']['output'];
+  direction: GuessDirection;
   endPrice?: Maybe<Scalars['Float']['output']>;
-  guessPrice: Scalars['Float']['output'];
+  endPriceSnapshotId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
+  outcome?: Maybe<GuessOutcome>;
   owner?: Maybe<Scalars['String']['output']>;
-  result?: Maybe<GuessResult>;
+  result?: Maybe<GuessDirection>;
   settleAt: Scalars['AWSDateTime']['output'];
-  startPrice: Scalars['Float']['output'];
+  startPrice?: Maybe<Scalars['Float']['output']>;
+  startPriceSnapshotId?: Maybe<Scalars['ID']['output']>;
   status: GuessStatus;
   updatedAt: Scalars['AWSDateTime']['output'];
 };
 
-export enum GuessResult {
+export enum GuessDirection {
   Down = 'DOWN',
-  Equal = 'EQUAL',
   Up = 'UP'
+}
+
+export enum GuessOutcome {
+  Loss = 'LOSS',
+  Win = 'WIN'
 }
 
 export enum GuessStatus {
@@ -129,14 +139,17 @@ export type ModelFloatInput = {
 export type ModelGuessConditionInput = {
   and?: InputMaybe<Array<InputMaybe<ModelGuessConditionInput>>>;
   createdAt?: InputMaybe<ModelStringInput>;
+  direction?: InputMaybe<ModelGuessDirectionInput>;
   endPrice?: InputMaybe<ModelFloatInput>;
-  guessPrice?: InputMaybe<ModelFloatInput>;
+  endPriceSnapshotId?: InputMaybe<ModelIdInput>;
   not?: InputMaybe<ModelGuessConditionInput>;
   or?: InputMaybe<Array<InputMaybe<ModelGuessConditionInput>>>;
+  outcome?: InputMaybe<ModelGuessOutcomeInput>;
   owner?: InputMaybe<ModelStringInput>;
-  result?: InputMaybe<ModelGuessResultInput>;
+  result?: InputMaybe<ModelGuessDirectionInput>;
   settleAt?: InputMaybe<ModelStringInput>;
   startPrice?: InputMaybe<ModelFloatInput>;
+  startPriceSnapshotId?: InputMaybe<ModelIdInput>;
   status?: InputMaybe<ModelGuessStatusInput>;
   updatedAt?: InputMaybe<ModelStringInput>;
 };
@@ -147,25 +160,33 @@ export type ModelGuessConnection = {
   nextToken?: Maybe<Scalars['String']['output']>;
 };
 
+export type ModelGuessDirectionInput = {
+  eq?: InputMaybe<GuessDirection>;
+  ne?: InputMaybe<GuessDirection>;
+};
+
 export type ModelGuessFilterInput = {
   and?: InputMaybe<Array<InputMaybe<ModelGuessFilterInput>>>;
   createdAt?: InputMaybe<ModelStringInput>;
+  direction?: InputMaybe<ModelGuessDirectionInput>;
   endPrice?: InputMaybe<ModelFloatInput>;
-  guessPrice?: InputMaybe<ModelFloatInput>;
+  endPriceSnapshotId?: InputMaybe<ModelIdInput>;
   id?: InputMaybe<ModelIdInput>;
   not?: InputMaybe<ModelGuessFilterInput>;
   or?: InputMaybe<Array<InputMaybe<ModelGuessFilterInput>>>;
+  outcome?: InputMaybe<ModelGuessOutcomeInput>;
   owner?: InputMaybe<ModelStringInput>;
-  result?: InputMaybe<ModelGuessResultInput>;
+  result?: InputMaybe<ModelGuessDirectionInput>;
   settleAt?: InputMaybe<ModelStringInput>;
   startPrice?: InputMaybe<ModelFloatInput>;
+  startPriceSnapshotId?: InputMaybe<ModelIdInput>;
   status?: InputMaybe<ModelGuessStatusInput>;
   updatedAt?: InputMaybe<ModelStringInput>;
 };
 
-export type ModelGuessResultInput = {
-  eq?: InputMaybe<GuessResult>;
-  ne?: InputMaybe<GuessResult>;
+export type ModelGuessOutcomeInput = {
+  eq?: InputMaybe<GuessOutcome>;
+  ne?: InputMaybe<GuessOutcome>;
 };
 
 export type ModelGuessStatusInput = {
@@ -295,14 +316,17 @@ export type ModelSubscriptionFloatInput = {
 export type ModelSubscriptionGuessFilterInput = {
   and?: InputMaybe<Array<InputMaybe<ModelSubscriptionGuessFilterInput>>>;
   createdAt?: InputMaybe<ModelSubscriptionStringInput>;
+  direction?: InputMaybe<ModelSubscriptionStringInput>;
   endPrice?: InputMaybe<ModelSubscriptionFloatInput>;
-  guessPrice?: InputMaybe<ModelSubscriptionFloatInput>;
+  endPriceSnapshotId?: InputMaybe<ModelSubscriptionIdInput>;
   id?: InputMaybe<ModelSubscriptionIdInput>;
   or?: InputMaybe<Array<InputMaybe<ModelSubscriptionGuessFilterInput>>>;
+  outcome?: InputMaybe<ModelSubscriptionStringInput>;
   owner?: InputMaybe<ModelStringInput>;
   result?: InputMaybe<ModelSubscriptionStringInput>;
   settleAt?: InputMaybe<ModelSubscriptionStringInput>;
   startPrice?: InputMaybe<ModelSubscriptionFloatInput>;
+  startPriceSnapshotId?: InputMaybe<ModelSubscriptionIdInput>;
   status?: InputMaybe<ModelSubscriptionStringInput>;
   updatedAt?: InputMaybe<ModelSubscriptionStringInput>;
 };
@@ -495,10 +519,12 @@ export type Query = {
   getGuess?: Maybe<Guess>;
   getPriceSnapshot?: Maybe<PriceSnapshot>;
   getUserState?: Maybe<UserState>;
+  guessesByOwner?: Maybe<ModelGuessConnection>;
   listGuesses?: Maybe<ModelGuessConnection>;
   listPriceSnapshots?: Maybe<ModelPriceSnapshotConnection>;
   listUserStates?: Maybe<ModelUserStateConnection>;
   priceSnapshotsByPk?: Maybe<ModelPriceSnapshotConnection>;
+  priceSnapshotsBySourceUpdatedAt?: Maybe<ModelPriceSnapshotConnection>;
 };
 
 
@@ -514,6 +540,16 @@ export type QueryGetPriceSnapshotArgs = {
 
 export type QueryGetUserStateArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGuessesByOwnerArgs = {
+  createdAt?: InputMaybe<ModelStringKeyConditionInput>;
+  filter?: InputMaybe<ModelGuessFilterInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  nextToken?: InputMaybe<Scalars['String']['input']>;
+  owner: Scalars['String']['input'];
+  sortDirection?: InputMaybe<ModelSortDirection>;
 };
 
 
@@ -545,6 +581,16 @@ export type QueryPriceSnapshotsByPkArgs = {
   nextToken?: InputMaybe<Scalars['String']['input']>;
   pk: Scalars['String']['input'];
   sortDirection?: InputMaybe<ModelSortDirection>;
+};
+
+
+export type QueryPriceSnapshotsBySourceUpdatedAtArgs = {
+  filter?: InputMaybe<ModelPriceSnapshotFilterInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  nextToken?: InputMaybe<Scalars['String']['input']>;
+  pk: Scalars['String']['input'];
+  sortDirection?: InputMaybe<ModelSortDirection>;
+  sourceUpdatedAt?: InputMaybe<ModelStringKeyConditionInput>;
 };
 
 export type Subscription = {
@@ -613,13 +659,16 @@ export type SubscriptionOnUpdateUserStateArgs = {
 
 export type UpdateGuessInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']['input']>;
+  direction?: InputMaybe<GuessDirection>;
   endPrice?: InputMaybe<Scalars['Float']['input']>;
-  guessPrice?: InputMaybe<Scalars['Float']['input']>;
+  endPriceSnapshotId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
+  outcome?: InputMaybe<GuessOutcome>;
   owner?: InputMaybe<Scalars['String']['input']>;
-  result?: InputMaybe<GuessResult>;
+  result?: InputMaybe<GuessDirection>;
   settleAt?: InputMaybe<Scalars['AWSDateTime']['input']>;
   startPrice?: InputMaybe<Scalars['Float']['input']>;
+  startPriceSnapshotId?: InputMaybe<Scalars['ID']['input']>;
   status?: InputMaybe<GuessStatus>;
 };
 
