@@ -1,0 +1,45 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: theme.spacing(8) theme.spacing(4);
+}
+
+.content {
+  text-align: center;
+  max-width: 32rem;
+}
+
+.title {
+  font-size: theme.fontSize('2xl');
+  font-weight: theme.fontWeight('bold');
+  color: var(--foreground);
+  margin-bottom: theme.spacing(4);
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: theme.fontSize('3xl');
+  }
+}
+
+.description {
+  color: var(--muted-foreground);
+  margin-bottom: theme.spacing(2);
+}
+
+.digest {
+  font-size: theme.fontSize('sm');
+  font-family: var(--font-mono);
+  color: var(--muted-foreground);
+  margin-bottom: theme.spacing(8);
+  opacity: 0.7;
+}
+
+.actions {
+  display: flex;
+  gap: theme.spacing(3);
+  justify-content: center;
+  flex-wrap: wrap;
+}

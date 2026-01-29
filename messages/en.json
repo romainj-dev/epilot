@@ -168,5 +168,30 @@
       "points": "Points",
       "time": "Time"
     }
+  },
+  "notFoundPage": {
+    "code": "404",
+    "subtitle": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backToHome": "Back to Home"
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "digest": "Error ID: {digest}",
+    "actions": {
+      "tryAgain": "Try Again",
+      "backToHome": "Back to Home"
+    }
+  },
+  "loadingPage": {
+    "text": "Loading..."
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "This component encountered an error. Please try again.",
+    "tryAgain": "Try Again",
+    "inlineError": "Failed to load",
+    "retry": "Retry"
   }
 }

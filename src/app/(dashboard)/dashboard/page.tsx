@@ -17,6 +17,7 @@ import styles from './page.module.scss'
 import { GuessAction } from '@/components/features/dashboard/GuessAction'
 import { PriceTickerBig } from '@/components/features/price-snapshot/PriceTickerBig'
 import { GuessHistory } from '@/components/features/dashboard/GuessHistory'
+import { ErrorBoundary } from '@/components/error/ErrorBoundary'
 
 export async function generateMetadata() {
   const t = await getTranslations('dashboardPage')
@@ -80,11 +81,17 @@ export default async function DashboardPage() {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className={styles.main}>
-        <PriceTickerBig />
+        <ErrorBoundary context="PriceTickerBig" inline>
+          <PriceTickerBig />
+        </ErrorBoundary>
 
-        <GuessAction />
+        <ErrorBoundary context="GuessAction">
+          <GuessAction />
+        </ErrorBoundary>
 
-        <GuessHistory />
+        <ErrorBoundary context="GuessHistory">
+          <GuessHistory />
+        </ErrorBoundary>
       </div>
     </HydrationBoundary>
   )
