@@ -26,5 +26,6 @@ export const queryKeys = {
   },
   userState: {
     all: ['userState'] as const,
+    get: (id: string) => ['userState', 'get', id] as const,
   },
 }

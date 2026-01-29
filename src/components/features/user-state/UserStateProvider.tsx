@@ -1,11 +1,13 @@
 'use client'
 
 import { createContext, useContext } from 'react'
-import { useQuery } from '@/hooks/requests'
+import { useQuery as useTanstackQuery } from '@tanstack/react-query'
 import {
   GetUserStateDocument,
   type GetUserStateQuery,
 } from '@/graphql/generated/graphql'
+import { fetchGraphQLClient, type GraphQLError } from '@/lib/requests-client'
+import { queryKeys } from '@/lib/query-keys'
 
 type UserState = GetUserStateQuery['getUserState']
 
@@ -26,8 +28,12 @@ export function UserStateProvider({
   userId,
   children,
 }: UserStateProviderProps) {
-  const { data, isLoading, error } = useQuery(GetUserStateDocument, {
-    id: userId,
+  const { data, isLoading, error } = useTanstackQuery<
+    GetUserStateQuery,
+    GraphQLError
+  >({
+    queryKey: queryKeys.userState.get(userId),
+    queryFn: () => fetchGraphQLClient(GetUserStateDocument, { id: userId }),
   })
 
   const value = {

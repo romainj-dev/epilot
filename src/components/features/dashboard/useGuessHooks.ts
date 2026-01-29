@@ -242,7 +242,9 @@ export function useGuessSettlementHandler(activeGuess: Guess | null) {
       )
 
       // 3. Invalidate user score to refetch
-      queryClient.invalidateQueries({ queryKey: queryKeys.userState.all })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.userState.get(owner),
+      })
     },
     [queryClient, owner]
   )
