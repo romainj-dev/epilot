@@ -38,7 +38,7 @@
         },
         "settleGuessLambda": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/settleGuessLambda-6b756c6d515330706272-build.zip"
+          "s3Key": "amplify-builds/settleGuessLambda-63414851697a704c502b-build.zip"
         }
       }
     }

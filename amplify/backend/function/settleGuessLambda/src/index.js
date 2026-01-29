@@ -4,6 +4,12 @@ const { makeAppSyncRequest } = appsync
 
 const PRICE_SNAPSHOT_PK = 'PriceSnapshot'
 
+// Snapshot freshness configuration
+// CoinGecko updates ~every 60s, so if gap >= 57s, a newer snapshot should exist
+const FRESHNESS_THRESHOLD_MS = 57_000
+const MAX_RETRIES = 4
+const RETRY_DELAY_MS = 2_000
+
 /**
  * EventBridge Scheduler-triggered Lambda to settle a user's Bitcoin price guess.
  * 
@@ -104,7 +110,7 @@ exports.handler = async (event) => {
 
     const [startSnapshot, endSnapshot] = await Promise.all([
       resolveSnapshot({ endpoint, apiKey, targetTimestamp: guess.createdAt }),
-      resolveSnapshot({ endpoint, apiKey, targetTimestamp: guess.settleAt }),
+      resolveEndSnapshot({ endpoint, apiKey, settleAt: guess.settleAt }),
     ])
 
     if (!startSnapshot || !endSnapshot) {
@@ -262,6 +268,93 @@ async function resolveSnapshot({ endpoint, apiKey, targetTimestamp }) {
   })
 
   return res?.data?.priceSnapshotsBySourceUpdatedAt?.items?.[0] ?? null
+}
+
+/**
+ * Resolves the end snapshot for settlement, handling the race condition where
+ * the latest snapshot may not be written to DB yet.
+ *
+ * Edge case:
+ *   T=0.000s  CoinGecko updates price P1 (sourceUpdatedAt: T=0s)
+ *   T=0.500s  Lambda runs, fetches latest snapshot (P0, since P1 not stored yet)
+ *   T=1.000s  P1 is stored in DB
+ *
+ * Solution:
+ *   If settleAt - snapshot.sourceUpdatedAt >= 57s, a newer snapshot should exist
+ *   (CoinGecko updates ~every 60s). Retry to wait for it to be written.
+ *
+ * @returns {Object|null} The resolved snapshot, or null if no fresh data available
+ */
+async function resolveEndSnapshot({ endpoint, apiKey, settleAt }) {
+  const settleAtMs = new Date(settleAt).getTime()
+
+  // First fetch
+  const originalSnapshot = await resolveSnapshot({ endpoint, apiKey, targetTimestamp: settleAt })
+
+  if (!originalSnapshot) {
+    return null // No snapshot at all
+  }
+
+  const originalSourceMs = new Date(originalSnapshot.sourceUpdatedAt).getTime()
+  const gapMs = settleAtMs - originalSourceMs
+
+  // Fresh enough - no retry needed
+  if (gapMs < FRESHNESS_THRESHOLD_MS) {
+    return originalSnapshot
+  }
+
+  // Gap >= 57s - expect a newer snapshot soon, retry
+  logger.info('End snapshot appears stale, waiting for newer data...', {
+    settleAt,
+    snapshotSourceUpdatedAt: originalSnapshot.sourceUpdatedAt,
+    gapMs,
+  })
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    await sleep(RETRY_DELAY_MS)
+
+    const newSnapshot = await resolveSnapshot({ endpoint, apiKey, targetTimestamp: settleAt })
+
+    if (!newSnapshot) {
+      continue // Shouldn't happen
+    }
+
+    // Check if we got a different (newer) snapshot
+    if (newSnapshot.sourceUpdatedAt !== originalSnapshot.sourceUpdatedAt) {
+      const newSourceMs = new Date(newSnapshot.sourceUpdatedAt).getTime()
+
+      if (newSourceMs <= settleAtMs) {
+        // New snapshot is valid for settlement
+        logger.info('Newer snapshot found', {
+          attempt,
+          newSourceUpdatedAt: newSnapshot.sourceUpdatedAt,
+        })
+        return newSnapshot
+      } else {
+        // New snapshot is AFTER settleAt - use original
+        logger.info('Newer snapshot is after settleAt, using original', {
+          attempt,
+          newSourceUpdatedAt: newSnapshot.sourceUpdatedAt,
+          settleAt,
+        })
+        return originalSnapshot
+      }
+    }
+
+    logger.info('No newer snapshot yet', { attempt })
+  }
+
+  // No new snapshot after retries - data pipeline issue
+  logger.error('No fresh snapshot after retries, cannot settle reliably', {
+    settleAt,
+    lastSnapshotSourceUpdatedAt: originalSnapshot.sourceUpdatedAt,
+  })
+
+  return null // Caller will mark guess as FAILED
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 async function settleGuess({ endpoint, apiKey, input }) {
