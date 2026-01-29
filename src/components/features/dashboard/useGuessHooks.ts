@@ -1,24 +1,24 @@
 import { useCallback, useEffect } from 'react'
 import { useSession } from '@/hooks/use-session'
-import {
-  useQuery as useTanstackQuery,
-  useQueryClient,
-  useInfiniteQuery,
-  type InfiniteData,
-} from '@tanstack/react-query'
 
-import { useMutation } from '@/hooks/requests'
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
+} from '@/hooks/requests'
 import {
   CreateGuessDocument,
   GuessesByOwnerDocument,
   type Guess,
   type GuessesByOwnerQuery,
+  type GuessesByOwnerQueryVariables,
   type CreateGuessMutation,
   type CreateGuessMutationVariables,
   GuessStatus,
   ModelSortDirection,
 } from '@/graphql/generated/graphql'
-import { fetchGraphQLClient, type GraphQLError } from '@/lib/requests-client'
 import { queryKeys } from '@/lib/query-keys'
 
 // ---------------------------------------------------------------------------
@@ -29,23 +29,25 @@ export function useActiveGuess() {
   const { data: session } = useSession()
   const owner = session?.user?.id
 
-  return useTanstackQuery<Guess | null, GraphQLError>({
-    queryKey: owner ? queryKeys.guess.active(owner) : ['guess', 'active'],
-    queryFn: async () => {
-      if (!owner) return null
-
-      const data = await fetchGraphQLClient(GuessesByOwnerDocument, {
-        owner,
-        filter: { status: { eq: GuessStatus.Pending } },
-        sortDirection: ModelSortDirection.Desc,
-        limit: 1,
-      })
-
-      return data.guessesByOwner?.items?.[0] ?? null
+  return useQuery<
+    GuessesByOwnerQuery,
+    GuessesByOwnerQueryVariables,
+    Guess | null
+  >(
+    GuessesByOwnerDocument,
+    {
+      owner: owner!,
+      filter: { status: { eq: GuessStatus.Pending } },
+      sortDirection: ModelSortDirection.Desc,
+      limit: 1,
     },
-    enabled: !!owner,
-    staleTime: Infinity, // Only update via mutation/SSE
-  })
+    {
+      queryKey: queryKeys.guess.active(owner ?? 'unknown'),
+      enabled: !!owner,
+      staleTime: Infinity, // Only update via mutation/SSE
+      select: (data) => data.guessesByOwner?.items?.[0] ?? null,
+    }
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -118,33 +120,38 @@ export function useCreateGuess() {
 }
 
 // ---------------------------------------------------------------------------
-// useGuessHistory - Infinite query for settled guesses
+// useGuessHistory - Infinite query for settled guesses with flattened data
 // ---------------------------------------------------------------------------
 
 export function useGuessHistory() {
   const { data: session } = useSession()
   const owner = session?.user?.id
 
-  return useInfiniteQuery({
-    queryKey: owner ? queryKeys.guess.history(owner) : ['guess', 'history'],
-    queryFn: async ({ pageParam }) => {
-      if (!owner) {
-        throw new Error('User not authenticated')
-      }
-
-      return fetchGraphQLClient(GuessesByOwnerDocument, {
-        owner,
-        sortDirection: ModelSortDirection.Desc,
-        limit: 20,
-        nextToken: pageParam as string | undefined,
-        filter: { status: { ne: GuessStatus.Pending } }, // Exclude active guess
-      })
-    },
-    getNextPageParam: (lastPage) =>
+  return useInfiniteQuery<
+    GuessesByOwnerQuery,
+    GuessesByOwnerQueryVariables,
+    Guess[],
+    string | undefined
+  >(GuessesByOwnerDocument, {
+    queryKey: queryKeys.guess.history(owner ?? 'unknown'),
+    getVariables: (pageParam) => ({
+      owner: owner!,
+      sortDirection: ModelSortDirection.Desc,
+      limit: 20,
+      nextToken: pageParam,
+      filter: { status: { ne: GuessStatus.Pending } }, // Exclude active guess
+    }),
+    getNextPageParam: (lastPage: GuessesByOwnerQuery) =>
       lastPage.guessesByOwner?.nextToken ?? undefined,
-    initialPageParam: undefined as string | undefined,
+    initialPageParam: undefined,
     enabled: !!owner,
     staleTime: 60_000, // 1 minute
+    // Flatten pages into a single array of guesses
+    select: (data: InfiniteData<GuessesByOwnerQuery>) =>
+      data.pages.flatMap(
+        (page: GuessesByOwnerQuery) =>
+          page.guessesByOwner?.items?.filter(Boolean) ?? []
+      ) as Guess[],
   })
 }
 

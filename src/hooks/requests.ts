@@ -2,12 +2,20 @@ import type { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import {
   useQuery as useTanstackQuery,
   useMutation as useTanstackMutation,
+  useInfiniteQuery as useTanstackInfiniteQuery,
+  useQueryClient,
   type UseQueryOptions,
   type UseMutationOptions,
+  type UseInfiniteQueryOptions,
+  type InfiniteData,
 } from '@tanstack/react-query'
 import type { OperationDefinitionNode } from 'graphql'
 
 import { fetchGraphQLClient, type GraphQLError } from '@/lib/requests-client'
+import { type QueryKey } from '@/lib/query-keys'
+
+// Re-export TanStack Query utilities for consistent imports
+export { useQueryClient, type InfiniteData }
 
 function getOperationName<TData, TVariables>(
   document: TypedDocumentNode<TData, TVariables>
@@ -18,17 +26,114 @@ function getOperationName<TData, TVariables>(
   return definition?.name?.value ?? 'unknown'
 }
 
-export function useQuery<TData, TVariables>(
-  document: TypedDocumentNode<TData, TVariables>,
+/**
+ * Hook for GraphQL queries with flexible query key support and data transformation.
+ *
+ * @template TQueryFnData - The raw GraphQL query response data type
+ * @template TVariables - The query variables type
+ * @template TData - The transformed data type (defaults to TQueryFnData)
+ *
+ * @example
+ * // With auto-generated query key
+ * const query = useQuery(MyDocument, { id: '123' })
+ *
+ * @example
+ * // With custom query key and data transformation
+ * const query = useQuery(MyDocument, { id: '123' }, {
+ *   queryKey: queryKeys.myResource.get('123'),
+ *   select: (data) => data.items[0],
+ *   staleTime: Infinity,
+ * })
+ */
+export function useQuery<TQueryFnData, TVariables, TData = TQueryFnData>(
+  document: TypedDocumentNode<TQueryFnData, TVariables>,
   variables?: TVariables,
-  options?: Omit<UseQueryOptions<TData, GraphQLError>, 'queryKey' | 'queryFn'>
+  options?: Omit<
+    UseQueryOptions<TQueryFnData, GraphQLError, TData>,
+    'queryFn' | 'queryKey' // We provide these
+  > & {
+    queryKey?: QueryKey // Narrow to our typed query keys
+  }
 ) {
   const operationName = getOperationName(document)
+  const { queryKey, ...restOptions } = options ?? {}
 
-  return useTanstackQuery<TData, GraphQLError>({
-    queryKey: [operationName, variables],
+  return useTanstackQuery<TQueryFnData, GraphQLError, TData>({
+    queryKey: queryKey ?? [operationName, variables],
     queryFn: () => fetchGraphQLClient(document, variables),
-    ...options,
+    ...restOptions,
+  })
+}
+
+/**
+ * Hook for GraphQL infinite queries with pagination support and data transformation.
+ *
+ * @template TQueryFnData - The raw GraphQL query response data type
+ * @template TVariables - The query variables type
+ * @template TData - The transformed data type (defaults to InfiniteData<TQueryFnData>)
+ * @template TPageParam - The page parameter type (e.g., nextToken string)
+ *
+ * @example
+ * // Basic infinite query with nextToken pagination
+ * const query = useInfiniteQuery(
+ *   MyDocument,
+ *   {
+ *     queryKey: queryKeys.items.list(),
+ *     getVariables: (pageParam) => ({
+ *       limit: 20,
+ *       nextToken: pageParam,
+ *     }),
+ *     getNextPageParam: (lastPage) => lastPage.items?.nextToken,
+ *     initialPageParam: undefined,
+ *   }
+ * )
+ *
+ * @example
+ * // With data transformation using select
+ * const query = useInfiniteQuery(
+ *   MyDocument,
+ *   {
+ *     queryKey: queryKeys.items.list(),
+ *     getVariables: (pageParam) => ({ limit: 20, nextToken: pageParam }),
+ *     getNextPageParam: (lastPage) => lastPage.items?.nextToken,
+ *     initialPageParam: undefined,
+ *     select: (data) => data.pages.flatMap(page => page.items),
+ *   }
+ * )
+ */
+export function useInfiniteQuery<
+  TQueryFnData,
+  TVariables,
+  TData = InfiniteData<TQueryFnData>,
+  TPageParam = unknown,
+>(
+  document: TypedDocumentNode<TQueryFnData, TVariables>,
+  options: Omit<
+    UseInfiniteQueryOptions<
+      TQueryFnData,
+      GraphQLError,
+      TData,
+      QueryKey,
+      TPageParam
+    >,
+    'queryFn' | 'queryKey' // We provide queryFn; queryKey is narrowed below
+  > & {
+    queryKey: QueryKey // Narrow to our typed query keys
+    getVariables: (pageParam: TPageParam) => TVariables // Custom helper for pagination
+  }
+) {
+  const { getVariables, ...restOptions } = options
+
+  return useTanstackInfiniteQuery<
+    TQueryFnData,
+    GraphQLError,
+    TData,
+    QueryKey,
+    TPageParam
+  >({
+    queryFn: ({ pageParam }) =>
+      fetchGraphQLClient(document, getVariables(pageParam as TPageParam)),
+    ...restOptions,
   })
 }
 

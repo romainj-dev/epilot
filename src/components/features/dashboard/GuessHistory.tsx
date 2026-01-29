@@ -335,7 +335,7 @@ export function GuessHistory() {
   const t = useTranslations('dashboardGuessHistory')
 
   const {
-    data,
+    data: history,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -343,16 +343,8 @@ export function GuessHistory() {
     isError,
   } = useGuessHistory()
 
-  // Flatten all pages into a single array
-  const history = useMemo(() => {
-    if (!data) return []
-    return data.pages.flatMap(
-      (page) => page.guessesByOwner?.items?.filter(Boolean) ?? []
-    ) as Guess[]
-  }, [data])
-
   // Filter out any pending guesses (they should appear in GuessAction, not here)
-  const settledHistory = history.filter(
+  const settledHistory = (history ?? []).filter(
     (guess) => guess.status === GuessStatus.Settled && guess.outcome !== null
   )
 
