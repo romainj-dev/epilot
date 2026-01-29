@@ -109,12 +109,7 @@ export function createSSEStream<T extends SSEMessage>(
   req: Request,
   options: CreateSSEStreamOptions<T>
 ): ReadableStream {
-  const {
-    onStart,
-    onClose,
-    keepAliveMs = 25_000,
-    logPrefix = '[SSE]',
-  } = options
+  const { onStart, onClose, keepAliveMs = 5_000, logPrefix = '[SSE]' } = options
 
   const encoder = new TextEncoder()
 
