@@ -1,0 +1,61 @@
+mutation CreateGuess($input: CreateGuessInput!) {
+  createGuess(input: $input) {
+    id
+    owner
+    createdAt
+    settleAt
+    direction
+    status
+    startPrice
+    endPrice
+    result
+    outcome
+  }
+}
+
+query GuessesByOwner(
+  $owner: String!
+  $sortDirection: ModelSortDirection
+  $limit: Int
+  $nextToken: String
+  $filter: ModelGuessFilterInput
+) {
+  guessesByOwner(
+    owner: $owner
+    sortDirection: $sortDirection
+    limit: $limit
+    nextToken: $nextToken
+    filter: $filter
+  ) {
+    items {
+      id
+      owner
+      createdAt
+      settleAt
+      direction
+      status
+      startPrice
+      endPrice
+      result
+      outcome
+      updatedAt
+    }
+    nextToken
+  }
+}
+
+subscription OnUpdateGuess($owner: String) {
+  onUpdateGuess(owner: $owner) {
+    id
+    owner
+    createdAt
+    settleAt
+    direction
+    status
+    startPrice
+    endPrice
+    result
+    outcome
+    updatedAt
+  }
+}

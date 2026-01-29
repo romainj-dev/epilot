@@ -32,14 +32,34 @@ export function useQuery<TData, TVariables>(
   })
 }
 
-export function useMutation<TData, TVariables>(
+/**
+ * Hook for GraphQL mutations with optional context type for optimistic updates.
+ *
+ * @template TData - The mutation response data type
+ * @template TVariables - The mutation variables type
+ * @template TContext - Optional context type for onMutate callback (defaults to unknown)
+ *
+ * @example
+ * // With typed context for optimistic updates
+ * interface MyContext { previousData: SomeType }
+ * const mutation = useMutation<MutationData, MutationVars, MyContext>(
+ *   MyDocument,
+ *   {
+ *     onMutate: async (vars): Promise<MyContext> => ({ previousData: ... }),
+ *     onError: (err, vars, context) => {
+ *       // context is typed as MyContext
+ *     }
+ *   }
+ * )
+ */
+export function useMutation<TData, TVariables, TContext = unknown>(
   document: TypedDocumentNode<TData, TVariables>,
   options?: Omit<
-    UseMutationOptions<TData, GraphQLError, TVariables>,
+    UseMutationOptions<TData, GraphQLError, TVariables, TContext>,
     'mutationFn'
   >
 ) {
-  return useTanstackMutation<TData, GraphQLError, TVariables>({
+  return useTanstackMutation<TData, GraphQLError, TVariables, TContext>({
     mutationFn: (variables) => fetchGraphQLClient(document, variables),
     ...options,
   })

@@ -147,13 +147,18 @@
   "dashboardGuessHistory": {
     "title": "Recent Predictions",
     "empty": "No predictions yet. Place your first guess!",
+    "loading": "Loading predictions...",
+    "error": "Failed to load predictions. Please try again.",
+    "loadMore": "Load More",
+    "loadingMore": "Loading...",
     "direction": {
       "up": "UP",
       "down": "DOWN"
     },
     "result": {
       "win": "Win",
-      "loss": "Loss"
+      "loss": "Loss",
+      "draw": "Draw"
     },
     "table": {
       "direction": "Direction",

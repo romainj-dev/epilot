@@ -11,9 +11,9 @@ const PRICE_SNAPSHOT_PK = 'PriceSnapshot'
  * (typically 60 seconds after guess creation). It:
  * 1. Fetches the guess and validates it's PENDING
  * 2. Resolves start/end price snapshots
- * 3. Determines WIN/LOSS outcome
+ * 3. Determines WIN/LOSS/DRAW outcome
  * 4. Updates guess status to SETTLED
- * 5. Updates user score (+1 for WIN, -1 for LOSS)
+ * 5. Updates user score (0 for DRAW, +1 for WIN, -1 for LOSS)
  * 
  * Error Handling Strategy:
  * - Unrecoverable errors (config issues, missing data): Returns error object (no retry)
@@ -130,9 +130,9 @@ exports.handler = async (event) => {
     const startPrice = startSnapshot.priceUsd
     const endPrice = endSnapshot.priceUsd
 
-    const actualDirection = endPrice >= startPrice ? 'UP' : 'DOWN'
-    const outcome = actualDirection === guess.direction ? 'WIN' : 'LOSS'
-    const scoreDelta = outcome === 'WIN' ? 1 : -1
+    const actualDirection = endPrice === startPrice ? 'EQUAL' : endPrice > startPrice ? 'UP' : 'DOWN'
+    const outcome = actualDirection === 'EQUAL' ? 'DRAW' : actualDirection === guess.direction ? 'WIN' :  'LOSS'
+    const scoreDelta = outcome === 'DRAW' ? 0 : outcome === 'WIN' ? 1 :  -1
 
     await settleGuess({
       endpoint,
@@ -281,6 +281,7 @@ async function settleGuess({ endpoint, apiKey, input }) {
         status
         result
         outcome
+        updatedAt
       }
     }
   `
@@ -303,6 +304,7 @@ async function markGuessFailed({ endpoint, apiKey, guessId }) {
         settleAt
         direction
         status
+        updatedAt
       }
     }
   `

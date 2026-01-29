@@ -1,7 +1,8 @@
 'use client'
 
-import { ArrowUp, ArrowDown, CheckCircle2, XCircle } from 'lucide-react'
+import { ArrowUp, ArrowDown, CheckCircle2, XCircle, Circle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useMemo } from 'react'
 
 import {
   Card,
@@ -18,13 +19,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table/Table'
+import { Button } from '@/components/ui/button/Button'
 import {
   type Guess,
   GuessDirection,
   GuessOutcome,
   GuessStatus,
 } from '@/graphql/generated/graphql'
+import { useGuessHistory } from './useGuessHooks'
 import styles from './GuessHistory.module.scss'
+import { cn } from '@/lib/utils'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -47,7 +51,14 @@ function formatTimestamp(ts: string) {
 }
 
 function getPointsDelta(outcome: GuessOutcome) {
-  return outcome === GuessOutcome.Win ? 1 : -1
+  switch (outcome) {
+    case GuessOutcome.Win:
+      return 1
+    case GuessOutcome.Loss:
+      return -1
+    case GuessOutcome.Draw:
+      return 0
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -84,6 +95,79 @@ function DirectionBadge({
   )
 }
 
+function getResultColor(outcome: GuessOutcome) {
+  switch (outcome) {
+    case GuessOutcome.Win:
+      return styles.colorWin
+    case GuessOutcome.Loss:
+      return styles.colorLoss
+    case GuessOutcome.Draw:
+      return styles.colorDraw
+  }
+}
+
+interface PointsProps {
+  outcome: GuessOutcome
+}
+function Points({ outcome }: PointsProps) {
+  const pointsDelta = getPointsDelta(outcome)
+  const colorClassName = getResultColor(outcome)
+
+  return (
+    <span className={cn(styles.points, colorClassName)}>
+      {pointsDelta === 0 ? '' : pointsDelta > 0 ? '+' : ''}
+      {pointsDelta}
+    </span>
+  )
+}
+
+interface ResultIconProps {
+  outcome: GuessOutcome
+  colorClassName: string
+}
+
+function ResultIcon({ outcome, colorClassName }: ResultIconProps) {
+  switch (outcome) {
+    case GuessOutcome.Win:
+      return <CheckCircle2 className={cn(styles.resultIcon, colorClassName)} />
+    case GuessOutcome.Loss:
+      return <XCircle className={cn(styles.resultIcon, colorClassName)} />
+    case GuessOutcome.Draw:
+    default:
+      return <Circle className={cn(styles.resultIcon, colorClassName)} />
+  }
+}
+
+interface ResultCellProps {
+  outcome: GuessOutcome
+}
+
+function ResultCell({ outcome }: ResultCellProps) {
+  const t = useTranslations('dashboardGuessHistory')
+
+  function getResultText(outcome: GuessOutcome) {
+    switch (outcome) {
+      case GuessOutcome.Win:
+        return t('result.win')
+      case GuessOutcome.Loss:
+        return t('result.loss')
+      case GuessOutcome.Draw:
+      default:
+        return t('result.draw')
+    }
+  }
+
+  const colorClassName = getResultColor(outcome)
+  const text = getResultText(outcome)
+
+  return (
+    <div className={styles.resultCell}>
+      {<ResultIcon outcome={outcome} colorClassName={colorClassName} />}
+      <span className={cn(styles.points, colorClassName)}>{text}</span>
+    </div>
+  )
+}
+
 interface MobileHistoryProps {
   history: Guess[]
   upLabel: string
@@ -97,15 +181,22 @@ function MobileHistory({ history, upLabel, downLabel }: MobileHistoryProps) {
         // Only show settled guesses with outcome
         if (!guess.outcome) return null
 
-        const pointsDelta = getPointsDelta(guess.outcome)
-        const isWin = guess.outcome === GuessOutcome.Win
-
+        function getCardColorClassName(outcome: GuessOutcome) {
+          switch (outcome) {
+            case GuessOutcome.Win:
+              return styles.mobileCardWin
+            case GuessOutcome.Loss:
+              return styles.mobileCardLoss
+            case GuessOutcome.Draw:
+              return styles.mobileCardDraw
+          }
+        }
         return (
           <div
             key={guess.id}
-            className={`${styles.mobileCard} ${
-              isWin ? styles.mobileCardWin : styles.mobileCardLoss
-            }`}
+            className={`${styles.mobileCard} ${getCardColorClassName(
+              guess.outcome
+            )}`}
           >
             <div className={styles.mobileCardHeader}>
               <div className={styles.mobileCardLeft}>
@@ -120,15 +211,11 @@ function MobileHistory({ history, upLabel, downLabel }: MobileHistoryProps) {
               </div>
 
               <div className={styles.mobileCardResult}>
-                {isWin ? (
-                  <CheckCircle2 className={styles.resultIconWin} />
-                ) : (
-                  <XCircle className={styles.resultIconLoss} />
-                )}
-                <span className={isWin ? styles.pointsWin : styles.pointsLoss}>
-                  {pointsDelta > 0 ? '+' : ''}
-                  {pointsDelta}
-                </span>
+                <ResultIcon
+                  outcome={guess.outcome}
+                  colorClassName={getResultColor(guess.outcome)}
+                />
+                <Points outcome={guess.outcome} />
               </div>
             </div>
 
@@ -149,8 +236,6 @@ interface DesktopHistoryProps {
   history: Guess[]
   upLabel: string
   downLabel: string
-  tResultWin: string
-  tResultLoss: string
   headers: {
     direction: string
     entry: string
@@ -165,8 +250,6 @@ function DesktopHistory({
   history,
   upLabel,
   downLabel,
-  tResultWin,
-  tResultLoss,
   headers,
 }: DesktopHistoryProps) {
   return (
@@ -188,9 +271,6 @@ function DesktopHistory({
             // Only show settled guesses with outcome
             if (!guess.outcome) return null
 
-            const pointsDelta = getPointsDelta(guess.outcome)
-            const isWin = guess.outcome === GuessOutcome.Win
-
             return (
               <TableRow key={guess.id} className={styles.tableRow}>
                 <TableCell>
@@ -210,32 +290,11 @@ function DesktopHistory({
                 </TableCell>
 
                 <TableCell>
-                  <div className={styles.resultCell}>
-                    {isWin ? (
-                      <>
-                        <CheckCircle2 className={styles.resultIconWin} />
-                        <span className={styles.resultTextWin}>
-                          {tResultWin}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className={styles.resultIconLoss} />
-                        <span className={styles.resultTextLoss}>
-                          {tResultLoss}
-                        </span>
-                      </>
-                    )}
-                  </div>
+                  <ResultCell outcome={guess.outcome} />
                 </TableCell>
 
                 <TableCell className={styles.pointsCell}>
-                  <span
-                    className={isWin ? styles.pointsWin : styles.pointsLoss}
-                  >
-                    {pointsDelta > 0 ? '+' : ''}
-                    {pointsDelta}
-                  </span>
+                  <Points outcome={guess.outcome} />
                 </TableCell>
 
                 <TableCell className={styles.timestampCell}>
@@ -269,96 +328,59 @@ function EmptyStateCard({ title, emptyText }: EmptyStateCardProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Hook: useGuessHistory (mocked for now)
-// ---------------------------------------------------------------------------
-
-interface UseGuessHistoryReturn {
-  history: Guess[]
-  isLoading: boolean
-  hasNextPage: boolean
-  fetchNextPage: () => void
-  isFetchingNextPage: boolean
-}
-
-/**
- * Hook that fetches guess history.
- * Currently mocked - will be connected to real API with infinite scroll later.
- */
-function useGuessHistory(): UseGuessHistoryReturn {
-  // Mock data for demonstration
-  const mockHistory: Guess[] = [
-    {
-      __typename: 'Guess',
-      id: 'mock-1',
-      owner: 'mock-owner',
-      createdAt: new Date(Date.now() - 120000).toISOString(),
-      updatedAt: new Date(Date.now() - 60000).toISOString(),
-      settleAt: new Date(Date.now() - 60000).toISOString(),
-      direction: GuessDirection.Up,
-      status: GuessStatus.Settled,
-      startPriceSnapshotId: 'snapshot-1',
-      endPriceSnapshotId: 'snapshot-2',
-      startPrice: 98500,
-      endPrice: 99100,
-      result: GuessDirection.Up,
-      outcome: GuessOutcome.Win,
-    },
-    {
-      __typename: 'Guess',
-      id: 'mock-2',
-      owner: 'mock-owner',
-      createdAt: new Date(Date.now() - 240000).toISOString(),
-      updatedAt: new Date(Date.now() - 180000).toISOString(),
-      settleAt: new Date(Date.now() - 180000).toISOString(),
-      direction: GuessDirection.Down,
-      status: GuessStatus.Settled,
-      startPriceSnapshotId: 'snapshot-3',
-      endPriceSnapshotId: 'snapshot-4',
-      startPrice: 99200,
-      endPrice: 99400,
-      result: GuessDirection.Up,
-      outcome: GuessOutcome.Loss,
-    },
-    {
-      __typename: 'Guess',
-      id: 'mock-3',
-      owner: 'mock-owner',
-      createdAt: new Date(Date.now() - 360000).toISOString(),
-      updatedAt: new Date(Date.now() - 300000).toISOString(),
-      settleAt: new Date(Date.now() - 300000).toISOString(),
-      direction: GuessDirection.Up,
-      status: GuessStatus.Settled,
-      startPriceSnapshotId: 'snapshot-5',
-      endPriceSnapshotId: 'snapshot-6',
-      startPrice: 98000,
-      endPrice: 98800,
-      result: GuessDirection.Up,
-      outcome: GuessOutcome.Win,
-    },
-  ]
-
-  return {
-    history: mockHistory,
-    isLoading: false,
-    hasNextPage: false,
-    fetchNextPage: () => {},
-    isFetchingNextPage: false,
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
 
 export function GuessHistory() {
   const t = useTranslations('dashboardGuessHistory')
 
-  const { history } = useGuessHistory()
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useGuessHistory()
+
+  // Flatten all pages into a single array
+  const history = useMemo(() => {
+    if (!data) return []
+    return data.pages.flatMap(
+      (page) => page.guessesByOwner?.items?.filter(Boolean) ?? []
+    ) as Guess[]
+  }, [data])
 
   // Filter out any pending guesses (they should appear in GuessAction, not here)
   const settledHistory = history.filter(
     (guess) => guess.status === GuessStatus.Settled && guess.outcome !== null
   )
+
+  if (isLoading) {
+    return (
+      <Card className={styles.card}>
+        <CardHeader>
+          <CardTitle className={styles.cardTitle}>{t('title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className={styles.empty}>{t('loading')}</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (isError) {
+    return (
+      <Card className={styles.card}>
+        <CardHeader>
+          <CardTitle className={styles.cardTitle}>{t('title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className={styles.empty}>{t('error')}</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (settledHistory.length === 0) {
     return <EmptyStateCard title={t('title')} emptyText={t('empty')} />
@@ -382,8 +404,6 @@ export function GuessHistory() {
           history={settledHistory}
           upLabel={t('direction.up')}
           downLabel={t('direction.down')}
-          tResultWin={t('result.win')}
-          tResultLoss={t('result.loss')}
           headers={{
             direction: t('table.direction'),
             entry: t('table.entry'),
@@ -393,6 +413,19 @@ export function GuessHistory() {
             time: t('table.time'),
           }}
         />
+
+        {/* Load more button */}
+        {hasNextPage && (
+          <div className={styles.loadMore}>
+            <Button
+              variant="outline"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? t('loadingMore') : t('loadMore')}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

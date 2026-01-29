@@ -11,11 +11,11 @@ import {
 } from './price-snapshot-relay'
 import { fetchGraphQL } from '@/lib/requests'
 import type { PriceSnapshotStream } from '@/types/price-snapshot'
+import { createSSEStream, createSSEResponse } from '@/lib/sse-relay'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const SSE_KEEP_ALIVE_MS = 25_000
 const PRICE_SNAPSHOT_PK = 'PriceSnapshot'
 
 /**
@@ -37,49 +37,8 @@ async function queryLatestPriceSnapshot(): Promise<PriceSnapshotStream | null> {
 }
 
 export async function GET(req: NextRequest) {
-  const encoder = new TextEncoder()
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      let isClosed = false
-
-      const keepAlive = setInterval(() => {
-        if (isClosed) {
-          return
-        }
-        controller.enqueue(encoder.encode(': keep-alive\n\n'))
-      }, SSE_KEEP_ALIVE_MS)
-
-      const send = (message: StreamMessage) => {
-        if (isClosed) {
-          console.log('[SSE] Stream closed, not sending:', message.type)
-          return
-        }
-        console.log(
-          '[SSE] Sending event:',
-          message.type,
-          JSON.stringify(message.payload).slice(0, 100)
-        )
-        controller.enqueue(
-          encoder.encode(
-            `event: ${message.type}\ndata: ${JSON.stringify(message.payload)}\n\n`
-          )
-        )
-      }
-
-      const close = () => {
-        if (isClosed) {
-          return
-        }
-        console.log('[SSE] Closing stream')
-        isClosed = true
-        clearInterval(keepAlive)
-        removeClient(send)
-        controller.close()
-      }
-
-      req.signal.addEventListener('abort', close)
-
+  const stream = createSSEStream<StreamMessage>(req, {
+    async onStart(send) {
       // Register with relay to receive broadcast updates
       addClient(send)
 
@@ -95,17 +54,10 @@ export async function GET(req: NextRequest) {
         })
       }
     },
-    cancel() {
-      // The abort listener handles cleanup.
+    onClose(send) {
+      removeClient(send)
     },
   })
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no',
-    },
-  })
+  return createSSEResponse(stream)
 }

@@ -7,9 +7,16 @@ enum GuessDirection {
   DOWN
 }
 
+enum GuessResultDirection {
+  UP
+  DOWN
+  EQUAL
+}
+
 enum GuessOutcome {
   WIN
   LOSS
+  DRAW
 }
 
 enum GuessStatus {
@@ -66,7 +73,7 @@ type Guess
 
   # Outcome
   status: GuessStatus!
-  result: GuessDirection # Actual price movement (UP/DOWN) - nullable until settled
+  result: GuessResultDirection # Actual price movement (UP/DOWN) - nullable until settled
   outcome: GuessOutcome # WIN/LOSS - nullable until settled
 }
 

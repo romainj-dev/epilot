@@ -15,9 +15,15 @@ import { Badge } from '@/components/ui/badge/Badge'
 import { usePriceSnapshot } from '@/components/features/price-snapshot/PriceSnapshotProvider'
 import {
   type Guess,
+  type CreateGuessInput,
   GuessDirection,
   GuessStatus,
 } from '@/graphql/generated/graphql'
+import {
+  useActiveGuess,
+  useCreateGuess,
+  useGuessSettlementHandler,
+} from './useGuessHooks'
 import styles from './GuessAction.module.scss'
 
 // ---------------------------------------------------------------------------
@@ -248,7 +254,7 @@ function IdleHint({ text }: IdleHintProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Hook: useGuessState (mocked for now)
+// Hook: useGuessState
 // ---------------------------------------------------------------------------
 
 interface UseGuessStateReturn {
@@ -258,51 +264,40 @@ interface UseGuessStateReturn {
 }
 
 /**
- * Hook that manages guess state.
- * Currently mocked - will be connected to real API/SSE later.
+ * Hook that manages guess state using real API/SSE
  */
 function useGuessState(): UseGuessStateReturn {
-  const [activeGuess, setActiveGuess] = useState<Guess | null>(null)
-  const [isCreating, setIsCreating] = useState(false)
+  const { data: activeGuess, isLoading } = useActiveGuess()
+  const createGuessMutation = useCreateGuess()
 
-  const createGuess = useCallback((direction: GuessDirection) => {
-    setIsCreating(true)
+  // Set up real-time settlement handler
+  useGuessSettlementHandler(activeGuess ?? null)
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const now = new Date()
-      const settleAt = new Date(now.getTime() + GUESS_DURATION_MS)
+  const createGuess = useCallback(
+    (direction: GuessDirection) => {
+      // Compute settlement time (60 seconds from now)
+      const settleAt = new Date(Date.now() + GUESS_DURATION_MS).toISOString()
 
-      // Create mock guess (matches new schema)
-      const mockGuess: Guess = {
-        __typename: 'Guess',
-        id: `mock-${Date.now()}`,
-        owner: 'mock-owner',
-        createdAt: now.toISOString(),
-        updatedAt: now.toISOString(),
-        settleAt: settleAt.toISOString(),
+      // Call mutation with input
+      const input: CreateGuessInput = {
         direction,
+        settleAt,
         status: GuessStatus.Pending,
-        // These are null until settlement
-        startPriceSnapshotId: null,
-        endPriceSnapshotId: null,
-        startPrice: null,
-        endPrice: null,
-        result: null,
-        outcome: null,
       }
 
-      setActiveGuess(mockGuess)
-      setIsCreating(false)
+      createGuessMutation.mutate({ input })
+    },
+    [createGuessMutation]
+  )
 
-      // Simulate settlement after 60s (for demo purposes)
-      setTimeout(() => {
-        setActiveGuess(null)
-      }, GUESS_DURATION_MS)
-    }, 300)
-  }, [])
+  // Extract data property which is the actual Guess or null
+  const activeGuessData = activeGuess ?? null
 
-  return { activeGuess, isCreating, createGuess }
+  return {
+    activeGuess: activeGuessData,
+    isCreating: createGuessMutation.isPending || isLoading,
+    createGuess,
+  }
 }
 
 // ---------------------------------------------------------------------------
