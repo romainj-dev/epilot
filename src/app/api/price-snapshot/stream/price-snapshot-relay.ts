@@ -10,7 +10,7 @@ import {
   type RelayState,
   type ClientSendFunction,
 } from '@/lib/sse-relay'
-import { ensurePriceSnapshotSubscription } from './appsync-realtime'
+import { ensurePriceSnapshotSubscription } from './appsync-price-snapshot-subscription'
 
 export type StreamMessage =
   | { type: 'snapshot'; payload: PriceSnapshotStream | null }

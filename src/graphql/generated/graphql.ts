@@ -33,7 +33,7 @@ export type CreateGuessInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
   outcome?: InputMaybe<GuessOutcome>;
   owner?: InputMaybe<Scalars['String']['input']>;
-  result?: InputMaybe<GuessDirection>;
+  result?: InputMaybe<GuessResultDirection>;
   settleAt: Scalars['AWSDateTime']['input'];
   startPrice?: InputMaybe<Scalars['Float']['input']>;
   startPriceSnapshotId?: InputMaybe<Scalars['ID']['input']>;
@@ -80,7 +80,7 @@ export type Guess = {
   id: Scalars['ID']['output'];
   outcome?: Maybe<GuessOutcome>;
   owner?: Maybe<Scalars['String']['output']>;
-  result?: Maybe<GuessDirection>;
+  result?: Maybe<GuessResultDirection>;
   settleAt: Scalars['AWSDateTime']['output'];
   startPrice?: Maybe<Scalars['Float']['output']>;
   startPriceSnapshotId?: Maybe<Scalars['ID']['output']>;
@@ -97,6 +97,12 @@ export enum GuessOutcome {
   Draw = 'DRAW',
   Loss = 'LOSS',
   Win = 'WIN'
+}
+
+export enum GuessResultDirection {
+  Down = 'DOWN',
+  Equal = 'EQUAL',
+  Up = 'UP'
 }
 
 export enum GuessStatus {
@@ -147,7 +153,7 @@ export type ModelGuessConditionInput = {
   or?: InputMaybe<Array<InputMaybe<ModelGuessConditionInput>>>;
   outcome?: InputMaybe<ModelGuessOutcomeInput>;
   owner?: InputMaybe<ModelStringInput>;
-  result?: InputMaybe<ModelGuessDirectionInput>;
+  result?: InputMaybe<ModelGuessResultDirectionInput>;
   settleAt?: InputMaybe<ModelStringInput>;
   startPrice?: InputMaybe<ModelFloatInput>;
   startPriceSnapshotId?: InputMaybe<ModelIdInput>;
@@ -177,7 +183,7 @@ export type ModelGuessFilterInput = {
   or?: InputMaybe<Array<InputMaybe<ModelGuessFilterInput>>>;
   outcome?: InputMaybe<ModelGuessOutcomeInput>;
   owner?: InputMaybe<ModelStringInput>;
-  result?: InputMaybe<ModelGuessDirectionInput>;
+  result?: InputMaybe<ModelGuessResultDirectionInput>;
   settleAt?: InputMaybe<ModelStringInput>;
   startPrice?: InputMaybe<ModelFloatInput>;
   startPriceSnapshotId?: InputMaybe<ModelIdInput>;
@@ -188,6 +194,11 @@ export type ModelGuessFilterInput = {
 export type ModelGuessOutcomeInput = {
   eq?: InputMaybe<GuessOutcome>;
   ne?: InputMaybe<GuessOutcome>;
+};
+
+export type ModelGuessResultDirectionInput = {
+  eq?: InputMaybe<GuessResultDirection>;
+  ne?: InputMaybe<GuessResultDirection>;
 };
 
 export type ModelGuessStatusInput = {
@@ -666,7 +677,7 @@ export type UpdateGuessInput = {
   id: Scalars['ID']['input'];
   outcome?: InputMaybe<GuessOutcome>;
   owner?: InputMaybe<Scalars['String']['input']>;
-  result?: InputMaybe<GuessDirection>;
+  result?: InputMaybe<GuessResultDirection>;
   settleAt?: InputMaybe<Scalars['AWSDateTime']['input']>;
   startPrice?: InputMaybe<Scalars['Float']['input']>;
   startPriceSnapshotId?: InputMaybe<Scalars['ID']['input']>;
@@ -705,6 +716,13 @@ export type UserState = {
   username: Scalars['String']['output'];
 };
 
+export type OnUpdateGuessSubscriptionVariables = Exact<{
+  owner?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type OnUpdateGuessSubscription = { __typename?: 'Subscription', onUpdateGuess?: { __typename?: 'Guess', id: string, owner?: string | null, createdAt: string, settleAt: string, direction: GuessDirection, status: GuessStatus, startPrice?: number | null, endPrice?: number | null, result?: GuessResultDirection | null, outcome?: GuessOutcome | null, updatedAt: string } | null };
+
 export type PriceSnapshotsByPkQueryVariables = Exact<{
   pk: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -726,7 +744,7 @@ export type CreateGuessMutationVariables = Exact<{
 }>;
 
 
-export type CreateGuessMutation = { __typename?: 'Mutation', createGuess?: { __typename?: 'Guess', id: string, owner?: string | null, createdAt: string, settleAt: string, direction: GuessDirection, status: GuessStatus, startPrice?: number | null, endPrice?: number | null, result?: GuessDirection | null, outcome?: GuessOutcome | null } | null };
+export type CreateGuessMutation = { __typename?: 'Mutation', createGuess?: { __typename?: 'Guess', id: string, owner?: string | null, createdAt: string, settleAt: string, direction: GuessDirection, status: GuessStatus, startPrice?: number | null, endPrice?: number | null, result?: GuessResultDirection | null, outcome?: GuessOutcome | null } | null };
 
 export type GuessesByOwnerQueryVariables = Exact<{
   owner: Scalars['String']['input'];
@@ -737,14 +755,7 @@ export type GuessesByOwnerQueryVariables = Exact<{
 }>;
 
 
-export type GuessesByOwnerQuery = { __typename?: 'Query', guessesByOwner?: { __typename?: 'ModelGuessConnection', nextToken?: string | null, items: Array<{ __typename?: 'Guess', id: string, owner?: string | null, createdAt: string, settleAt: string, direction: GuessDirection, status: GuessStatus, startPrice?: number | null, endPrice?: number | null, result?: GuessDirection | null, outcome?: GuessOutcome | null, updatedAt: string } | null> } | null };
-
-export type OnUpdateGuessSubscriptionVariables = Exact<{
-  owner?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type OnUpdateGuessSubscription = { __typename?: 'Subscription', onUpdateGuess?: { __typename?: 'Guess', id: string, owner?: string | null, createdAt: string, settleAt: string, direction: GuessDirection, status: GuessStatus, startPrice?: number | null, endPrice?: number | null, result?: GuessDirection | null, outcome?: GuessOutcome | null, updatedAt: string } | null };
+export type GuessesByOwnerQuery = { __typename?: 'Query', guessesByOwner?: { __typename?: 'ModelGuessConnection', nextToken?: string | null, items: Array<{ __typename?: 'Guess', id: string, owner?: string | null, createdAt: string, settleAt: string, direction: GuessDirection, status: GuessStatus, startPrice?: number | null, endPrice?: number | null, result?: GuessResultDirection | null, outcome?: GuessOutcome | null, updatedAt: string } | null> } | null };
 
 export type GetUserStateQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -754,9 +765,9 @@ export type GetUserStateQueryVariables = Exact<{
 export type GetUserStateQuery = { __typename?: 'Query', getUserState?: { __typename?: 'UserState', id: string, score: number, username: string, email: string } | null };
 
 
+export const OnUpdateGuessDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnUpdateGuess"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"onUpdateGuess"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"settleAt"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startPrice"}},{"kind":"Field","name":{"kind":"Name","value":"endPrice"}},{"kind":"Field","name":{"kind":"Name","value":"result"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<OnUpdateGuessSubscription, OnUpdateGuessSubscriptionVariables>;
 export const PriceSnapshotsByPkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PriceSnapshotsByPk"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pk"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sortDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ModelSortDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"priceSnapshotsByPk"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pk"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pk"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"sortDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sortDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pk"}},{"kind":"Field","name":{"kind":"Name","value":"capturedAt"}},{"kind":"Field","name":{"kind":"Name","value":"priceUsd"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUpdatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<PriceSnapshotsByPkQuery, PriceSnapshotsByPkQueryVariables>;
 export const OnCreatePriceSnapshotDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnCreatePriceSnapshot"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ModelSubscriptionPriceSnapshotFilterInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"onCreatePriceSnapshot"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pk"}},{"kind":"Field","name":{"kind":"Name","value":"capturedAt"}},{"kind":"Field","name":{"kind":"Name","value":"priceUsd"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUpdatedAt"}}]}}]}}]} as unknown as DocumentNode<OnCreatePriceSnapshotSubscription, OnCreatePriceSnapshotSubscriptionVariables>;
 export const CreateGuessDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateGuess"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateGuessInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createGuess"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"settleAt"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startPrice"}},{"kind":"Field","name":{"kind":"Name","value":"endPrice"}},{"kind":"Field","name":{"kind":"Name","value":"result"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}}]}}]}}]} as unknown as DocumentNode<CreateGuessMutation, CreateGuessMutationVariables>;
 export const GuessesByOwnerDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GuessesByOwner"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sortDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ModelSortDirection"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"nextToken"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ModelGuessFilterInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"guessesByOwner"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}},{"kind":"Argument","name":{"kind":"Name","value":"sortDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sortDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"nextToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"nextToken"}}},{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"settleAt"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startPrice"}},{"kind":"Field","name":{"kind":"Name","value":"endPrice"}},{"kind":"Field","name":{"kind":"Name","value":"result"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nextToken"}}]}}]}}]} as unknown as DocumentNode<GuessesByOwnerQuery, GuessesByOwnerQueryVariables>;
-export const OnUpdateGuessDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"OnUpdateGuess"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"onUpdateGuess"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"owner"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"settleAt"}},{"kind":"Field","name":{"kind":"Name","value":"direction"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startPrice"}},{"kind":"Field","name":{"kind":"Name","value":"endPrice"}},{"kind":"Field","name":{"kind":"Name","value":"result"}},{"kind":"Field","name":{"kind":"Name","value":"outcome"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<OnUpdateGuessSubscription, OnUpdateGuessSubscriptionVariables>;
 export const GetUserStateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserState"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getUserState"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"score"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"email"}}]}}]}}]} as unknown as DocumentNode<GetUserStateQuery, GetUserStateQueryVariables>;

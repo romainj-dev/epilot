@@ -4,13 +4,13 @@
  * Mocks the upstream AppSync subscription (appsync-realtime)
  */
 
-// Mock appsync-realtime before importing relay
-jest.mock('./appsync-realtime', () => ({
+// Mock appsync-price-snapshot-subscription before importing relay
+jest.mock('./appsync-price-snapshot-subscription', () => ({
   ensurePriceSnapshotSubscription: jest.fn(),
 }))
 
 import { addClient, removeClient, getClientCount } from './price-snapshot-relay'
-import { ensurePriceSnapshotSubscription } from './appsync-realtime'
+import { ensurePriceSnapshotSubscription } from './appsync-price-snapshot-subscription'
 
 const mockEnsurePriceSnapshotSubscription =
   ensurePriceSnapshotSubscription as jest.MockedFunction<

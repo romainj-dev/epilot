@@ -1,0 +1,15 @@
+subscription OnUpdateGuess($owner: String) {
+  onUpdateGuess(owner: $owner) {
+    id
+    owner
+    createdAt
+    settleAt
+    direction
+    status
+    startPrice
+    endPrice
+    result
+    outcome
+    updatedAt
+  }
+}
