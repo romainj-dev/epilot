@@ -227,7 +227,7 @@ function ActivePredictionCard({
               <div
                 className={styles.progressFill}
                 style={{
-                  width: `${((GUESS_DURATION_MS - timeRemaining) / GUESS_DURATION_MS) * 100}%`,
+                  width: `${Math.min(100, Math.max(0, ((GUESS_DURATION_MS - timeRemaining) / GUESS_DURATION_MS) * 100))}%`,
                 }}
               />
             </div>
@@ -298,18 +298,39 @@ function useGuessState(): UseGuessStateReturn {
 // Hook: useCountdown
 // ---------------------------------------------------------------------------
 
-function useCountdown(settleAt: string | null) {
-  // Force re-render at regular intervals to update countdown
-  const [, forceUpdate] = useState(0)
+function useCountdown(activeGuess: Guess | null) {
+  // Track time remaining in state
+  const [timeRemaining, setTimeRemaining] = useState(0)
+
+  // Memoize settleAt to prevent unnecessary effect reruns
+  const settleAt = useMemo(
+    () => activeGuess?.settleAt ?? null,
+    [activeGuess?.settleAt]
+  )
 
   useEffect(() => {
-    if (!settleAt) return
+    if (!settleAt) {
+      // No need to set state here, just return
+      return
+    }
 
-    // Update every 100ms for smooth progress bar
-    const interval = setInterval(() => {
+    // Update immediately and then every 100ms for smooth progress bar
+    const updateTimeRemaining = () => {
       const remaining = computeTimeRemaining(settleAt)
-      forceUpdate((n) => n + 1)
+      setTimeRemaining(remaining)
+      return remaining
+    }
 
+    // Initial update
+    const initial = updateTimeRemaining()
+
+    // Don't set interval if already expired
+    if (initial <= 0) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      const remaining = updateTimeRemaining()
       if (remaining <= 0) {
         clearInterval(interval)
       }
@@ -318,8 +339,7 @@ function useCountdown(settleAt: string | null) {
     return () => clearInterval(interval)
   }, [settleAt])
 
-  // Compute time remaining on every render (driven by forceUpdate)
-  return settleAt ? computeTimeRemaining(settleAt) : 0
+  return settleAt ? timeRemaining : 0
 }
 
 // ---------------------------------------------------------------------------
@@ -332,7 +352,7 @@ export function GuessAction() {
 
   const { activeGuess, isCreating, createGuess } = useGuessState()
 
-  const timeRemaining = useCountdown(activeGuess?.settleAt ?? null)
+  const timeRemaining = useCountdown(activeGuess)
 
   // Derive status from state
   const status: GuessActionStatus = useMemo(() => {
