@@ -78,7 +78,7 @@ export function useCreateGuess() {
         queryKeys.guess.active(owner)
       )
 
-      // Optimistically set active guess
+      // Optimistically set active guess with the startPrice from input
       const optimisticGuess: Guess = {
         __typename: 'Guess',
         id: `temp-${Date.now()}`,
@@ -90,7 +90,7 @@ export function useCreateGuess() {
         updatedAt: new Date().toISOString(),
         startPriceSnapshotId: null,
         endPriceSnapshotId: null,
-        startPrice: null,
+        startPrice: variables.input.startPrice ?? null,
         endPrice: null,
         result: null,
         outcome: null,

@@ -152,7 +152,6 @@ interface ActivePredictionCardProps {
   activeGuess: Guess
   status: GuessActionStatus
   timeRemaining: number
-  provisionalStartPrice: number | null
   statusText: string
   countdownText: string
   title: string
@@ -166,7 +165,6 @@ function ActivePredictionCard({
   activeGuess,
   status,
   timeRemaining,
-  provisionalStartPrice,
   statusText,
   countdownText,
   title,
@@ -175,9 +173,6 @@ function ActivePredictionCard({
   entryPriceLabel,
   placedAtLabel,
 }: ActivePredictionCardProps) {
-  // Use the resolved startPrice if available, otherwise show provisional
-  const displayPrice = activeGuess.startPrice ?? provisionalStartPrice
-
   return (
     <Card className={styles.activeCard}>
       <CardHeader className={styles.cardHeader}>
@@ -202,13 +197,11 @@ function ActivePredictionCard({
       <CardContent className={styles.cardContent}>
         <div className={styles.infoGrid}>
           <div>
-            <p className={styles.infoLabel}>
-              {entryPriceLabel}
-              {/* Show ~ to indicate provisional price */}
-              {!activeGuess.startPrice && provisionalStartPrice && ' ~'}
-            </p>
+            <p className={styles.infoLabel}>{entryPriceLabel}</p>
             <p className={styles.infoValue}>
-              {displayPrice ? formatPrice(displayPrice) : '—'}
+              {activeGuess.startPrice
+                ? formatPrice(activeGuess.startPrice)
+                : '—'}
             </p>
           </div>
           <div>
@@ -260,7 +253,7 @@ function IdleHint({ text }: IdleHintProps) {
 interface UseGuessStateReturn {
   activeGuess: Guess | null
   isCreating: boolean
-  createGuess: (direction: GuessDirection) => void
+  createGuess: (direction: GuessDirection, startPrice: number) => void
 }
 
 /**
@@ -274,15 +267,16 @@ function useGuessState(): UseGuessStateReturn {
   useGuessSettlementHandler(activeGuess ?? null)
 
   const createGuess = useCallback(
-    (direction: GuessDirection) => {
+    (direction: GuessDirection, startPrice: number) => {
       // Compute settlement time (60 seconds from now)
       const settleAt = new Date(Date.now() + GUESS_DURATION_MS).toISOString()
 
-      // Call mutation with input
+      // Call mutation with input, including the current price as startPrice
       const input: CreateGuessInput = {
         direction,
         settleAt,
         status: GuessStatus.Pending,
+        startPrice,
       }
 
       createGuessMutation.mutate({ input })
@@ -355,10 +349,10 @@ export function GuessAction() {
 
   const handleGuess = useCallback(
     (direction: GuessDirection) => {
-      if (!canGuess) return
-      createGuess(direction)
+      if (!canGuess || currentPrice === null) return
+      createGuess(direction, currentPrice)
     },
-    [canGuess, createGuess]
+    [canGuess, createGuess, currentPrice]
   )
 
   const statusText = getStatusText(t, status)
@@ -382,7 +376,6 @@ export function GuessAction() {
           activeGuess={activeGuess}
           status={status}
           timeRemaining={timeRemaining}
-          provisionalStartPrice={currentPrice}
           statusText={statusText}
           countdownText={countdownText}
           title={t('active.title')}
