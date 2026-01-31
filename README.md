@@ -111,6 +111,16 @@ pnpm lint      # Run ESLint
 pnpm build     # Production build
 ```
 
+## Testing
+
+```bash
+pnpm test              # Unit tests (Jest)
+pnpm test:amplify:int  # AWS integration tests
+pnpm cypress:open      # E2E tests (Cypress)
+```
+
+See **[TESTING.md](./TESTING.md)** for the full testing strategy.
+
 ## Project Structure
 
 ```
@@ -132,10 +142,15 @@ amplify/
 └── backend/
     ├── api/epilot/         # AppSync schema + resolvers
     ├── auth/epilotAuth/    # Cognito configuration
-    ├── function/           # Lambda functions (incl. priceSnapshotJob, scheduleGuessLambda, settleGuessLambda)
-    └── custom/             # CloudFormation add-ons
-        ├── priceSnapshotScheduler/    # Step Functions Express: loop that drives priceSnapshotJob
-        └── guessSettlementScheduler/  # EventBridge Scheduler: ScheduleGroup + invoke role for settleGuessLambda
+    ├── function/           # Lambda functions
+    └── custom/             # Step Functions + EventBridge Scheduler
+
+cypress/
+├── e2e/                    # E2E test specs
+├── support/
+│   ├── commands.ts         # Custom Cypress commands
+│   └── e2e.ts              # E2E support file
+└── README.md               # Cypress setup guide
 ```
 
 ## Conventions

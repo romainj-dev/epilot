@@ -1,153 +1,124 @@
-## Testing Strategy
+# Testing Strategy
 
-This project follows a **pragmatic, risk-based** testing approach:
+Pragmatic, risk-based approach focused on the **core game loop** (price snapshots → guesses → settlement → score).
 
-- **Fast feedback by default**: most checks are **local Jest unit tests** (deterministic, no network).
-- **High confidence where it matters**: a small set of **AWS integration smoke tests** run against **real AWS** to validate wiring across AppSync, Cognito, Lambdas, DynamoDB, and EventBridge Scheduler.
-- **UI testing kept focused** (planned): Jest for **complex logic**, Cypress Component Tests for a **small set of critical components**, and Cypress E2E for **1–2 golden paths** only.
+- **Fast feedback**: Unit tests run locally with mocked I/O
+- **High confidence**: Integration tests hit real AWS services
+- **Focused UI coverage**: E2E for critical paths only
 
-The goal is to prevent regressions in the **core game loop** (price snapshots → guesses → settlement → score) without spending time maintaining broad/flaky end-to-end coverage.
+## Testing Pyramid
 
-## Testing Pyramid (target mix)
+| Layer | Scope | I/O | Status |
+|-------|-------|-----|--------|
+| **Unit** | Lambdas, BFF routes, FE logic | Mocked | ✅ Backend / 🔜 Frontend |
+| **Component** | Critical UI components | Mocked | 🔜 Planned |
+| **Integration** | AWS services wiring | Real AWS | ✅ |
+| **E2E** | User journeys (1-2 paths) | Real API | ✅ |
 
-- **Unit tests (majority)**:
-  - Backend Lambdas (Jest, mocked I/O)
-  - Next.js BFF routes (Jest, mocked I/O)
-  - Frontend complex logic (Jest) *(planned)*
-- **Integration tests (small but real)**:
-  - AWS smoke tests validating CRUD flows + Lambda wiring against real AWS
-- **E2E tests (minimal)**:
-  - 1–2 critical user journeys *(planned, Cypress E2E)*
-
-## Testing
-
-This repo currently has **Jest-based** tests for:
-
-- **Backend Lambdas (unit)**: local, deterministic, no AWS calls.
-- **Next.js BFF routes (unit)**: local, deterministic, no AWS calls.
-- **AWS integration smoke tests (Jest)**: run locally but hit **real AWS** (AppSync, Cognito, Lambda, EventBridge Scheduler).
-
-## Commands (current and accurate)
-
-All commands below exist in `package.json` today:
+## Commands
 
 ```bash
-# All unit tests (Lambda unit + BFF unit)
-pnpm test
+# Unit tests
+pnpm test                # All unit tests (Lambda + BFF)
+pnpm test:bff            # BFF only
+pnpm test:amplify:unit   # Lambda only
 
-# Only BFF unit tests (Next.js API routes)
-pnpm test:bff
+# Integration tests
+pnpm test:amplify:int    # AWS smoke tests (real AWS)
 
-# Only Lambda unit tests (Amplify functions)
-pnpm test:amplify:unit
-
-# AWS integration smoke tests (hits real AWS)
-pnpm test:amplify:int
-
-# Convenience: runs Lambda unit + integration in parallel
-pnpm test:amplify
+# E2E tests
+pnpm cypress:open        # Interactive
+pnpm cypress:run         # Headless
 ```
 
-## Unit tests (Jest, local)
+---
 
-### Lambda unit tests (Amplify functions)
+## Backend Unit Tests (Jest)
+
+**All I/O mocked** — fast, deterministic, no network calls.
+
+### Lambda Functions
 
 - **Location**: `amplify/backend/function/*/src/__tests__/*.unit.test.js`
-- **High-level coverage**:
-  - **`priceSnapshotJob`**: env/SSM config handling + CoinGecko fetch + AppSync write (all mocked).
-  - **`epilotAuthPostConfirmation`**: trigger filtering + AppSync `createUserState` call shaping (mocked).
-  - **`scheduleGuessLambda`**: EventBridge Scheduler schedule creation (AWS SDK mocked).
-  - **`settleGuessLambda`**: settlement flow when snapshots exist/missing + score update request shape (mocked).
-- **Run**:
+- **Scope**: Business logic, request/response shaping, error handling
+- **Mocked**: AWS SDK, AppSync client, external APIs (CoinGecko)
+- **Run**: `pnpm test:amplify:unit`
 
-```bash
-pnpm test:amplify:unit
-```
-
-### BFF unit tests (Next.js `src/app/api/*`)
+### BFF Routes (Next.js API)
 
 - **Location**: `src/app/api/**/*.test.ts`
-- **High-level coverage**:
-  - **Auth gating** and request validation.
-  - **Error shaping/mapping** (GraphQL conventions + route-level error responses).
-  - **Relay lifecycle** for the price snapshot SSE stream (upstream subscription is mocked).
-- **Run**:
+- **Scope**: Auth gating, request validation, error mapping, SSE relay lifecycle
+- **Mocked**: Upstream GraphQL, auth session
+- **Run**: `pnpm test:bff`
+
+---
+
+## Integration Tests (Jest + Real AWS)
+
+**Hits real AWS services** — validates wiring across AppSync, Cognito, Lambda, DynamoDB, EventBridge.
+
+- **Location**: `amplify/backend/__tests__/integration/*.int.test.ts`
+- **Scope**: CRUD flows, Lambda invocation, auth modes (API key vs Cognito)
+- **Run**: `pnpm test:amplify:int`
+
+### Prerequisites
+
+- Deployed Amplify backend (`amplify push`)
+- SSM parameters seeded (see `SETUP.MD`)
+- AWS credentials with Cognito admin + Lambda invoke permissions
+- Cognito app client with `USER_PASSWORD_AUTH` enabled
+
+### Configuration
+
+Env vars (preferred) or Amplify outputs fallback:
 
 ```bash
-pnpm test:bff
+AWS_REGION, APPSYNC_ENDPOINT, APPSYNC_API_KEY
+COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID
+LAMBDA_*_ARN  # Post-confirmation, price-snapshot, schedule, settle
 ```
 
-## AWS integration smoke tests (Jest, run locally, hit real AWS)
+---
 
-### What’s covered (high-level)
+## Frontend Unit Tests (Jest) — Planned
 
-- **CRUD flows via AppSync**:
-  - `PriceSnapshot` CRUD with **API key** auth.
-  - `Guess` CRUD with **Cognito userPools (owner)** auth.
-  - `UserState` create via **API key** + read/update via **Cognito userPools (owner)** auth.
-- **Lambda wiring (invoke real Lambdas)**:
-  - `epilotAuthPostConfirmation` → creates `UserState`.
-  - `priceSnapshotJob` → creates a `PriceSnapshot` (real CoinGecko call).
-  - `scheduleGuessLambda` → creates a one-shot EventBridge Scheduler entry.
-  - `settleGuessLambda` → settles a guess and updates the user score.
+**All I/O mocked** — tests pure logic in isolation.
 
-### Location
+- **Location**: `src/**/*.test.ts`
+- **Scope**: Utility functions, formatters, validation logic, custom hooks (non-rendering)
+- **Run**: `pnpm test:fe` *(planned)*
 
-- `amplify/backend/__tests__/integration/*.int.test.ts`
+---
 
-### Run
+## Component Tests (Cypress) — Planned
 
-```bash
-pnpm test:amplify:int
-```
+**Mocked providers** — tests component behavior in isolation.
 
-### Requirements / setup
+- **Location**: `cypress/component/**/*.cy.tsx`
+- **Scope**: Critical components (auth forms, guess actions, history table)
+- **Approach**: Mount with stubbed session/query providers, verify UI states and interactions
+- **Run**: `pnpm cypress:open --component` *(planned)*
 
-These tests call **real AWS services**, so you need:
+---
 
-- **A deployed Amplify backend** (`amplify init` + `amplify push`).
-- **SSM parameters seeded** (see `SETUP.MD`):
-  - `/epilot/<env>/appsync-endpoint`
-  - `/epilot/<env>/appsync-api-key`
-  - `/epilot/<env>/coingecko-api-key`
-  - `/epilot/<env>/price-snapshot-enabled`
-  - `/epilot/<env>/price-snapshot-interval-seconds`
-- **AWS credentials** configured locally (via `aws configure` or env vars) with permissions for:
-  - Cognito admin APIs (`AdminCreateUser`, `AdminSetUserPassword`, `AdminDeleteUser`, `AdminGetUser`)
-  - `cognito-idp:InitiateAuth`
-  - `lambda:InvokeFunction`
-- **Cognito app client supports `USER_PASSWORD_AUTH`**:
-  - Cognito User Pool → App clients → Authentication flows → enable `ALLOW_USER_PASSWORD_AUTH`
-- **Config available via env vars OR Amplify outputs** (env vars take precedence):
+## E2E Tests (Cypress)
 
-```bash
-export AWS_REGION=us-east-1
-export APPSYNC_ENDPOINT=https://xxxxx.appsync-api.us-east-1.amazonaws.com/graphql
-export APPSYNC_API_KEY=da2-xxxxx
-export COGNITO_USER_POOL_ID=us-east-1_xxxxx
-export COGNITO_CLIENT_ID=xxxxx
-export LAMBDA_POST_CONFIRMATION_ARN=arn:aws:lambda:us-east-1:xxxxx:function:epilotAuthPostConfirmation-xxxxx
-export LAMBDA_PRICE_SNAPSHOT_JOB_ARN=arn:aws:lambda:us-east-1:xxxxx:function:priceSnapshotJob-xxxxx
-export LAMBDA_SCHEDULE_GUESS_ARN=arn:aws:lambda:us-east-1:xxxxx:function:scheduleGuessLambda-xxxxx
-export LAMBDA_SETTLE_GUESS_ARN=arn:aws:lambda:us-east-1:xxxxx:function:settleGuessLambda-xxxxx
-```
+**Real API calls** — validates critical user journeys end-to-end.
 
-If env vars are not set, the integration tests will try to load:
+- **Location**: `cypress/e2e/*.cy.ts`
+- **Scope**: Auth happy path, full guess lifecycle (create → settlement → history)
+- **Run**: `pnpm cypress:open` or `pnpm cypress:run`
 
-- `amplify/backend/amplify-meta.json` (preferred fallback)
-- `src/amplifyconfiguration.json`
+### Setup
 
-### Notes
+1. **Create test user** defined in cypress.config.ts
+2. Start dev server: `pnpm dev`
+3. Run Cypress: `pnpm cypress:open`
 
-- **Global setup/teardown**: when running integration tests, Jest uses `globalSetup`/`globalTeardown` to create a shared Cognito test user and seed a matching `UserState` row.
-- **Timeouts**: integration tests run with a 30s timeout (see `test:amplify:int` script).
+### Conventions
 
-## Frontend testing (planned; not implemented yet)
+- **Fail-fast**: Preconditions checked early (e.g., no active guess)
+- **No mocking**: Real Cognito auth, real AppSync calls
+- **Intercept for capture**: `cy.interceptGraphql()` captures request data for assertions
 
-You mentioned you haven’t tested the FE yet — that matches the repo state today (no Cypress setup / no FE test scripts yet).
-
-Planned approach:
-
-- **Unit tests (Jest)**: complex UI/business logic that’s easiest to validate in isolation.
-- **Component tests (Cypress component)**: a small set of critical components (not everything).
-- **E2E tests (Cypress E2E)**: 1–2 critical user journeys (“golden path”).
+See `cypress/README.md` for details.

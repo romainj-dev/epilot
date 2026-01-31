@@ -60,7 +60,7 @@ export function AuthTabs() {
 
           {/* Error display */}
           {error && (
-            <div className={styles.error}>
+            <div className={styles.error} data-testid="auth-error">
               <AlertCircle className={styles.errorIcon} />
               {error}
             </div>

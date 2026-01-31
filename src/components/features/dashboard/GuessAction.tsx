@@ -100,6 +100,7 @@ function GuessButtons({
         disabled={!canGuess || currentPrice === null}
         onClick={() => onGuess(GuessDirection.Up)}
         className={styles.upButton}
+        data-testid="guess-up"
       >
         <ArrowUp className={styles.buttonIcon} />
         {upLabel}
@@ -110,6 +111,7 @@ function GuessButtons({
         disabled={!canGuess || currentPrice === null}
         onClick={() => onGuess(GuessDirection.Down)}
         className={styles.downButton}
+        data-testid="guess-down"
       >
         <ArrowDown className={styles.buttonIcon} />
         {downLabel}
@@ -174,7 +176,7 @@ function ActivePredictionCard({
   placedAtLabel,
 }: ActivePredictionCardProps) {
   return (
-    <Card className={styles.activeCard}>
+    <Card className={styles.activeCard} data-testid="guess-active">
       <CardHeader className={styles.cardHeader}>
         <CardTitle className={styles.cardTitle}>
           <span className={styles.titleContent}>
@@ -217,7 +219,9 @@ function ActivePredictionCard({
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>{statusText}</span>
             {status === 'waiting_time' && (
-              <span className={styles.countdown}>{countdownText}</span>
+              <span className={styles.countdown} data-testid="guess-countdown">
+                {countdownText}
+              </span>
             )}
           </div>
 

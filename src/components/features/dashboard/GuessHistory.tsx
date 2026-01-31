@@ -2,7 +2,6 @@
 
 import { ArrowUp, ArrowDown, CheckCircle2, XCircle, Circle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
 
 import {
   Card,
@@ -379,7 +378,7 @@ export function GuessHistory() {
   }
 
   return (
-    <Card className={styles.card}>
+    <Card className={styles.card} data-testid="guess-history">
       <CardHeader>
         <CardTitle className={styles.cardTitle}>{t('title')}</CardTitle>
       </CardHeader>

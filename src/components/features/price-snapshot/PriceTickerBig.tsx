@@ -65,11 +65,15 @@ function PriceDisplay({ price, priceDirection }: PriceDisplayProps) {
     <div className={styles.priceWrapper}>
       {!price ? (
         <div className={cn(styles.priceDisplay, styles.hidden)}>
-          <span className={styles.priceValue}>{t('loading')}</span>
+          <span className={styles.priceValue} data-testid="price-value">
+            {t('loading')}
+          </span>
         </div>
       ) : (
         <div className={cn(styles.priceDisplay, getFlashClass())}>
-          <span className={styles.priceValue}>{price}</span>
+          <span className={styles.priceValue} data-testid="price-value">
+            {price}
+          </span>
         </div>
       )}
     </div>

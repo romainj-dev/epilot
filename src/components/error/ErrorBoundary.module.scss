@@ -32,7 +32,7 @@
   padding: theme.spacing(4);
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: theme.borderRadius('lg');
+  border-radius: theme.radius('lg');
 }
 
 .inlineText {
@@ -45,7 +45,7 @@
   background: var(--primary);
   color: var(--primary-foreground);
   border: none;
-  border-radius: theme.borderRadius('md');
+  border-radius: theme.radius('md');
   font-size: theme.fontSize('sm');
   font-weight: theme.fontWeight('medium');
   cursor: pointer;

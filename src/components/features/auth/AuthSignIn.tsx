@@ -59,6 +59,7 @@ export function AuthSignIn({ setError }: AuthSignInProps) {
         onChange={(e) => setSignInEmail(e.target.value)}
         disabled={isLoading}
         autoComplete="email"
+        data-testid="signin-email"
       />
 
       <TextInput
@@ -70,6 +71,7 @@ export function AuthSignIn({ setError }: AuthSignInProps) {
         onChange={(e) => setSignInPassword(e.target.value)}
         disabled={isLoading}
         autoComplete="current-password"
+        data-testid="signin-password"
       />
 
       <Button
@@ -77,6 +79,7 @@ export function AuthSignIn({ setError }: AuthSignInProps) {
         className={styles.submitButton}
         disabled={isLoading || !signInEmail || !signInPassword}
         isLoading={isLoading}
+        data-testid="signin-submit"
       >
         {t('button.submit')}
       </Button>
