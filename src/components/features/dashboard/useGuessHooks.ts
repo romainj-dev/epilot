@@ -27,7 +27,7 @@ import { queryKeys } from '@/lib/query-keys'
 
 export function useActiveGuess() {
   const { data: session } = useSession()
-  const owner = session?.user?.id
+  const owner = session?.user?.id as string
 
   return useQuery<
     GuessesByOwnerQuery,
@@ -42,7 +42,7 @@ export function useActiveGuess() {
       limit: 1,
     },
     {
-      queryKey: queryKeys.guess.active(owner ?? 'unknown'),
+      queryKey: queryKeys.guess.active(owner),
       enabled: !!owner,
       staleTime: Infinity, // Only update via mutation/SSE
       select: (data) => data.guessesByOwner?.items?.[0] ?? null,
@@ -55,8 +55,19 @@ export function useActiveGuess() {
 // ---------------------------------------------------------------------------
 
 interface CreateGuessContext {
-  previousActiveGuess?: Guess | null
+  previousActiveGuess?: GuessesByOwnerQuery
   optimisticGuess: Guess
+}
+
+/** Helper to wrap a Guess in the GuessesByOwnerQuery shape for cache storage */
+function wrapGuessAsQueryData(guess: Guess | null): GuessesByOwnerQuery {
+  return {
+    guessesByOwner: {
+      __typename: 'ModelGuessConnection',
+      items: guess ? [guess] : [],
+      nextToken: null,
+    },
+  }
 }
 
 export function useCreateGuess() {
@@ -75,8 +86,8 @@ export function useCreateGuess() {
         queryKey: queryKeys.guess.active(owner),
       })
 
-      // Snapshot the previous value
-      const previousActiveGuess = queryClient.getQueryData<Guess | null>(
+      // Snapshot the previous value (stored as GuessesByOwnerQuery in cache)
+      const previousActiveGuess = queryClient.getQueryData<GuessesByOwnerQuery>(
         queryKeys.guess.active(owner)
       )
 
@@ -97,23 +108,31 @@ export function useCreateGuess() {
         result: null,
         outcome: null,
       }
-      queryClient.setQueryData(queryKeys.guess.active(owner), optimisticGuess)
+
+      // Store in cache as GuessesByOwnerQuery (matches queryFn response shape)
+      queryClient.setQueryData(
+        queryKeys.guess.active(owner),
+        wrapGuessAsQueryData(optimisticGuess)
+      )
 
       return { previousActiveGuess, optimisticGuess }
     },
     onSuccess: (data) => {
       if (!owner) return
 
-      // Replace optimistic guess with real one from server
-      queryClient.setQueryData(queryKeys.guess.active(owner), data.createGuess)
+      // Replace optimistic guess with real one from server (wrapped in query shape)
+      queryClient.setQueryData(
+        queryKeys.guess.active(owner),
+        wrapGuessAsQueryData(data.createGuess as Guess)
+      )
     },
     onError: (_err, _variables, context) => {
       if (!owner || !context) return
 
-      // Rollback optimistic update
+      // Rollback optimistic update (restore previous query data shape)
       queryClient.setQueryData(
         queryKeys.guess.active(owner),
-        context.previousActiveGuess ?? null
+        context.previousActiveGuess ?? wrapGuessAsQueryData(null)
       )
     },
   })
@@ -217,8 +236,11 @@ export function useGuessSettlementHandler(activeGuess: Guess | null) {
 
       console.log('[Guess] Handling settlement:', settledGuess.id)
 
-      // 1. Clear active guess
-      queryClient.setQueryData(queryKeys.guess.active(owner), null)
+      // 1. Clear active guess (store empty query data shape)
+      queryClient.setQueryData(
+        queryKeys.guess.active(owner),
+        wrapGuessAsQueryData(null)
+      )
 
       // 2. Prepend to history (optimistic insert)
       queryClient.setQueryData<InfiniteData<GuessesByOwnerQuery> | undefined>(

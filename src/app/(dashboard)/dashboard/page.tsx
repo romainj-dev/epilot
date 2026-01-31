@@ -41,8 +41,8 @@ export default async function DashboardPage() {
       // Prefetch active guess (PENDING status)
       queryClient.prefetchQuery({
         queryKey: queryKeys.guess.active(owner),
-        queryFn: async () => {
-          const data = await fetchGraphQL({
+        queryFn: () =>
+          fetchGraphQL({
             document: GuessesByOwnerDocument,
             variables: {
               owner,
@@ -51,9 +51,7 @@ export default async function DashboardPage() {
               limit: 1,
             },
             idToken,
-          })
-          return data.guessesByOwner?.items?.[0] ?? null
-        },
+          }),
       }),
       // Prefetch first page of history (non-PENDING status)
       queryClient.prefetchInfiniteQuery({
