@@ -1,6 +1,6 @@
 import { defineConfig } from 'cypress'
 
-// Cypress E2E configuration - see cypress/README.md
+// Cypress E2E and Component configuration - see cypress/README.md
 export default defineConfig({
   defaultBrowser: 'chrome',
   e2e: {
@@ -18,6 +18,18 @@ export default defineConfig({
       runMode: 2,
       openMode: 0,
     },
+  },
+  component: {
+    devServer: {
+      framework: 'next',
+      bundler: 'webpack',
+    },
+    // Colocated: tests live next to components
+    specPattern: 'src/**/*.cy.tsx',
+    supportFile: 'cypress/support/component.tsx',
+    indexHtmlFile: 'cypress/support/component-index.html',
+    viewportWidth: 1280,
+    viewportHeight: 720,
   },
   env: {
     TEST_USER_EMAIL: 'romainj.contact+test-dev-account@gmail.com',

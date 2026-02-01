@@ -23,6 +23,8 @@
     "test:bff": "jest --testMatch='**/src/app/api/**/*.test.ts'",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --e2e",
+    "cypress:component": "cypress run --component",
+    "cypress:component:open": "cypress open --component",
     "test:e2e": "cypress run --e2e",
     "test:e2e:headed": "cypress run --e2e --headed --browser chrome"
   },
@@ -53,6 +55,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-lambda": "^3.974.0",
+    "@cypress/react": "^9.0.1",
     "@graphql-codegen/cli": "^6.1.1",
     "@graphql-codegen/client-preset": "^5.2.2",
     "@graphql-typed-document-node/core": "^3.2.0",

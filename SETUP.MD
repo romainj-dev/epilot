@@ -235,6 +235,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - [ ] Can place a guess
 - [ ] After placing a guess, a schedule appears in EventBridge Scheduler group `guess-settlements`
 - [ ] After `settleAt`, the guess becomes `SETTLED` and user score updates
+
 ## Troubleshooting
 
 ### "Missing APPSYNC_ENDPOINT or APPSYNC_API_KEY env var"

@@ -39,7 +39,6 @@
       "createOne": "Create one"
     },
     "errors": {
-      "missingFields": "Please fill in all fields",
       "invalidCredentials": "Invalid email or password"
     }
   },
@@ -70,7 +69,6 @@
       "signIn": "Sign in"
     },
     "errors": {
-      "missingFields": "Please fill in all fields",
       "passwordMismatch": "Passwords do not match",
       "passwordTooShort": "Password must be at least 8 characters",
       "signUpFailed": "Sign up failed. Please try again.",
@@ -137,7 +135,6 @@
       "placedAtLabel": "Placed At"
     },
     "status": {
-      "idle": "Place your prediction",
       "waitingTime": "Waiting for 60s...",
       "waitingPrice": "Waiting for price change..."
     },

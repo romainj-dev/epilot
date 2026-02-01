@@ -227,13 +227,11 @@ export function useGuessSettlementStream({
 
 export function useGuessSettlementHandler(activeGuess: Guess | null) {
   const { data: session } = useSession()
-  const owner = session?.user?.id
+  const owner = session?.user?.id as string
   const queryClient = useQueryClient()
 
   const handleSettled = useCallback(
     (settledGuess: Guess) => {
-      if (!owner) return
-
       console.log('[Guess] Handling settlement:', settledGuess.id)
 
       // 1. Clear active guess (store empty query data shape)

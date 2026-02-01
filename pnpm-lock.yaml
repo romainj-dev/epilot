@@ -81,6 +81,9 @@ importers:
       '@aws-sdk/client-lambda':
         specifier: ^3.974.0
         version: 3.975.0
+      '@cypress/react':
+        specifier: ^9.0.1
+        version: 9.0.1(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(cypress@15.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@graphql-codegen/cli':
         specifier: ^6.1.1
         version: 6.1.1(@parcel/watcher@2.5.4)(@types/node@20.19.30)(graphql@16.12.0)(typescript@5.9.3)
@@ -499,6 +502,18 @@ packages:
 
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
+
+  '@cypress/react@9.0.1':
+    resolution: {integrity: sha512-qu6ziP2smdlfy3Yvrhm6PadxEtkc/cl6YhZu3h6KCtz+0s54joqxp6uGYOglpwyMBp3qjtSil1JVlFX0hUi5LQ==}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      '@types/react-dom': ^18 || ^19
+      cypress: '*'
+      react: ^18 || ^19
+      react-dom: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@cypress/request@3.0.10':
     resolution: {integrity: sha512-hauBrOdvu08vOsagkZ/Aju5XuiZx6ldsLfByg1htFeldhex+PeMrYauANzFsMJeAA0+dyPLbDoX2OYuvVoLDkQ==}
@@ -6185,6 +6200,15 @@ snapshots:
       '@babel/helper-validator-identifier': 7.28.5
 
   '@bcoe/v8-coverage@0.2.3': {}
+
+  '@cypress/react@9.0.1(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(cypress@15.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      '@types/react-dom': 19.2.3(@types/react@19.2.8)
+      cypress: 15.9.0
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+    optionalDependencies:
+      '@types/react': 19.2.8
 
   '@cypress/request@3.0.10':
     dependencies:

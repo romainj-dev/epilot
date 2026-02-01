@@ -48,12 +48,21 @@ export function AuthTabs() {
             setActiveTab(value as typeof activeTab)
             setError(null)
           }}
+          data-testid="auth-tabs"
         >
           <TabsList className={styles.tabsList}>
-            <TabsTrigger value="signin" className={styles.tabsTrigger}>
+            <TabsTrigger
+              value="signin"
+              className={styles.tabsTrigger}
+              data-testid="tab-signin"
+            >
               {t('tabs.signIn')}
             </TabsTrigger>
-            <TabsTrigger value="signup" className={styles.tabsTrigger}>
+            <TabsTrigger
+              value="signup"
+              className={styles.tabsTrigger}
+              data-testid="tab-signup"
+            >
               {t('tabs.signUp')}
             </TabsTrigger>
           </TabsList>
@@ -66,11 +75,11 @@ export function AuthTabs() {
             </div>
           )}
 
-          <TabsContent value="signin">
+          <TabsContent value="signin" data-testid="tab-content-signin">
             <AuthSignIn setError={setError} />
           </TabsContent>
 
-          <TabsContent value="signup">
+          <TabsContent value="signup" data-testid="tab-content-signup">
             <AuthSignUp
               setError={setError}
               onConfirmed={() => {

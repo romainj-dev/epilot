@@ -4,16 +4,16 @@ Pragmatic, risk-based approach focused on the **core game loop** (price snapshot
 
 - **Fast feedback**: Unit tests run locally with mocked I/O
 - **High confidence**: Integration tests hit real AWS services
-- **Focused UI coverage**: E2E for critical paths only
+- **Focused UI coverage**: Component tests for critical UI, E2E for critical paths only
 
 ## Testing Pyramid
 
-| Layer | Scope | I/O | Status |
-|-------|-------|-----|--------|
-| **Unit** | Lambdas, BFF routes, FE logic | Mocked | ✅ Backend / 🔜 Frontend |
-| **Component** | Critical UI components | Mocked | 🔜 Planned |
-| **Integration** | AWS services wiring | Real AWS | ✅ |
-| **E2E** | User journeys (1-2 paths) | Real API | ✅ |
+| Layer           | Scope                         | I/O      | Status                   |
+| --------------- | ----------------------------- | -------- | ------------------------ |
+| **Unit**        | Lambdas, BFF routes, FE logic | Mocked   | ✅ Backend / 🔜 Frontend |
+| **Component**   | Critical UI components        | Mocked   | ✅                       |
+| **Integration** | AWS services wiring           | Real AWS | ✅                       |
+| **E2E**         | User journeys (1-2 paths)     | Real API | ✅                       |
 
 ## Commands
 
@@ -25,6 +25,10 @@ pnpm test:amplify:unit   # Lambda only
 
 # Integration tests
 pnpm test:amplify:int    # AWS smoke tests (real AWS)
+
+# Component tests
+pnpm cypress:open --component   # Interactive
+pnpm cypress:component          # Headless
 
 # E2E tests
 pnpm cypress:open        # Interactive
@@ -86,18 +90,18 @@ LAMBDA_*_ARN  # Post-confirmation, price-snapshot, schedule, settle
 
 - **Location**: `src/**/*.test.ts`
 - **Scope**: Utility functions, formatters, validation logic, custom hooks (non-rendering)
-- **Run**: `pnpm test:fe` *(planned)*
+- **Run**: `pnpm test:fe` _(planned)_
 
 ---
 
-## Component Tests (Cypress) — Planned
+## Component Tests (Cypress)
 
 **Mocked providers** — tests component behavior in isolation.
 
-- **Location**: `cypress/component/**/*.cy.tsx`
+- **Location**: Co-located with components (`src/components/**/*.cy.tsx`)
 - **Scope**: Critical components (auth forms, guess actions, history table)
 - **Approach**: Mount with stubbed session/query providers, verify UI states and interactions
-- **Run**: `pnpm cypress:open --component` *(planned)*
+- **Run**: `pnpm cypress:open --component` (interactive) or `pnpm cypress:component` (headless)
 
 ---
 

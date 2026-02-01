@@ -175,7 +175,7 @@ interface MobileHistoryProps {
 
 function MobileHistory({ history, upLabel, downLabel }: MobileHistoryProps) {
   return (
-    <div className={styles.mobileView}>
+    <div className={styles.mobileView} data-testid="guess-history-mobile">
       {history.map((guess) => {
         // Only show settled guesses with outcome
         if (!guess.outcome) return null
@@ -252,7 +252,7 @@ function DesktopHistory({
   headers,
 }: DesktopHistoryProps) {
   return (
-    <div className={styles.desktopView}>
+    <div className={styles.desktopView} data-testid="guess-history-desktop">
       <Table>
         <TableHeader>
           <TableRow className={styles.tableHeader}>
@@ -378,7 +378,7 @@ export function GuessHistory() {
   }
 
   return (
-    <Card className={styles.card} data-testid="guess-history">
+    <Card className={styles.card}>
       <CardHeader>
         <CardTitle className={styles.cardTitle}>{t('title')}</CardTitle>
       </CardHeader>
@@ -412,6 +412,7 @@ export function GuessHistory() {
               variant="outline"
               onClick={() => fetchNextPage()}
               disabled={isFetchingNextPage}
+              data-testid="load-more-button"
             >
               {isFetchingNextPage ? t('loadingMore') : t('loadMore')}
             </Button>

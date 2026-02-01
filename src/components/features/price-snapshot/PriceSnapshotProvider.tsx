@@ -16,6 +16,9 @@ const PriceSnapshotContext = createContext<PriceSnapshotContextValue>({
   priceDirection: null,
 })
 
+// Export context for testing
+export { PriceSnapshotContext }
+
 const STREAM_URL = '/api/price-snapshot/stream'
 
 export function PriceSnapshotProvider({
@@ -103,4 +106,34 @@ export function usePriceSnapshot() {
     )
   }
   return context
+}
+
+// ---------------------------------------------------------------------------
+// Mock Provider for Testing
+// ---------------------------------------------------------------------------
+
+interface MockPriceSnapshotProviderProps {
+  children: React.ReactNode
+  snapshot?: PriceSnapshotStream | null
+  error?: string | null
+  priceDirection?: 'up' | 'down' | null
+}
+
+/**
+ * MockPriceSnapshotProvider - for component testing
+ * Provides controlled snapshot values without SSE connection
+ */
+export function MockPriceSnapshotProvider({
+  children,
+  snapshot = null,
+  error = null,
+  priceDirection = null,
+}: MockPriceSnapshotProviderProps) {
+  const value = { snapshot, error, priceDirection }
+
+  return (
+    <PriceSnapshotContext.Provider value={value}>
+      {children}
+    </PriceSnapshotContext.Provider>
+  )
 }

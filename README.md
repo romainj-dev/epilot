@@ -12,16 +12,16 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
 
 ## Tech Stack
 
-| Layer     | Technology                                       |
-| --------- | ------------------------------------------------ |
-| Frontend  | Next.js (App Router), TypeScript, TanStack Query |
-| Styling   | Tailwind CSS, Sass modules                       |
-| Auth      | AWS Cognito + NextAuth (Credentials provider)    |
-| API       | AWS AppSync (GraphQL)                            |
-| Database  | AWS DynamoDB                                     |
+| Layer     | Technology                                           |
+| --------- | ---------------------------------------------------- |
+| Frontend  | Next.js (App Router), TypeScript, TanStack Query     |
+| Styling   | Tailwind CSS, Sass modules                           |
+| Auth      | AWS Cognito + NextAuth (Credentials provider)        |
+| API       | AWS AppSync (GraphQL)                                |
+| Database  | AWS DynamoDB                                         |
 | Scheduler | AWS Step Functions (Express) + EventBridge Scheduler |
-| Secrets   | AWS SSM Parameter Store                          |
-| Hosting   | AWS Amplify                                      |
+| Secrets   | AWS SSM Parameter Store                              |
+| Hosting   | AWS Amplify                                          |
 
 ## Architecture
 
@@ -114,9 +114,10 @@ pnpm build     # Production build
 ## Testing
 
 ```bash
-pnpm test              # Unit tests (Jest)
-pnpm test:amplify:int  # AWS integration tests
-pnpm cypress:open      # E2E tests (Cypress)
+pnpm test                       # Unit tests (Jest)
+pnpm test:amplify:int           # AWS integration tests
+pnpm cypress:open --component   # Component tests (Cypress)
+pnpm cypress:open               # E2E tests (Cypress)
 ```
 
 See **[TESTING.md](./TESTING.md)** for the full testing strategy.

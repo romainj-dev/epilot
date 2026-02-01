@@ -26,21 +26,7 @@ import {
 } from './useGuessHooks'
 import styles from './GuessAction.module.scss'
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const GUESS_DURATION_MS = 60_000
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type GuessActionStatus = 'idle' | 'waiting_time' | 'waiting_price'
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function formatPrice(p: number) {
   return new Intl.NumberFormat('en-US', {
@@ -59,28 +45,14 @@ function formatTimestamp(ts: string) {
   })
 }
 
-function getStatusText(
-  t: ReturnType<typeof useTranslations>,
-  status: GuessActionStatus
-) {
-  if (status === 'waiting_time') return t('status.waitingTime')
-  if (status === 'waiting_price') return t('status.waitingPrice')
-  return t('status.idle')
-}
-
 function computeTimeRemaining(settleAt: string): number {
   const target = new Date(settleAt).getTime()
   const now = Date.now()
   return Math.max(0, target - now)
 }
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
 interface GuessButtonsProps {
   canGuess: boolean
-  currentPrice: number | null
   onGuess: (direction: GuessDirection) => void
   upLabel: string
   downLabel: string
@@ -88,7 +60,6 @@ interface GuessButtonsProps {
 
 function GuessButtons({
   canGuess,
-  currentPrice,
   onGuess,
   upLabel,
   downLabel,
@@ -97,7 +68,7 @@ function GuessButtons({
     <div className={styles.buttons}>
       <Button
         size="lg"
-        disabled={!canGuess || currentPrice === null}
+        disabled={!canGuess}
         onClick={() => onGuess(GuessDirection.Up)}
         className={styles.upButton}
         data-testid="guess-up"
@@ -108,7 +79,7 @@ function GuessButtons({
 
       <Button
         size="lg"
-        disabled={!canGuess || currentPrice === null}
+        disabled={!canGuess}
         onClick={() => onGuess(GuessDirection.Down)}
         className={styles.downButton}
         data-testid="guess-down"
@@ -122,15 +93,10 @@ function GuessButtons({
 
 interface DirectionBadgeProps {
   direction: GuessDirection
-  upLabel: string
-  downLabel: string
 }
 
-function DirectionBadge({
-  direction,
-  upLabel,
-  downLabel,
-}: DirectionBadgeProps) {
+function DirectionBadge({ direction }: DirectionBadgeProps) {
+  const t = useTranslations('dashboardGuessAction')
   const isUp = direction === GuessDirection.Up
 
   return (
@@ -145,61 +111,45 @@ function DirectionBadge({
       ) : (
         <ArrowDown className={styles.badgeIcon} />
       )}
-      {isUp ? upLabel : downLabel}
+      {isUp ? t('buttons.up') : t('buttons.down')}
     </Badge>
   )
 }
 
 interface ActivePredictionCardProps {
   activeGuess: Guess
-  status: GuessActionStatus
-  timeRemaining: number
-  statusText: string
-  countdownText: string
-  title: string
-  upLabel: string
-  downLabel: string
-  entryPriceLabel: string
-  placedAtLabel: string
 }
 
-function ActivePredictionCard({
-  activeGuess,
-  status,
-  timeRemaining,
-  statusText,
-  countdownText,
-  title,
-  upLabel,
-  downLabel,
-  entryPriceLabel,
-  placedAtLabel,
-}: ActivePredictionCardProps) {
+function ActivePredictionCard({ activeGuess }: ActivePredictionCardProps) {
+  const t = useTranslations('dashboardGuessAction')
+
+  const timeRemaining = useCountdown(activeGuess)
+  const isWaitingTime = timeRemaining > 0
+
+  const seconds = Math.ceil(timeRemaining / 1000)
+  const countdownText = t('countdown', { seconds })
+
   return (
     <Card className={styles.activeCard} data-testid="guess-active">
       <CardHeader className={styles.cardHeader}>
         <CardTitle className={styles.cardTitle}>
           <span className={styles.titleContent}>
-            {status === 'waiting_time' ? (
+            {isWaitingTime ? (
               <Clock className={styles.waitingIcon} />
             ) : (
               <Loader2 className={styles.resolvingIcon} />
             )}
-            {title}
+            {t('active.title')}
           </span>
 
-          <DirectionBadge
-            direction={activeGuess.direction}
-            upLabel={upLabel}
-            downLabel={downLabel}
-          />
+          <DirectionBadge direction={activeGuess.direction} />
         </CardTitle>
       </CardHeader>
 
       <CardContent className={styles.cardContent}>
         <div className={styles.infoGrid}>
           <div>
-            <p className={styles.infoLabel}>{entryPriceLabel}</p>
+            <p className={styles.infoLabel}>{t('active.entryPriceLabel')}</p>
             <p className={styles.infoValue}>
               {activeGuess.startPrice
                 ? formatPrice(activeGuess.startPrice)
@@ -207,7 +157,7 @@ function ActivePredictionCard({
             </p>
           </div>
           <div>
-            <p className={styles.infoLabel}>{placedAtLabel}</p>
+            <p className={styles.infoLabel}>{t('active.placedAtLabel')}</p>
             <p className={styles.infoValue}>
               {formatTimestamp(activeGuess.createdAt)}
             </p>
@@ -217,8 +167,12 @@ function ActivePredictionCard({
         {/* Countdown / Status */}
         <div className={styles.statusBox}>
           <div className={styles.statusRow}>
-            <span className={styles.statusLabel}>{statusText}</span>
-            {status === 'waiting_time' && (
+            <span className={styles.statusLabel}>
+              {isWaitingTime
+                ? t('status.waitingTime')
+                : t('status.waitingPrice')}
+            </span>
+            {isWaitingTime && (
               <span className={styles.countdown} data-testid="guess-countdown">
                 {countdownText}
               </span>
@@ -226,7 +180,7 @@ function ActivePredictionCard({
           </div>
 
           {/* Progress bar for countdown */}
-          {status === 'waiting_time' && (
+          {isWaitingTime && (
             <div className={styles.progressBar}>
               <div
                 className={styles.progressFill}
@@ -242,67 +196,11 @@ function ActivePredictionCard({
   )
 }
 
-interface IdleHintProps {
-  text: string
-}
-
-function IdleHint({ text }: IdleHintProps) {
-  return <p className={styles.hint}>{text}</p>
-}
-
-// ---------------------------------------------------------------------------
-// Hook: useGuessState
-// ---------------------------------------------------------------------------
-
-interface UseGuessStateReturn {
-  activeGuess: Guess | null
-  isCreating: boolean
-  createGuess: (direction: GuessDirection, startPrice: number) => void
-}
-
-/**
- * Hook that manages guess state using real API/SSE
- */
-function useGuessState(): UseGuessStateReturn {
-  const { data: activeGuess, isLoading } = useActiveGuess()
-  const createGuessMutation = useCreateGuess()
-
-  // Set up real-time settlement handler
-  useGuessSettlementHandler(activeGuess ?? null)
-
-  const createGuess = useCallback(
-    (direction: GuessDirection, startPrice: number) => {
-      // Compute settlement time (60 seconds from now)
-      const settleAt = new Date(Date.now() + GUESS_DURATION_MS).toISOString()
-
-      // Call mutation with input, including the current price as startPrice
-      const input: CreateGuessInput = {
-        direction,
-        settleAt,
-        status: GuessStatus.Pending,
-        startPrice,
-      }
-
-      createGuessMutation.mutate({ input })
-    },
-    [createGuessMutation]
-  )
-
-  // Extract data property which is the actual Guess or null
-  const activeGuessData = activeGuess ?? null
-
-  return {
-    activeGuess: activeGuessData,
-    isCreating: createGuessMutation.isPending || isLoading,
-    createGuess,
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Hook: useCountdown
 // ---------------------------------------------------------------------------
 
-function useCountdown(activeGuess: Guess | null) {
+function useCountdown(activeGuess: Guess | null | undefined) {
   // Track time remaining in state
   const [timeRemaining, setTimeRemaining] = useState(0)
 
@@ -353,65 +251,55 @@ function useCountdown(activeGuess: Guess | null) {
 export function GuessAction() {
   const t = useTranslations('dashboardGuessAction')
   const { snapshot } = usePriceSnapshot()
+  const { data: activeGuess } = useActiveGuess()
+  const { mutate: createGuess, isPending: isPendingCreate } = useCreateGuess()
 
-  const { activeGuess, isCreating, createGuess } = useGuessState()
-
-  const timeRemaining = useCountdown(activeGuess)
-
-  // Derive status from state
-  const status: GuessActionStatus = useMemo(() => {
-    if (!activeGuess) return 'idle'
-    if (timeRemaining > 0) return 'waiting_time'
-    return 'waiting_price'
-  }, [activeGuess, timeRemaining])
-
-  // User can guess when there's no active guess and not currently creating
-  const canGuess = !activeGuess && !isCreating
+  // Set up real-time settlement handler
+  useGuessSettlementHandler(activeGuess ?? null)
 
   // Current price from SSE stream
   const currentPrice = snapshot?.priceUsd ?? null
 
+  // User can guess when there's
+  // - no active guess
+  // - not currently creating
+  // - a first price snapshot received
+  const canGuess = !activeGuess && !isPendingCreate && !!currentPrice
+
   const handleGuess = useCallback(
     (direction: GuessDirection) => {
       if (!canGuess || currentPrice === null) return
-      createGuess(direction, currentPrice)
+
+      // Compute settlement time (60 seconds from now)
+      const settleAt = new Date(Date.now() + GUESS_DURATION_MS).toISOString()
+
+      // Call mutation with input, including the current price as startPrice
+      const input: CreateGuessInput = {
+        direction,
+        settleAt,
+        status: GuessStatus.Pending,
+        startPrice: currentPrice,
+      }
+
+      createGuess({ input })
     },
     [canGuess, createGuess, currentPrice]
   )
 
-  const statusText = getStatusText(t, status)
-  const seconds = Math.ceil(timeRemaining / 1000)
-  const countdownText = t('countdown', { seconds })
-
   return (
     <div className={styles.wrapper}>
-      {/* Guess buttons */}
       <GuessButtons
         canGuess={canGuess}
-        currentPrice={currentPrice}
         onGuess={handleGuess}
         upLabel={t('buttons.up')}
         downLabel={t('buttons.down')}
       />
 
-      {/* Active guess status card */}
-      {activeGuess && (
-        <ActivePredictionCard
-          activeGuess={activeGuess}
-          status={status}
-          timeRemaining={timeRemaining}
-          statusText={statusText}
-          countdownText={countdownText}
-          title={t('active.title')}
-          upLabel={t('buttons.up')}
-          downLabel={t('buttons.down')}
-          entryPriceLabel={t('active.entryPriceLabel')}
-          placedAtLabel={t('active.placedAtLabel')}
-        />
+      {activeGuess ? (
+        <ActivePredictionCard activeGuess={activeGuess} />
+      ) : (
+        <p className={styles.hint}>{t('idleHint')}</p>
       )}
-
-      {/* Idle state hint */}
-      {!activeGuess && <IdleHint text={t('idleHint')} />}
     </div>
   )
 }

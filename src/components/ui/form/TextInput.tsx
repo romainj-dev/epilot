@@ -18,11 +18,15 @@ export function TextInput({
 }: TextInputProps) {
   return (
     <div className={styles.field}>
-      <label htmlFor={id} className={styles.label}>
+      <label htmlFor={id} className={styles.label} data-testid={`${id}-label`}>
         {label}
       </label>
-      <Input id={id} type={type} {...props} />
-      {hint && <p className={styles.hint}>{hint}</p>}
+      <Input id={id} type={type} data-testid={id} {...props} />
+      {hint && (
+        <p className={styles.hint} data-testid={`${id}-hint`}>
+          {hint}
+        </p>
+      )}
     </div>
   )
 }

@@ -1,8 +1,8 @@
-# Cypress E2E Testing
+# Cypress Testing
 
-This directory contains end-to-end tests for the application using Cypress.
+This directory contains E2E and component tests for the application using Cypress.
 
-## Quick Start
+## E2E Tests
 
 ### 1. Install Dependencies
 
@@ -20,19 +20,16 @@ The dev server must be running at `http://localhost:3000` before running tests.
 
 ### 3. Run Tests
 
-**Interactive Mode** (recommended for development):
 ```bash
-pnpm cypress:open
+pnpm cypress:open        # Interactive
+pnpm cypress:run         # Headless (CI/CD)
 ```
 
-**Headless Mode** (CI/CD):
-```bash
-pnpm cypress:run
-```
+## Components Tests
 
-**Headed Mode with Chrome** (debugging):
 ```bash
-pnpm test:e2e:headed
+pnpm cypress:open --component   # Interactive
+pnpm cypress:component          # Headless (CI/CD)
 ```
 
 ## Test Structure
@@ -40,11 +37,16 @@ pnpm test:e2e:headed
 ```
 cypress/
 ├── e2e/                    # E2E test specs
-├── support/               # Support files and custom commands
-│   ├── commands.ts        # Custom Cypress commands
-│   └── e2e.ts            # Global hooks and setup
-├── fixtures/              # Test data (currently empty)
-└── tsconfig.json         # TypeScript config for Cypress
+├── support/
+│   ├── commands.ts         # Custom Cypress commands (E2E)
+│   ├── e2e.ts              # E2E support file
+│   └── component.tsx       # Component test support + mount utility
+├── fixtures/               # Test data
+└── tsconfig.json           # TypeScript config for Cypress
+
+src/components/
+├── features/**/*.cy.tsx    # Component tests (co-located)
+└── ui/**/*.cy.tsx          # Component tests (co-located)
 ```
 
 ## Custom Commands
@@ -61,6 +63,7 @@ Components should use `data-testid` attributes for stable element selection
 ### Tests Fail with "baseUrl not found"
 
 **Solution**: Make sure the dev server is running:
+
 ```bash
 pnpm dev
 ```

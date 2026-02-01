@@ -18,7 +18,7 @@ function ButtonContent({ children, isLoading }: ButtonContentProps) {
         {children}
       </span>
       {isLoading && (
-        <span className={styles.loading}>
+        <span className={styles.loading} data-testid="button-loading">
           <Loading />
         </span>
       )}

@@ -29,12 +29,6 @@ export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
 
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError(null)
-
-    if (!signUpEmail || !signUpPassword || !signUpConfirmPassword) {
-      setError(t('errors.missingFields'))
-      return
-    }
 
     if (signUpPassword !== signUpConfirmPassword) {
       setError(t('errors.passwordMismatch'))
@@ -46,6 +40,7 @@ export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
       return
     }
 
+    setError(null)
     setIsLoading(true)
 
     const response = await fetch('/api/cognito/signup', {
@@ -73,13 +68,8 @@ export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
 
   async function handleConfirm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
     setError(null)
-
-    if (!pendingEmail || !confirmationCode) {
-      setError(t('errors.missingFields'))
-      return
-    }
-
     setIsLoading(true)
 
     const response = await fetch('/api/cognito/confirm', {
@@ -108,6 +98,7 @@ export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
     <form
       onSubmit={isConfirming ? handleConfirm : handleSignUp}
       className={styles.form}
+      data-testid="signup-form"
     >
       <TextInput
         id="signup-email"
@@ -157,7 +148,9 @@ export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
       )}
 
       {isConfirming && (
-        <p className={styles.statusMessage}>{t('messages.checkEmail')}</p>
+        <p className={styles.statusMessage} data-testid="signup-status-message">
+          {t('messages.checkEmail')}
+        </p>
       )}
 
       <Button
@@ -171,6 +164,7 @@ export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
           (isConfirming && !confirmationCode)
         }
         isLoading={isLoading}
+        data-testid="signup-submit"
       >
         {isConfirming ? t('button.confirm') : t('button.submit')}
       </Button>

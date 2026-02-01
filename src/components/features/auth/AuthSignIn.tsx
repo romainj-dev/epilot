@@ -23,14 +23,9 @@ export function AuthSignIn({ setError }: AuthSignInProps) {
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError(null)
-
-    if (!signInEmail || !signInPassword) {
-      setError(t('errors.missingFields'))
-      return
-    }
 
     setIsLoading(true)
+    setError(null)
 
     const result = await signIn('credentials', {
       email: signInEmail,

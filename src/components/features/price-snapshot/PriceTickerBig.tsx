@@ -22,9 +22,15 @@ function Trend({ priceDirection }: TrendProps) {
   return (
     <span className={cn(styles.trendIcon, getTrendClass())}>
       {priceDirection === 'up' ? (
-        <TrendingUp className={styles.trendIcon} />
+        <TrendingUp
+          className={styles.trendIcon}
+          data-testid="price-trend-icon-up"
+        />
       ) : priceDirection === 'down' ? (
-        <TrendingDown className={styles.trendIcon} />
+        <TrendingDown
+          className={styles.trendIcon}
+          data-testid="price-trend-icon-down"
+        />
       ) : null}
     </span>
   )
@@ -38,7 +44,10 @@ function UpdatedAt({ updatedAt }: UpdatedAtProps) {
   const t = useTranslations('priceSnapshot.big')
 
   return (
-    <div className={cn(styles.timestamp, !updatedAt ? styles.hidden : '')}>
+    <div
+      className={cn(styles.timestamp, !updatedAt ? styles.hidden : '')}
+      data-testid="price-updated-at"
+    >
       <Minus className={styles.timestampIcon} />
       <span>
         {t('lastUpdatedLabel')} {updatedAt}

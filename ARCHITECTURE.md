@@ -1,6 +1,7 @@
 # Architecture & Amplify Backend Layout
 
 This document is the **high-level architecture reference** for the two core backend flows:
+
 - **Guess settlement** (one-shot schedule per guess)
 - **Price snapshot ingestion + realtime fanout**
 
@@ -156,4 +157,3 @@ This project uses **Amplify Gen1** (CloudFormation-based). The backend lives und
 - **Developer bootstrap**: `SETUP.MD`
 - **BFF + query + SSE relay pattern**: `FETCHING.md`
 - **Test strategy + how to run integration tests**: `TESTING.md`
-
