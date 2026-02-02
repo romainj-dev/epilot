@@ -1,0 +1,17 @@
+$outcome-colors: (
+  win: var(--success),
+  loss: var(--destructive),
+  draw: var(--gray-500),
+);
+
+.points {
+  font-family: var(--font-mono);
+  font-size: theme.fontSize('sm');
+  font-weight: theme.fontWeight(medium);
+
+  @each $outcome, $color in $outcome-colors {
+    &[data-outcome='#{$outcome}'] {
+      color: $color;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+$direction-colors: (
+  up: var(--success),
+  down: var(--destructive),
+);
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: theme.fontSize('xs');
+
+  @each $direction, $color in $direction-colors {
+    &[data-direction='#{$direction}'] {
+      border-color: oklch(from #{$color} l c h / 0.5);
+      color: $color;
+    }
+  }
+}
+
+.icon {
+  margin-right: theme.spacing(1);
+  height: 0.75rem;
+  width: 0.75rem;
+}

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { usePriceSnapshot } from './PriceSnapshotProvider'
-import { getFormattedPrice } from './utils'
+import { getFormattedPriceSnapshot } from './utils'
 import styles from './PriceTickerCard.module.scss'
 import { cn } from '@/lib/utils'
 
@@ -10,7 +10,9 @@ export function PriceTickerCard() {
   const t = useTranslations('priceSnapshot.card')
   const { snapshot } = usePriceSnapshot()
 
-  const formattedPrice = getFormattedPrice({ snapshot })
+  const formattedPrice = getFormattedPriceSnapshot({
+    priceUsd: snapshot?.priceUsd,
+  })
 
   return (
     <div className={styles.container}>

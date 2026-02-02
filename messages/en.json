@@ -124,15 +124,19 @@
       "description": "Make your BTC price predictions and compete for the highest score."
     }
   },
+  "dashboardDirectionBadge": {
+    "up": "UP",
+    "down": "DOWN"
+  },
   "dashboardGuessAction": {
-    "buttons": {
-      "up": "UP",
-      "down": "DOWN"
-    },
     "active": {
       "title": "Active Prediction",
       "entryPriceLabel": "Entry Price",
       "placedAtLabel": "Placed At"
+    },
+    "buttons": {
+      "up": "UP",
+      "down": "DOWN"
     },
     "status": {
       "waitingTime": "Waiting for 60s...",
@@ -148,10 +152,6 @@
     "error": "Failed to load predictions. Please try again.",
     "loadMore": "Load More",
     "loadingMore": "Loading...",
-    "direction": {
-      "up": "UP",
-      "down": "DOWN"
-    },
     "result": {
       "win": "Win",
       "loss": "Loss",

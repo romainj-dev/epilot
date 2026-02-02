@@ -6,7 +6,7 @@ import { BitcoinIcon } from '@/components/icons/BitcoinIcon'
 import { Badge } from '@/components/ui/badge/Badge'
 import { usePriceSnapshot } from '@/components/features/price-snapshot/PriceSnapshotProvider'
 import { useUserState } from '@/components/features/user-state/UserStateProvider'
-import { getFormattedPrice } from './utils'
+import { getFormattedPriceSnapshot } from './utils'
 
 export function PriceTickerBadge() {
   const t = useTranslations('priceSnapshot.badge')
@@ -20,7 +20,9 @@ export function PriceTickerBadge() {
     <div className={styles.center}>
       <Badge variant={'outline'} className={styles.priceBadge}>
         <BitcoinIcon className={styles.priceIcon} />
-        <span>{getFormattedPrice({ snapshot })}</span>
+        <span>
+          {getFormattedPriceSnapshot({ priceUsd: snapshot?.priceUsd })}
+        </span>
       </Badge>
 
       <Badge

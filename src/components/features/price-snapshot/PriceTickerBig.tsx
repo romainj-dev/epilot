@@ -2,7 +2,10 @@
 
 import { useTranslations } from 'next-intl'
 import { usePriceSnapshot } from '@/components/features/price-snapshot/PriceSnapshotProvider'
-import { getFormattedPrice, formatUpdatedAt } from './utils'
+import {
+  getFormattedPriceSnapshot,
+  getFormattedDateTimeSnapshot,
+} from './utils'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card/Card'
 import styles from './PriceTickerBig.module.scss'
@@ -93,8 +96,10 @@ export function PriceTickerBig() {
   const t = useTranslations('priceSnapshot.big')
   const { snapshot, error, priceDirection } = usePriceSnapshot()
 
-  const price = getFormattedPrice({ snapshot })
-  const updatedAt = formatUpdatedAt({ snapshot })
+  const price = getFormattedPriceSnapshot({ priceUsd: snapshot?.priceUsd })
+  const updatedAt = getFormattedDateTimeSnapshot({
+    timestamp: snapshot?.sourceUpdatedAt,
+  })
   const animationKey = updatedAt ?? 'LOADING'
 
   return (

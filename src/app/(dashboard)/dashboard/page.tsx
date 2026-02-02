@@ -14,9 +14,9 @@ import {
   ModelSortDirection,
 } from '@/graphql/generated/graphql'
 import styles from './page.module.scss'
-import { GuessAction } from '@/components/features/dashboard/GuessAction'
+import { GuessAction } from '@/components/features/dashboard/guess-action/GuessAction'
 import { PriceTickerBig } from '@/components/features/price-snapshot/PriceTickerBig'
-import { GuessHistory } from '@/components/features/dashboard/GuessHistory'
+import { GuessHistory } from '@/components/features/dashboard/guess-history/GuessHistory'
 import { ErrorBoundary } from '@/components/error/ErrorBoundary'
 
 export async function generateMetadata() {
