@@ -22,7 +22,7 @@ The dev server must be running at `http://localhost:3000` before running tests.
 
 ```bash
 pnpm cypress:open        # Interactive
-pnpm cypress:run         # Headless (CI/CD)
+pnpm cypress:e2e         # Headless (CI/CD)
 ```
 
 ## Components Tests

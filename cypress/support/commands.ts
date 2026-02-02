@@ -9,8 +9,8 @@
  * Select element by data-testid attribute
  * @example cy.getByTestId('signin-email')
  */
-Cypress.Commands.add('getByTestId', (testId: string) => {
-  return cy.get(`[data-testid="${testId}"]`)
+Cypress.Commands.add('getByTestId', (testId: string, options) => {
+  return cy.get(`[data-testid="${testId}"]`, options)
 })
 
 /**
@@ -168,7 +168,10 @@ declare global {
        * @param testId - The value of the data-testid attribute
        * @example cy.getByTestId('signin-email')
        */
-      getByTestId(testId: string): Chainable<JQuery<HTMLElement>>
+      getByTestId(
+        testId: string,
+        options?: Partial<Cypress.Timeoutable>
+      ): Chainable<JQuery<HTMLElement>>
 
       /**
        * Programmatic login via NextAuth API

@@ -116,8 +116,9 @@ pnpm build     # Production build
 ```bash
 pnpm test                       # Unit tests (Jest)
 pnpm test:amplify:int           # AWS integration tests
-pnpm cypress:open --component   # Component tests (Cypress)
-pnpm cypress:open               # E2E tests (Cypress)
+pnpm cypress:component          # Component tests (Cypress)
+pnpm cypress:e2e                # Component tests (Cypress)
+pnpm cypress:open               # Cypress interactive GUI
 ```
 
 See **[TESTING.md](./TESTING.md)** for the full testing strategy.

@@ -22,11 +22,9 @@
     "test:amplify:int": "AMPLIFY_INTEGRATION_TESTS=true node --experimental-vm-modules ./node_modules/jest/bin/jest.js --testMatch='**/amplify/backend/__tests__/integration/**/*.int.test.ts' --runInBand --testTimeout=30000",
     "test:bff": "jest --testMatch='**/src/app/api/**/*.test.ts'",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run --e2e",
     "cypress:component": "cypress run --component",
-    "cypress:component:open": "cypress open --component",
-    "test:e2e": "cypress run --e2e",
-    "test:e2e:headed": "cypress run --e2e --headed --browser chrome"
+    "cypress:e2e": "cypress run --e2e",
+    "cypress:e2e:headed": "cypress run --e2e --headed --browser chrome"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.974.0",

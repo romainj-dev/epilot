@@ -24,4 +24,14 @@ declare global {
   }
 }
 
+Cypress.on('uncaught:exception', (err) => {
+  // Silencing known known issue from react https://github.com/vercel/next.js/issues/86060
+  if (
+    err.message.includes('DashboardLayout') &&
+    err.message.includes('negative time stamp')
+  ) {
+    return false
+  }
+})
+
 export {}

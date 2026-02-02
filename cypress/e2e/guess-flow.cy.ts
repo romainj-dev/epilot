@@ -114,7 +114,8 @@ describe('Core Game Loop - Guess Flow', () => {
 
     cy.wait(60000)
 
-    cy.getByTestId('guess-active').should('not.exist')
+    // Increase timeout due to latency of the guess settlement > DDB update > SSE stream
+    cy.getByTestId('guess-active', { timeout: 30000 }).should('not.exist')
     cy.getByTestId('guess-up').should('be.enabled')
     cy.getByTestId('guess-down').should('be.enabled')
 
@@ -128,7 +129,7 @@ describe('Core Game Loop - Guess Flow', () => {
       }).format(entryPrice)
 
       // First row in history table should have the entry price
-      cy.getByTestId('guess-history')
+      cy.getByTestId('guess-history-desktop')
         .find('table tbody tr')
         .first()
         .should('contain.text', formattedPrice)

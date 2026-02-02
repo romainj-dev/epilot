@@ -32,7 +32,7 @@ pnpm cypress:component          # Headless
 
 # E2E tests
 pnpm cypress:open        # Interactive
-pnpm cypress:run         # Headless
+pnpm cypress:e2e         # Headless
 ```
 
 ---
@@ -111,7 +111,7 @@ LAMBDA_*_ARN  # Post-confirmation, price-snapshot, schedule, settle
 
 - **Location**: `cypress/e2e/*.cy.ts`
 - **Scope**: Auth happy path, full guess lifecycle (create → settlement → history)
-- **Run**: `pnpm cypress:open` or `pnpm cypress:run`
+- **Run**: `pnpm cypress:open` or `pnpm cypress:e2e`
 
 ### Setup
 
