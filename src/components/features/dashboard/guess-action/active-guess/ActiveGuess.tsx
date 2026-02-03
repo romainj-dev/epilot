@@ -101,7 +101,7 @@ export function ActiveGuess({ guess }: ActiveGuessProps) {
   // Set up SSE stream for guess settlement
   useGuessSettlementHandler(guess)
 
-  const timeRemaining = useCountdown({ guess })
+  const timeRemaining = useCountdown({ settleAt: guess.settleAt })
   const isWaitingTime = timeRemaining > 0
 
   const { startPrice, createdAt, direction } = guess

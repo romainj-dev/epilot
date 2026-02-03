@@ -1,4 +1,3 @@
-import { Guess } from '@/graphql/generated/graphql'
 import { useEffect, useState } from 'react'
 
 const TICK_INTERVAL_MS = 100
@@ -8,11 +7,10 @@ function getTimeRemaining(settleAt: string): number {
 }
 
 type UseCountdownParams = {
-  guess: Guess
+  settleAt: string
 }
 
-export function useCountdown({ guess }: UseCountdownParams): number {
-  const settleAt = guess.settleAt
+export function useCountdown({ settleAt }: UseCountdownParams): number {
   const [timeRemaining, setTimeRemaining] = useState(0)
 
   useEffect(() => {
