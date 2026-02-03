@@ -16,20 +16,25 @@ jest.mock('lambda-utils', () => ({
 const { handler } = require('../index')
 const { ssm, appsync, logger } = require('lambda-utils')
 
-describe('settleGuessLambda handler', () => {
-  const MOCK_ENDPOINT = 'https://mock-appsync.amazonaws.com/graphql'
-  const MOCK_API_KEY = 'da2-mockApiKey123'
+// Shared test constants
+const MOCK_ENDPOINT = 'https://mock-appsync.amazonaws.com/graphql'
+const MOCK_API_KEY = 'da2-mockApiKey123'
 
+// Helper to setup SSM mocks consistently across test suites
+const setupSSMMocks = () => {
+  ssm.getCachedParameterOrNull.mockImplementation(async (path) => {
+    if (path.includes('endpoint')) return MOCK_ENDPOINT
+    if (path.includes('api-key')) return MOCK_API_KEY
+    return null
+  })
+}
+
+describe('settleGuessLambda handler', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     process.env.APPSYNC_ENDPOINT_SSM_PATH = '/epilot/dev/appsync-endpoint'
     process.env.APPSYNC_API_KEY_SSM_PATH = '/epilot/dev/appsync-api-key'
-
-    ssm.getCachedParameterOrNull.mockImplementation(async (path) => {
-      if (path.includes('endpoint')) return MOCK_ENDPOINT
-      if (path.includes('api-key')) return MOCK_API_KEY
-      return null
-    })
+    setupSSMMocks()
   })
 
   afterEach(() => {
@@ -94,9 +99,10 @@ describe('settleGuessLambda handler', () => {
     const createdAt = new Date().toISOString()
     const settleAt = new Date(Date.now() + 60000).toISOString()
 
-    appsync.makeAppSyncRequest
-      // fetchGuess
-      .mockResolvedValueOnce({
+    // Define expected sequence of calls with clear intent
+    const mockResponses = [
+      // 1. fetchGuess
+      {
         data: {
           getGuess: {
             id: 'g2',
@@ -107,43 +113,55 @@ describe('settleGuessLambda handler', () => {
             status: 'PENDING',
           },
         },
-      })
-      // resolveSnapshot(start) -> price 100
-      .mockResolvedValueOnce({
+      },
+      // 2. resolveSnapshot(start) -> price 100
+      {
         data: {
           priceSnapshotsBySourceUpdatedAt: {
             items: [{ id: 's-start', priceUsd: 100, sourceUpdatedAt: createdAt }],
           },
         },
-      })
-      // resolveSnapshot(end) -> price 110 => UP => WIN => +1
-      .mockResolvedValueOnce({
+      },
+      // 3. resolveSnapshot(end) -> price 110 => UP => WIN => +1
+      {
         data: {
           priceSnapshotsBySourceUpdatedAt: {
             items: [{ id: 's-end', priceUsd: 110, sourceUpdatedAt: settleAt }],
           },
         },
-      })
-      // settleGuess(updateGuess)
-      .mockResolvedValueOnce({
+      },
+      // 4. settleGuess(updateGuess)
+      {
         data: {
           updateGuess: { id: 'g2', status: 'SETTLED' },
         },
-      })
-      // getUserState
-      .mockResolvedValueOnce({
+      },
+      // 5. getUserState
+      {
         data: {
           getUserState: { id: 'sub-2', score: 5 },
         },
-      })
-      // updateUserState
-      .mockResolvedValueOnce({
+      },
+      // 6. updateUserState
+      {
         data: {
           updateUserState: { id: 'sub-2', score: 6 },
         },
-      })
+      },
+    ]
+
+    let callIndex = 0
+    appsync.makeAppSyncRequest.mockImplementation(async () => {
+      if (callIndex >= mockResponses.length) {
+        throw new Error(`Unexpected call #${callIndex + 1} to makeAppSyncRequest`)
+      }
+      return mockResponses[callIndex++]
+    })
 
     await handler({ guessId: 'g2' })
+
+    // Verify all expected calls were made
+    expect(appsync.makeAppSyncRequest).toHaveBeenCalledTimes(6)
 
     // Verify snapshot resolution uses 'le' (less than or equal) to get latest snapshot BEFORE target
     expect(appsync.makeAppSyncRequest).toHaveBeenCalledWith(
@@ -180,20 +198,12 @@ describe('settleGuessLambda handler', () => {
 })
 
 describe('resolveEndSnapshot edge cases', () => {
-  const MOCK_ENDPOINT = 'https://mock-appsync.amazonaws.com/graphql'
-  const MOCK_API_KEY = 'da2-mockApiKey123'
-
   beforeEach(() => {
     jest.clearAllMocks()
     jest.useFakeTimers()
     process.env.APPSYNC_ENDPOINT_SSM_PATH = '/epilot/dev/appsync-endpoint'
     process.env.APPSYNC_API_KEY_SSM_PATH = '/epilot/dev/appsync-api-key'
-
-    ssm.getCachedParameterOrNull.mockImplementation(async (path) => {
-      if (path.includes('endpoint')) return MOCK_ENDPOINT
-      if (path.includes('api-key')) return MOCK_API_KEY
-      return null
-    })
+    setupSSMMocks()
   })
 
   afterEach(() => {

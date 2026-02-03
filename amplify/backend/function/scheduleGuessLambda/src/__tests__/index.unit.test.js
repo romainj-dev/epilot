@@ -51,15 +51,16 @@ describe('scheduleGuessLambda handler', () => {
     })
 
     expect(__mockSend).toHaveBeenCalledTimes(1)
-    const cmd = __mockSend.mock.calls[0][0]
-    expect(cmd.input).toEqual(
+    expect(__mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        GroupName: 'guess-settlements',
-        ScheduleExpression: expect.stringMatching(/^at\(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\)$/),
-        ActionAfterCompletion: 'DELETE',
-        Target: expect.objectContaining({
-          Input: JSON.stringify({ guessId: 'g-123' }),
-        }),
+        input: expect.objectContaining({
+          GroupName: 'guess-settlements',
+          ScheduleExpression: expect.stringMatching(/^at\(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\)$/),
+          ActionAfterCompletion: 'DELETE',
+          Target: expect.objectContaining({
+            Input: JSON.stringify({ guessId: 'g-123' }),
+          }),
+        })
       })
     )
   })
