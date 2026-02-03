@@ -18,9 +18,7 @@ describe('POST /api/cognito/signup', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    sendSpy = jest
-      .spyOn(CognitoIdentityProviderClient.prototype, 'send')
-      .mockReset()
+    sendSpy = jest.spyOn(CognitoIdentityProviderClient.prototype, 'send')
   })
 
   afterEach(() => {
@@ -89,7 +87,8 @@ describe('POST /api/cognito/signup', () => {
     expect(json).toEqual({ ok: true })
 
     expect(sendSpy).toHaveBeenCalledTimes(1)
-    const command = sendSpy.mock.calls[0][0]
+    // Extract command with type safety
+    const [command] = sendSpy.mock.calls[0]
     expect(command).toBeInstanceOf(SignUpCommand)
     expect(command.input).toMatchObject({
       ClientId: TEST_COGNITO_CLIENT_ID,

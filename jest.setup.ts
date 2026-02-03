@@ -21,7 +21,7 @@ process.env.AUTH_SECRET ??= TEST_AUTH_SECRET
  * Many server-side modules intentionally log on error paths (and some modules
  * are chatty by design). To keep CI output readable, we silence console by
  * default. If you need logs while debugging, run:
- *   JEST_SHOW_CONSOLE=1 pnpm test:bff
+ *   JEST_SHOW_CONSOLE=1 pnpm test:web
  */
 if (process.env.JEST_SHOW_CONSOLE !== 'true') {
   const noop = () => {}

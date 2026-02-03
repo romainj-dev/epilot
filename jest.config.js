@@ -38,8 +38,8 @@ const customJestConfig = {
   testMatch: [
     // Lambda unit tests
     '**/amplify/backend/function/**/*.unit.test.js',
-    // BFF unit tests
-    '**/src/app/api/**/*.test.ts',
+    // BFF & Web unit tests (collocated under src/)
+    '**/src/**/*.test.ts',
   ],
   // Separate timeouts for unit vs integration tests (integration tests override via CLI)
   testTimeout: 10000,

@@ -6,12 +6,11 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider'
 
 import { getAuthSecret, getAwsRegion, getCognitoClientId } from '@/lib/env'
-
-type CognitoIdTokenPayload = {
-  sub?: string
-  email?: string
-  exp?: number
-}
+import {
+  decodeIdTokenPayload,
+  shouldRefreshToken,
+  normalizeEmail,
+} from '@/lib/auth-helpers'
 
 let cognito: CognitoIdentityProviderClient | null = null
 
@@ -36,10 +35,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const email = (credentials?.email as string)?.toLowerCase().trim()
+        const rawEmail = credentials?.email as string
         const password = credentials?.password as string
 
-        if (!email || !password) return null
+        if (!rawEmail || !password) return null
+
+        const email = normalizeEmail(rawEmail)
 
         const response = await getCognitoClient().send(
           new InitiateAuthCommand({
@@ -96,7 +97,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const cognitoExpiry = token.cognitoTokenExpiry as number | undefined
       const now = Math.floor(Date.now() / 1000)
 
-      if (cognitoExpiry && now >= cognitoExpiry - 60) {
+      if (shouldRefreshToken(cognitoExpiry, now)) {
         // Token expired or about to expire - refresh it
         const refreshToken = token.cognitoRefreshToken as string | undefined
         if (refreshToken) {
@@ -145,16 +146,3 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
   },
 })
-
-function decodeIdTokenPayload(token: string): CognitoIdTokenPayload | null {
-  const [, payload] = token.split('.')
-  if (!payload) return null
-
-  try {
-    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const json = Buffer.from(normalized, 'base64').toString('utf8')
-    return JSON.parse(json) as CognitoIdTokenPayload
-  } catch {
-    return null
-  }
-}

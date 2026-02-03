@@ -21,6 +21,10 @@ describe('Price Snapshot Relay', () => {
   let mockStop: jest.Mock
   let connectedClients: Array<jest.Mock> = []
 
+  // Capture callbacks passed to ensurePriceSnapshotSubscription
+  type CapturedCallbacks = Parameters<typeof ensurePriceSnapshotSubscription>[0]
+  let capturedCallbacks: CapturedCallbacks | null = null
+
   const connectClient = (client: jest.Mock) => {
     connectedClients.push(client)
     addClient(client)
@@ -30,8 +34,12 @@ describe('Price Snapshot Relay', () => {
     jest.clearAllMocks()
     mockStop = jest.fn()
     connectedClients = []
-    mockEnsurePriceSnapshotSubscription.mockReturnValue({
-      stop: mockStop,
+    capturedCallbacks = null
+
+    // Capture callbacks when ensurePriceSnapshotSubscription is called
+    mockEnsurePriceSnapshotSubscription.mockImplementation((callbacks) => {
+      capturedCallbacks = callbacks
+      return { stop: mockStop }
     })
   })
 
@@ -79,8 +87,8 @@ describe('Price Snapshot Relay', () => {
     connectClient(client2)
     connectClient(client3)
 
-    // Get the onSnapshot callback that was passed to ensurePriceSnapshotSubscription
-    const { onSnapshot } = mockEnsurePriceSnapshotSubscription.mock.calls[0][0]
+    // Get the captured callback
+    const { onSnapshot } = capturedCallbacks!
 
     const mockSnapshot = {
       __typename: 'PriceSnapshot' as const,
@@ -125,7 +133,7 @@ describe('Price Snapshot Relay', () => {
     connectClient(client1)
     connectClient(client2)
 
-    const { onError } = mockEnsurePriceSnapshotSubscription.mock.calls[0][0]
+    const { onError } = capturedCallbacks!
 
     const error = new Error('Subscription failed')
     onError!(error)
@@ -152,7 +160,7 @@ describe('Price Snapshot Relay', () => {
     connectClient(client2)
     connectClient(client3)
 
-    const { onSnapshot } = mockEnsurePriceSnapshotSubscription.mock.calls[0][0]
+    const { onSnapshot } = capturedCallbacks!
 
     const mockSnapshot = {
       __typename: 'PriceSnapshot' as const,

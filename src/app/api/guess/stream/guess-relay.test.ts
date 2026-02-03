@@ -35,6 +35,10 @@ describe('Guess Relay', () => {
   // Track connected clients by owner
   const connectedClientsByOwner = new Map<string, Array<jest.Mock>>()
 
+  // Capture callbacks passed to ensureGuessSubscription by owner
+  type CapturedCallbacks = Parameters<typeof ensureGuessSubscription>[2]
+  const capturedCallbacks = new Map<string, CapturedCallbacks>()
+
   const connectClient = (owner: string, idToken: string, client: jest.Mock) => {
     if (!connectedClientsByOwner.has(owner)) {
       connectedClientsByOwner.set(owner, [])
@@ -47,9 +51,15 @@ describe('Guess Relay', () => {
     jest.clearAllMocks()
     mockStop = jest.fn()
     connectedClientsByOwner.clear()
-    mockEnsureGuessSubscription.mockReturnValue({
-      stop: mockStop,
-    })
+    capturedCallbacks.clear()
+
+    // Capture callbacks when ensureGuessSubscription is called
+    mockEnsureGuessSubscription.mockImplementation(
+      (owner, _idToken, callbacks) => {
+        capturedCallbacks.set(owner, callbacks)
+        return { stop: mockStop }
+      }
+    )
   })
 
   afterEach(() => {
@@ -103,9 +113,9 @@ describe('Guess Relay', () => {
       connectClient(testOwner, testIdToken, client2)
       connectClient(testOwner, testIdToken, client3)
 
-      // Get the onGuessUpdate callback that was passed to ensureGuessSubscription
-      // ensureGuessSubscription(owner, idToken, callbacks) - callbacks are at index 2
-      const { onGuessUpdate } = mockEnsureGuessSubscription.mock.calls[0][2]
+      // Get the captured callback for this owner
+      const callbacks = capturedCallbacks.get(testOwner)!
+      const { onGuessUpdate } = callbacks
 
       const mockGuess = {
         __typename: 'Guess' as const,
@@ -157,7 +167,8 @@ describe('Guess Relay', () => {
       connectClient(testOwner, testIdToken, client1)
       connectClient(testOwner, testIdToken, client2)
 
-      const { onError } = mockEnsureGuessSubscription.mock.calls[0][2]
+      const callbacks = capturedCallbacks.get(testOwner)!
+      const { onError } = callbacks
 
       const error = new Error('Subscription failed')
       onError!(error)
@@ -184,7 +195,8 @@ describe('Guess Relay', () => {
       connectClient(testOwner, testIdToken, client2)
       connectClient(testOwner, testIdToken, client3)
 
-      const { onGuessUpdate } = mockEnsureGuessSubscription.mock.calls[0][2]
+      const callbacks = capturedCallbacks.get(testOwner)!
+      const { onGuessUpdate } = callbacks
 
       const mockGuess = {
         __typename: 'Guess' as const,
@@ -296,9 +308,9 @@ describe('Guess Relay', () => {
       connectClient(testOwner2, testIdToken2, user2Client1)
       connectClient(testOwner2, testIdToken2, user2Client2)
 
-      // Capture callbacks before clearing mocks
-      const user1Callback = mockEnsureGuessSubscription.mock.calls[0][2]
-      const user2Callback = mockEnsureGuessSubscription.mock.calls[1][2]
+      // Get captured callbacks for each owner
+      const user1Callback = capturedCallbacks.get(testOwner)!
+      const user2Callback = capturedCallbacks.get(testOwner2)!
 
       // Trigger update for user1
       const mockGuessUser1 = {
@@ -383,10 +395,16 @@ describe('Guess Relay', () => {
       const mockStopUser1 = jest.fn()
       const mockStopUser2 = jest.fn()
 
-      // Setup different stop functions for each user
-      mockEnsureGuessSubscription
-        .mockReturnValueOnce({ stop: mockStopUser1 })
-        .mockReturnValueOnce({ stop: mockStopUser2 })
+      // Setup different stop functions for each user using mockImplementation
+      mockEnsureGuessSubscription.mockImplementation((owner) => {
+        if (owner === testOwner) {
+          return { stop: mockStopUser1 }
+        }
+        if (owner === testOwner2) {
+          return { stop: mockStopUser2 }
+        }
+        throw new Error(`Unexpected owner: ${owner}`)
+      })
 
       // Connect clients for both users
       connectClient(testOwner, testIdToken, user1Client1)
@@ -422,7 +440,7 @@ describe('Guess Relay', () => {
       connectClient(testOwner2, testIdToken2, user2Client)
 
       // Trigger error for user1 only
-      const user1Callback = mockEnsureGuessSubscription.mock.calls[0][2]
+      const user1Callback = capturedCallbacks.get(testOwner)!
       const error = new Error('User1 subscription failed')
       user1Callback.onError!(error)
 
@@ -468,7 +486,8 @@ describe('Guess Relay', () => {
 
       connectClient(testOwner, testIdToken, client)
 
-      const { onGuessUpdate } = mockEnsureGuessSubscription.mock.calls[0][2]
+      const callbacks = capturedCallbacks.get(testOwner)!
+      const { onGuessUpdate } = callbacks
 
       // Disconnect client
       removeGuessClient(testOwner, client)
