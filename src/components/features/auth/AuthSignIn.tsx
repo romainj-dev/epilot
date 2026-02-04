@@ -1,3 +1,10 @@
+/**
+ * AuthSignIn - User authentication form
+ *
+ * Handles email/password sign-in via NextAuth credentials provider.
+ * Redirects to dashboard on success, displays error on failure.
+ */
+
 'use client'
 
 import { TextInput } from '@/components/ui/form/TextInput'
@@ -17,7 +24,6 @@ export function AuthSignIn({ setError }: AuthSignInProps) {
   const t = useTranslations('authSignIn')
 
   const [isLoading, setIsLoading] = useState(false)
-  // Sign in state
   const [signInEmail, setSignInEmail] = useState('')
   const [signInPassword, setSignInPassword] = useState('')
 

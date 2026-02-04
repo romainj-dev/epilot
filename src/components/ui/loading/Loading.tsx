@@ -1,3 +1,9 @@
+/**
+ * Loading - Animated spinner icon
+ *
+ * Simple loading indicator used in buttons and async states.
+ */
+
 import { Loader2 } from 'lucide-react'
 import styles from './Loading.module.scss'
 

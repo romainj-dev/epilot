@@ -1,3 +1,11 @@
+/**
+ * GuessHistory - Paginated display of past predictions
+ *
+ * Shows settled guesses in responsive table (desktop) or cards (mobile) layout.
+ * Excludes active PENDING guess (shown in GuessAction).
+ * Supports infinite scroll with "load more" pagination.
+ */
+
 'use client'
 
 import { useTranslations } from 'next-intl'
@@ -182,12 +190,9 @@ export function GuessHistory() {
         <p className={styles.empty}>{t('error')}</p>
       ) : (
         <>
-          {/* Mobile view - cards */}
           <MobileHistory history={settledHistory} />
-          {/* Desktop view - table */}
           <DesktopHistory history={settledHistory} />
 
-          {/* Load more button */}
           {hasNextPage && (
             <div className={styles.loadMore}>
               <Button

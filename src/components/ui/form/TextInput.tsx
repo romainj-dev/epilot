@@ -1,3 +1,10 @@
+/**
+ * TextInput - Labeled form input with optional hint text
+ *
+ * Consistent form field wrapper for all text-based inputs.
+ * Provides accessible label-input association and error/hint display.
+ */
+
 import { Input } from '@/components/ui/base/input'
 import type { ComponentProps, HTMLInputTypeAttribute } from 'react'
 import styles from './TextInput.module.scss'

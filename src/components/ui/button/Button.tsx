@@ -1,3 +1,10 @@
+/**
+ * Button - Styled button component with loading state support
+ *
+ * Wraps shadcn button with loading spinner overlay.
+ * Supports `asChild` pattern for composition with Next.js Link and similar components.
+ */
+
 'use client'
 
 import * as React from 'react'
@@ -11,6 +18,7 @@ interface ButtonContentProps {
   children: ReactNode
   isLoading: boolean
 }
+
 function ButtonContent({ children, isLoading }: ButtonContentProps) {
   return (
     <>
@@ -26,10 +34,7 @@ function ButtonContent({ children, isLoading }: ButtonContentProps) {
   )
 }
 
-/**
- * With asChild the child element itself must be the thing you want styled
- * Clone to keep the child element (e.g. Link/a) while wrapping its contents.
- */
+/** Wraps children for asChild pattern (e.g., Link) while preserving loading state */
 function getContentAsChildContent({
   children,
   isLoading,

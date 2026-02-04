@@ -1,3 +1,9 @@
+/**
+ * GuessHistoryContainer - Card wrapper for guess history display
+ *
+ * Provides consistent card layout with title for the history section.
+ */
+
 import {
   Card,
   CardHeader,

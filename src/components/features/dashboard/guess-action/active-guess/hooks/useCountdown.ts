@@ -1,3 +1,10 @@
+/**
+ * useCountdown - Live countdown timer for guess settlement
+ *
+ * Updates every 100ms for smooth progress bar animations.
+ * Auto-stops when countdown reaches zero to prevent unnecessary renders.
+ */
+
 import { useEffect, useState } from 'react'
 
 const TICK_INTERVAL_MS = 100
@@ -20,10 +27,9 @@ export function useCountdown({ settleAt }: UseCountdownParams): number {
       return remaining
     }
 
-    // Sync immediately with current time
+    // Do not start the countdown if it has already expired
     if (tick() <= 0) return
 
-    // Tick every 100ms for smooth progress bar updates
     const intervalId = setInterval(() => {
       if (tick() <= 0) clearInterval(intervalId)
     }, TICK_INTERVAL_MS)

@@ -1,3 +1,10 @@
+/**
+ * GuessHistoryResult - Visual outcome indicator for settled guesses
+ *
+ * Displays win/loss/draw/failed status with icon and text label.
+ * Color-coded via CSS data attributes for visual feedback.
+ */
+
 import { GuessOutcome } from '@/graphql/generated/graphql'
 import styles from './GuessHistoryResult.module.scss'
 import {
@@ -22,6 +29,7 @@ interface GuessHistoryResultIconProps {
 export function GuessHistoryResultIcon({
   outcome,
 }: GuessHistoryResultIconProps) {
+  // No outcome means failed guess
   const Icon = outcome ? OUTCOME_ICONS[outcome] : Circle
   return (
     <Icon

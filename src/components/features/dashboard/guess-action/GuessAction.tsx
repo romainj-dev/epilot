@@ -1,3 +1,10 @@
+/**
+ * GuessAction - Main interaction component for making Bitcoin price predictions
+ *
+ * Displays UP/DOWN buttons to create guesses, and shows the active guess card if one exists.
+ * Handles guess creation with optimistic updates and real-time settlement tracking.
+ */
+
 'use client'
 
 import { useCallback } from 'react'
@@ -42,9 +49,8 @@ function GuessButtons({ hasActiveGuess }: GuessButtonsProps) {
       if (!canGuess) return
 
       // Compute settlement time (60 seconds from now)
+      // For accurate settlement it is important to compute it immediately
       const settleAt = new Date(Date.now() + GUESS_DURATION_MS).toISOString()
-
-      // Call mutation with input, including the current price as startPrice
       const input: CreateGuessInput = {
         direction,
         settleAt,

@@ -1,3 +1,10 @@
+/**
+ * PriceTickerBadge - Header badges for price and score
+ *
+ * Compact display combining current Bitcoin price and user's game score.
+ * Score badge changes color based on positive/negative value.
+ */
+
 'use client'
 
 import { useTranslations } from 'next-intl'

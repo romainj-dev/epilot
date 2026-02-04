@@ -1,3 +1,10 @@
+/**
+ * GuessHistoryPoints - Score delta display for settled guesses
+ *
+ * Shows +1, -1, or 0 points with color-coding based on guess outcome.
+ * Failed guesses (no outcome) display as 0 points.
+ */
+
 import { GuessOutcome } from '@/graphql/generated/graphql'
 import styles from './GuessHistoryPoints.module.scss'
 

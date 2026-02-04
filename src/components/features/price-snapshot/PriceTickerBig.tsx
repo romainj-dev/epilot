@@ -1,3 +1,10 @@
+/**
+ * PriceTickerBig - Large Bitcoin price display with trend indicator
+ *
+ * Primary price display on the dashboard showing real-time BTC/USD price.
+ * Includes directional trend icons and flash animations on price changes.
+ */
+
 'use client'
 
 import { useTranslations } from 'next-intl'

@@ -1,3 +1,10 @@
+/**
+ * AuthTabs - Tabbed authentication interface
+ *
+ * Container for sign-in and sign-up forms with shared error handling.
+ * Automatically switches to sign-in tab after successful registration.
+ */
+
 'use client'
 
 import { useState } from 'react'
@@ -67,7 +74,6 @@ export function AuthTabs() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Error display */}
           {error && (
             <div className={styles.error} data-testid="auth-error">
               <AlertCircle className={styles.errorIcon} />

@@ -1,3 +1,10 @@
+/**
+ * HeroSection - Landing page hero with CTA
+ *
+ * Marketing section showcasing the game concept with live Bitcoin price display.
+ * Primary conversion point for unauthenticated visitors.
+ */
+
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button/Button'

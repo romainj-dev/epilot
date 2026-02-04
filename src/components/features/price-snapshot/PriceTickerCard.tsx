@@ -1,3 +1,10 @@
+/**
+ * PriceTickerCard - Compact price display for marketing page
+ *
+ * Shows BTC/USD price with live indicator and currency badge.
+ * Smaller, card-style variant used in the landing page hero section.
+ */
+
 'use client'
 
 import { useTranslations } from 'next-intl'

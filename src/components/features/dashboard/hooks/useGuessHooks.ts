@@ -1,3 +1,10 @@
+/**
+ * Guess management hooks for Bitcoin price prediction game
+ *
+ * Provides data fetching, mutations, and real-time settlement handling for user guesses.
+ * Integrates optimistic updates and SSE streams for responsive UX.
+ */
+
 import { useCallback, useEffect } from 'react'
 import { useSession } from '@/hooks/use-session'
 
@@ -23,10 +30,11 @@ import { queryKeys } from '@/lib/query-keys'
 import { useToast } from '@/hooks/use-toast'
 import { useTranslations } from 'next-intl'
 
-// ---------------------------------------------------------------------------
-// useActiveGuess - Query for the user's current PENDING guess
-// ---------------------------------------------------------------------------
-
+/**
+ * Fetches the user's current active (PENDING) guess
+ *
+ * Stale time is infinite because updates come only via mutations or SSE.
+ */
 export function useActiveGuess() {
   const { data: session } = useSession()
   const owner = session?.user?.id as string
@@ -52,16 +60,16 @@ export function useActiveGuess() {
   )
 }
 
-// ---------------------------------------------------------------------------
-// useCreateGuess - Mutation to create a new guess with optimistic updates
-// ---------------------------------------------------------------------------
-
 interface CreateGuessContext {
   previousActiveGuess?: GuessesByOwnerQuery
   optimisticGuess: Guess
 }
 
-/** Helper to wrap a Guess in the GuessesByOwnerQuery shape for cache storage */
+/**
+ * Wraps a Guess in GuessesByOwnerQuery shape for cache storage
+ *
+ * Required because the cache stores query results, not raw entities.
+ */
 function wrapGuessAsQueryData(guess: Guess | null): GuessesByOwnerQuery {
   return {
     guessesByOwner: {
@@ -72,6 +80,12 @@ function wrapGuessAsQueryData(guess: Guess | null): GuessesByOwnerQuery {
   }
 }
 
+/**
+ * Creates a new guess with optimistic updates
+ *
+ * Immediately shows the guess in the UI (optimistic update) and rolls back on error.
+ * This prevents UI lag while waiting for the server response.
+ */
 export function useCreateGuess() {
   const { data: session } = useSession()
   const owner = session?.user?.id as string
@@ -140,10 +154,12 @@ export function useCreateGuess() {
   })
 }
 
-// ---------------------------------------------------------------------------
-// useGuessHistory - Infinite query for settled guesses with flattened data
-// ---------------------------------------------------------------------------
-
+/**
+ * Fetches paginated history of settled guesses
+ *
+ * Returns flattened array across all pages for simplified rendering.
+ * Excludes PENDING guesses (shown in GuessAction instead).
+ */
 export function useGuessHistory() {
   const { data: session } = useSession()
   const owner = session?.user?.id
@@ -176,15 +192,16 @@ export function useGuessHistory() {
   })
 }
 
-// ---------------------------------------------------------------------------
-// useGuessSettlementStream - SSE hook for real-time settlement updates
-// ---------------------------------------------------------------------------
-
 interface UseGuessSettlementStreamOptions {
   activeGuess: Guess | null
   onSettled: (guess: Guess) => void
 }
 
+/**
+ * Connects to SSE stream for real-time guess settlement notifications
+ *
+ * Avoids connecting during optimistic updates (temp- prefixed IDs).
+ */
 export function useGuessSettlementStream({
   activeGuess,
   onSettled,
@@ -223,10 +240,12 @@ export function useGuessSettlementStream({
   }, [shouldConnect, onSettled])
 }
 
-// ---------------------------------------------------------------------------
-// useGuessSettlementHandler - Combines SSE stream with optimistic updates
-// ---------------------------------------------------------------------------
-
+/**
+ * Orchestrates guess settlement handling
+ *
+ * Combines SSE stream with cache updates, toast notifications, and score invalidation.
+ * This is the integration layer between real-time events and React Query cache.
+ */
 export function useGuessSettlementHandler(activeGuess: Guess | null) {
   const { data: session } = useSession()
   const owner = session?.user?.id as string

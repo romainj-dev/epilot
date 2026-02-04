@@ -1,3 +1,11 @@
+/**
+ * PriceSnapshotProvider - Real-time Bitcoin price feed via SSE
+ *
+ * Provides live price updates and directional movement tracking to the entire app.
+ * Connects to server-sent events stream on mount and maintains connection throughout
+ * the session. Price direction is computed by comparing consecutive snapshots.
+ */
+
 'use client'
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
@@ -109,7 +117,7 @@ export function usePriceSnapshot() {
 }
 
 // ---------------------------------------------------------------------------
-// Mock Provider for Testing
+// Test Mock
 // ---------------------------------------------------------------------------
 
 interface MockPriceSnapshotProviderProps {
@@ -120,8 +128,9 @@ interface MockPriceSnapshotProviderProps {
 }
 
 /**
- * MockPriceSnapshotProvider - for component testing
- * Provides controlled snapshot values without SSE connection
+ * MockPriceSnapshotProvider - Test double for component testing
+ *
+ * Provides controlled snapshot values without SSE connection.
  */
 export function MockPriceSnapshotProvider({
   children,

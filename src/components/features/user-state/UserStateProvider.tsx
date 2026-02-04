@@ -1,3 +1,10 @@
+/**
+ * UserStateProvider - User score and statistics data
+ *
+ * Fetches and provides access to user's game statistics (score, guess counts, etc).
+ * Refetched after each settled guess to update the score display.
+ */
+
 'use client'
 
 import { createContext, useContext } from 'react'

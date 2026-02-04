@@ -1,3 +1,11 @@
+/**
+ * ActiveGuess - Displays the user's active prediction with live countdown
+ *
+ * Shows entry price, timestamp, direction badge, and real-time countdown.
+ * Automatically transitions to settlement phase when countdown completes.
+ * Connects to SSE stream for settlement notifications.
+ */
+
 import {
   Card,
   CardContent,
@@ -85,7 +93,6 @@ function Status({ isWaitingTime, timeRemaining }: StatusProps) {
         {isWaitingTime && <Countdown timeRemaining={timeRemaining} />}
       </div>
 
-      {/* Progress bar for countdown */}
       {isWaitingTime && <ProgressBar timeRemaining={timeRemaining} />}
     </div>
   )
@@ -99,6 +106,7 @@ export function ActiveGuess({ guess }: ActiveGuessProps) {
   const t = useTranslations('dashboardGuessAction')
 
   // Set up SSE stream for guess settlement
+  // TODO: start the stream only after 60sec + keepAliveMs: 1_000,
   useGuessSettlementHandler(guess)
 
   const timeRemaining = useCountdown({ settleAt: guess.settleAt })

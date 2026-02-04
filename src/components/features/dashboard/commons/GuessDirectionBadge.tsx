@@ -1,3 +1,10 @@
+/**
+ * GuessDirectionBadge - Visual indicator for prediction direction
+ *
+ * Displays UP/DOWN badge with arrow icon for guess direction.
+ * Styled with CSS data attributes for color-coding.
+ */
+
 import { GuessDirection } from '@/graphql/generated/graphql'
 import { Badge } from '@/components/ui/badge/Badge'
 import { ArrowUp, ArrowDown, type LucideIcon } from 'lucide-react'

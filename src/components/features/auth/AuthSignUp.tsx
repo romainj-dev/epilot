@@ -1,3 +1,10 @@
+/**
+ * AuthSignUp - User registration with email confirmation flow
+ *
+ * Two-step process: initial signup with password validation, followed by email
+ * confirmation code entry. Handles Cognito registration and confirmation via API routes.
+ */
+
 'use client'
 
 import { Button } from '@/components/ui/button/Button'
@@ -18,12 +25,10 @@ export function AuthSignUp({ setError, onConfirmed }: AuthSignUpProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
 
-  // Sign up state
   const [signUpEmail, setSignUpEmail] = useState('')
   const [signUpPassword, setSignUpPassword] = useState('')
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('')
 
-  // confirmation state
   const pendingEmail = useRef<string | null>(null)
   const [confirmationCode, setConfirmationCode] = useState('')
 

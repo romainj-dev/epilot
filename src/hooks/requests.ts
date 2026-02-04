@@ -1,3 +1,10 @@
+/**
+ * GraphQL data-fetching hooks
+ *
+ * Type-safe wrappers around React Query for GraphQL operations.
+ * Provides automatic type inference from GraphQL documents and centralized error handling.
+ */
+
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import {
   useQuery as useTanstackQuery,
