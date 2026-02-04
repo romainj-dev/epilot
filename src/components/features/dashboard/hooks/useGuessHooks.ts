@@ -60,7 +60,7 @@ export function useActiveGuess() {
   )
 }
 
-interface CreateGuessContext {
+type CreateGuessContext = {
   previousActiveGuess?: GuessesByOwnerQuery
   optimisticGuess: Guess
 }
@@ -192,7 +192,7 @@ export function useGuessHistory() {
   })
 }
 
-interface UseGuessSettlementStreamOptions {
+type UseGuessSettlementStreamOptions = {
   activeGuess: Guess | null
   onSettled: (guess: Guess) => void
 }

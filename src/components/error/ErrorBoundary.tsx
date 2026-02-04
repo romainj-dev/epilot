@@ -5,23 +5,11 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button/Button'
 import styles from './ErrorBoundary.module.scss'
 
-interface Props {
-  children: ReactNode
-  fallback?: ReactNode
-  /** Render inline error instead of full container */
-  inline?: boolean
-  /** Context for error reporting */
-  context?: string
-  /** Called when error is caught */
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+interface FallbackProps {
+  onTryAgain: () => void
 }
 
-interface State {
-  hasError: boolean
-  error?: Error
-}
-
-function InlineFallback({ onTryAgain }: { onTryAgain: () => void }) {
+function InlineFallback({ onTryAgain }: FallbackProps) {
   const t = useTranslations('errorBoundary')
   return (
     <div className={styles.inline}>
@@ -33,7 +21,7 @@ function InlineFallback({ onTryAgain }: { onTryAgain: () => void }) {
   )
 }
 
-function DefaultFallback({ onTryAgain }: { onTryAgain: () => void }) {
+function DefaultFallback({ onTryAgain }: FallbackProps) {
   const t = useTranslations('errorBoundary')
   return (
     <div className={styles.container}>
@@ -44,6 +32,22 @@ function DefaultFallback({ onTryAgain }: { onTryAgain: () => void }) {
       </div>
     </div>
   )
+}
+
+interface State {
+  hasError: boolean
+  error?: Error
+}
+
+interface Props {
+  children: ReactNode
+  fallback?: ReactNode
+  /** Render inline error instead of full container */
+  inline?: boolean
+  /** Context for error reporting */
+  context?: string
+  /** Called when error is caught */
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
 }
 
 export class ErrorBoundary extends Component<Props, State> {

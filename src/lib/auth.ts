@@ -46,8 +46,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const rawEmail = credentials?.email as string
-        const password = credentials?.password as string
+        const rawEmail = (credentials?.email as string | undefined)?.trim()
+        const password = (credentials?.password as string | undefined)?.trim()
 
         if (!rawEmail || !password) return null
 
@@ -87,19 +87,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      const authUser = user as {
-        id?: string
-        cognitoIdToken?: string
-        cognitoRefreshToken?: string
-        cognitoTokenExpiry?: number
-      } | null
-
       // Initial sign-in: store all tokens
-      if (authUser?.id) {
-        token.userId = authUser.id
-        token.cognitoIdToken = authUser.cognitoIdToken
-        token.cognitoRefreshToken = authUser.cognitoRefreshToken
-        token.cognitoTokenExpiry = authUser.cognitoTokenExpiry
+      if (user?.id) {
+        token.userId = user.id
+        token.cognitoIdToken = user.cognitoIdToken
+        token.cognitoRefreshToken = user.cognitoRefreshToken
+        token.cognitoTokenExpiry = user.cognitoTokenExpiry
         return token
       }
 

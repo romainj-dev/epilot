@@ -18,7 +18,7 @@ export type ClientSendFunction<T extends SSEMessage = SSEMessage> = (
 /**
  * Relay state management for SSE clients
  */
-export interface RelayState<T extends SSEMessage = SSEMessage> {
+export type RelayState<T extends SSEMessage = SSEMessage> = {
   clients: Set<ClientSendFunction<T>>
   upstreamHandle: { stop: () => void } | null
 }
@@ -98,7 +98,7 @@ export function removeClient<T extends SSEMessage>(
 /**
  * Create an SSE ReadableStream with keep-alive
  */
-export interface CreateSSEStreamOptions<T extends SSEMessage> {
+export type CreateSSEStreamOptions<T extends SSEMessage> = {
   onStart: (send: ClientSendFunction<T>) => Promise<void> | void
   onClose: (send: ClientSendFunction<T>) => void
   keepAliveMs?: number

@@ -29,11 +29,13 @@ export { PriceSnapshotContext }
 
 const STREAM_URL = '/api/price-snapshot/stream'
 
+interface PriceSnapshotProviderProps {
+  children: React.ReactNode
+}
+
 export function PriceSnapshotProvider({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: PriceSnapshotProviderProps) {
   const [snapshot, setSnapshot] = useState<PriceSnapshotStream | null>(null)
   const [priceDirection, setPriceDirection] = useState<'up' | 'down' | null>(
     null

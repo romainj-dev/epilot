@@ -34,14 +34,16 @@ function ButtonContent({ children, isLoading }: ButtonContentProps) {
   )
 }
 
+type ContentAsChildParams = {
+  children: ReactNode
+  isLoading: boolean
+}
+
 /** Wraps children for asChild pattern (e.g., Link) while preserving loading state */
 function getContentAsChildContent({
   children,
   isLoading,
-}: {
-  children: ReactNode
-  isLoading: boolean
-}) {
+}: ContentAsChildParams) {
   if (!React.isValidElement<{ children?: ReactNode }>(children)) {
     throw new Error('Children must be a valid React element')
   }

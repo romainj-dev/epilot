@@ -125,7 +125,7 @@ function getAuthExtensions(
   }
 }
 
-export interface SubscriptionConfig<TData> {
+export type SubscriptionConfig<TData> = {
   /** The GraphQL subscription document */
   document: DocumentNode
   /** Operation name (must match document) */
@@ -140,7 +140,7 @@ export interface SubscriptionConfig<TData> {
   filterData?: (data: TData) => boolean
 }
 
-export interface AppSyncRealtimeClientConfig<TData> {
+export type AppSyncRealtimeClientConfig<TData> = {
   /** AppSync HTTP endpoint */
   endpoint: string
   /** Authentication configuration */
@@ -155,7 +155,7 @@ export interface AppSyncRealtimeClientConfig<TData> {
   logPrefix?: string
 }
 
-interface ClientState<TData> {
+type ClientState<TData> = {
   ws: WebSocket | null
   subscriptionId: string | null
   reconnectTimer: NodeJS.Timeout | null
@@ -165,12 +165,12 @@ interface ClientState<TData> {
 
 export type DataCallback<TData> = (data: TData) => void
 
-export interface SubscriptionCallbacks<TData> {
+export type SubscriptionCallbacks<TData> = {
   onData: DataCallback<TData>
   onError?: (error: Error) => void
 }
 
-export interface SubscriptionHandle {
+export type SubscriptionHandle = {
   stop: () => void
 }
 

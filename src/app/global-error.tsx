@@ -1,13 +1,12 @@
 'use client'
 
 // global-error.tsx MUST define its own <html> and <body>
-export default function GlobalError({
-  error,
-  reset,
-}: {
+interface GlobalErrorProps {
   error: Error & { digest?: string }
   reset: () => void
-}) {
+}
+
+export default function GlobalError({ error, reset }: GlobalErrorProps) {
   if (typeof window !== 'undefined') {
     console.error('[FATAL] Root layout error:', error)
   }

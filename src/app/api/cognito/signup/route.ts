@@ -18,14 +18,20 @@ import {
 
 import { getAwsRegion, getCognitoClientId } from '@/lib/env'
 
+type SignupRequestBody = {
+  email: string | undefined
+  password: string | undefined
+}
+
 function getCognitoClient(): CognitoIdentityProviderClient {
   return new CognitoIdentityProviderClient({ region: getAwsRegion() })
 }
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json()
+  const body = (await request.json()) as SignupRequestBody
+  const { email, password } = body
 
-  if (!email || !password) {
+  if (!email?.trim() || !password?.trim()) {
     return NextResponse.json(
       { error: 'email and password are required' },
       { status: 400 }

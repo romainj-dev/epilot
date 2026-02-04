@@ -17,14 +17,20 @@ import {
 
 import { getAwsRegion, getCognitoClientId } from '@/lib/env'
 
+type ConfirmRequestBody = {
+  email: string | undefined
+  code: string | undefined
+}
+
 function getCognitoClient(): CognitoIdentityProviderClient {
   return new CognitoIdentityProviderClient({ region: getAwsRegion() })
 }
 
 export async function POST(request: Request) {
-  const { email, code } = await request.json()
+  const body = (await request.json()) as ConfirmRequestBody
+  const { email, code } = body
 
-  if (!email || !code) {
+  if (!email?.trim() || !code?.trim()) {
     return NextResponse.json(
       { error: 'email and code are required' },
       { status: 400 }
@@ -44,10 +50,11 @@ export async function POST(request: Request) {
       })
     )
   } catch (error) {
-    const err = error as { name?: string; message?: string }
-    console.error('ConfirmSignUp failed', err)
+    console.error('ConfirmSignUp failed', error)
     const errorCode =
-      err?.name && err.name !== 'Error' ? err.name : 'ConfirmSignUpFailed'
+      error instanceof Error && error.name !== 'Error'
+        ? error.name
+        : 'ConfirmSignUpFailed'
     return NextResponse.json({ error: errorCode }, { status: 500 })
   }
 
