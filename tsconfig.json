@@ -14,7 +14,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "types": ["node", "jest", "next", "next/image-types/global"],
+    "types": ["node", "next", "next/image-types/global"],
     "plugins": [
       {
         "name": "next"
@@ -37,6 +37,12 @@
     "cypress",
     "cypress.config.ts",
     "**/*.cy.ts",
-    "**/*.cy.tsx"
+    "**/*.cy.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "jest.setup.ts",
+    "jest.config.js",
+    "test/**",
+    "amplify/**"
   ]
 }

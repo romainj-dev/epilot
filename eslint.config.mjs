@@ -17,7 +17,11 @@ const eslintConfig = defineConfig([
     settings: {
       'import/resolver': {
         typescript: {
-          project: './tsconfig.json',
+          project: [
+            './tsconfig.json',
+            './tsconfig.jest.json',
+            './tsconfig.cypress.json',
+          ],
         },
       },
     },

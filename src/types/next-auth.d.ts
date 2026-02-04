@@ -18,6 +18,12 @@ declare module 'next-auth' {
     cognitoRefreshToken?: string
     cognitoTokenExpiry?: number
   }
+
+  interface AdapterUser {
+    cognitoIdToken?: string
+    cognitoRefreshToken?: string
+    cognitoTokenExpiry?: number
+  }
 }
 
 declare module 'next-auth/jwt' {
