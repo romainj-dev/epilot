@@ -397,6 +397,10 @@ async function markGuessFailed({ endpoint, apiKey, guessId }) {
         settleAt
         direction
         status
+        startPrice
+        endPrice
+        result
+        outcome
         updatedAt
       }
     }

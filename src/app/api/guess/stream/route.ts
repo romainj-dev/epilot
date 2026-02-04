@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
   const idToken = session.cognitoIdToken
 
   const stream = createSSEStream(req, {
+    // TODO start the stream only after 60sec + keepAliveMs: 1_000,
     async onStart(send) {
       // Register with the user-specific relay
       addGuessClient(owner, idToken, send)

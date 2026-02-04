@@ -2,6 +2,7 @@ $outcome-colors: (
   win: var(--success),
   loss: var(--destructive),
   draw: var(--gray-500),
+  failed: var(--gray-500),
 );
 
 .points {

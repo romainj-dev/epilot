@@ -8,14 +8,18 @@ const POINTS_DELTA: Record<GuessOutcome, number> = {
 } as const
 
 interface GuessHistoryPointsProps {
-  outcome: GuessOutcome
+  outcome: GuessOutcome | null | undefined
 }
 
 export function GuessHistoryPoints({ outcome }: GuessHistoryPointsProps) {
-  const pointsDelta = POINTS_DELTA[outcome]
+  // No outcome means failed guess
+  const pointsDelta = outcome ? POINTS_DELTA[outcome] : 0
 
   return (
-    <span className={styles.points} data-outcome={outcome.toLowerCase()}>
+    <span
+      className={styles.points}
+      data-outcome={outcome?.toLowerCase() ?? 'failed'}
+    >
       {pointsDelta === 0 ? '' : pointsDelta > 0 ? '+' : ''}
       {pointsDelta}
     </span>

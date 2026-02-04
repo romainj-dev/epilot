@@ -1,29 +1,38 @@
 import { GuessOutcome } from '@/graphql/generated/graphql'
 import styles from './GuessHistoryResult.module.scss'
-import { CheckCircle2, XCircle, Circle, type LucideIcon } from 'lucide-react'
+import {
+  CircleCheck,
+  CircleX,
+  Circle,
+  CircleMinus,
+  type LucideIcon,
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 const OUTCOME_ICONS: Record<GuessOutcome, LucideIcon> = {
-  [GuessOutcome.Win]: CheckCircle2,
-  [GuessOutcome.Loss]: XCircle,
-  [GuessOutcome.Draw]: Circle,
+  [GuessOutcome.Win]: CircleCheck,
+  [GuessOutcome.Loss]: CircleX,
+  [GuessOutcome.Draw]: CircleMinus,
 } as const
 
 interface GuessHistoryResultIconProps {
-  outcome: GuessOutcome
+  outcome: GuessOutcome | null | undefined
 }
 
 export function GuessHistoryResultIcon({
   outcome,
 }: GuessHistoryResultIconProps) {
-  const Icon = OUTCOME_ICONS[outcome]
+  const Icon = outcome ? OUTCOME_ICONS[outcome] : Circle
   return (
-    <Icon className={styles.resultIcon} data-outcome={outcome.toLowerCase()} />
+    <Icon
+      className={styles.resultIcon}
+      data-outcome={outcome?.toLowerCase() ?? 'failed'}
+    />
   )
 }
 
 interface GuessHistoryResultProps {
-  outcome: GuessOutcome
+  outcome: GuessOutcome | null | undefined
 }
 
 export function GuessHistoryResult({ outcome }: GuessHistoryResultProps) {
@@ -38,8 +47,11 @@ export function GuessHistoryResult({ outcome }: GuessHistoryResultProps) {
   return (
     <div className={styles.container}>
       <GuessHistoryResultIcon outcome={outcome} />
-      <span className={styles.resultText} data-outcome={outcome.toLowerCase()}>
-        {RESULT_TEXT[outcome]}
+      <span
+        className={styles.resultText}
+        data-outcome={outcome?.toLowerCase() ?? 'failed'}
+      >
+        {outcome ? RESULT_TEXT[outcome] : t('result.failed')}
       </span>
     </div>
   )

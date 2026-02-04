@@ -34,11 +34,11 @@
         },
         "scheduleGuessLambda": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/scheduleGuessLambda-447a7069513559376d72-build.zip"
+          "s3Key": "amplify-builds/scheduleGuessLambda-39557755585246545061-build.zip"
         },
         "settleGuessLambda": {
           "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/settleGuessLambda-63414851697a704c502b-build.zip"
+          "s3Key": "amplify-builds/settleGuessLambda-2b614d654a504d423431-build.zip"
         }
       }
     }

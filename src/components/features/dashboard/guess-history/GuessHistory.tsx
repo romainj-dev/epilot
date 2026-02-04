@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table/Table'
 import { Button } from '@/components/ui/button/Button'
-import { type Guess } from '@/graphql/generated/graphql'
+import { type Guess, GuessStatus } from '@/graphql/generated/graphql'
 import { useGuessHistory } from '@/components/features/dashboard/hooks/useGuessHooks'
 import styles from './GuessHistory.module.scss'
 import {
@@ -54,13 +54,11 @@ function MobileHistory({ history }: MobileHistoryProps) {
   return (
     <div className={styles.mobileView} data-testid="guess-history-mobile">
       {history.map((guess) => {
-        if (!guess.outcome) return null
-
         return (
           <div
             key={guess.id}
             className={styles.mobileCard}
-            data-outcome={guess.outcome.toLowerCase()}
+            data-outcome={guess.outcome?.toLowerCase() ?? 'failed'}
           >
             <div className={styles.mobileCardHeader}>
               <div className={styles.mobileCardLeft}>
@@ -119,8 +117,6 @@ function DesktopHistory({ history }: DesktopHistoryProps) {
 
         <TableBody>
           {history.map((guess) => {
-            if (!guess.outcome) return null
-
             return (
               <TableRow key={guess.id} className={styles.tableRow}>
                 <TableCell>
@@ -171,7 +167,7 @@ export function GuessHistory() {
 
   // Filter out any pending guesses (they should appear in GuessAction, not here)
   const settledHistory = (history ?? []).filter(
-    (guess) => guess.outcome !== null
+    (guess) => guess.status !== GuessStatus.Pending
   )
 
   const isEmpty = settledHistory.length === 0

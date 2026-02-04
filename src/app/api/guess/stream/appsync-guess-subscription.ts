@@ -83,8 +83,8 @@ export function ensureGuessSubscription(
         },
         extractData: (payload) => payload.onUpdateGuess,
         validateData: isGuessUpdate,
-        // Only broadcast settled guesses (server-side filtering)
-        filterData: (guess) => guess.status === GuessStatus.Settled,
+        // Broadcast settled and failed guesses (server-side filtering)
+        filterData: (guess) => guess.status !== GuessStatus.Pending,
       },
       logPrefix: '[Guess Realtime]',
     },

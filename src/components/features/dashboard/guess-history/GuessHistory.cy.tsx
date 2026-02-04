@@ -228,4 +228,84 @@ describe('GuessHistory Component', () => {
 
     cy.getByTestId('load-more-button').should('not.exist')
   })
+
+  it('should display FAILED guess in DESKTOP table with correct data', () => {
+    const mockGuesses: Guess[] = [
+      {
+        id: 'guess-failed',
+        owner: 'test-user-id',
+        direction: GuessDirection.Up,
+        status: GuessStatus.Failed,
+        outcome: null,
+        startPrice: 98000.0,
+        endPrice: null,
+        settleAt: new Date(Date.now() - 3600000).toISOString(),
+        createdAt: new Date(Date.now() - 3660000).toISOString(),
+        updatedAt: new Date(Date.now() - 3600000).toISOString(),
+      },
+    ]
+
+    cy.intercept('POST', '/api/graphql', (req) => {
+      if (req.body.operationName === 'GuessesByOwner') {
+        req.reply({
+          data: {
+            guessesByOwner: {
+              items: mockGuesses,
+              nextToken: null,
+            },
+          },
+        })
+      }
+    }).as('listGuessHistory')
+
+    cy.mount(<GuessHistory />)
+
+    cy.wait('@listGuessHistory')
+
+    cy.getByTestId('guess-history-desktop').within(() => {
+      cy.contains('UP').should('be.visible')
+      cy.contains('$98,000.00').should('be.visible')
+      cy.contains('Failed').should('be.visible')
+    })
+  })
+
+  it('should display FAILED guess in MOBILE view with correct data', () => {
+    const mockGuesses: Guess[] = [
+      {
+        id: 'guess-failed',
+        owner: 'test-user-id',
+        direction: GuessDirection.Down,
+        status: GuessStatus.Failed,
+        outcome: null,
+        startPrice: 99000.0,
+        endPrice: null,
+        settleAt: new Date(Date.now() - 3600000).toISOString(),
+        createdAt: new Date(Date.now() - 3660000).toISOString(),
+        updatedAt: new Date(Date.now() - 3600000).toISOString(),
+      },
+    ]
+
+    cy.intercept('POST', '/api/graphql', (req) => {
+      if (req.body.operationName === 'GuessesByOwner') {
+        req.reply({
+          data: {
+            guessesByOwner: {
+              items: mockGuesses,
+              nextToken: null,
+            },
+          },
+        })
+      }
+    }).as('listGuessHistory')
+
+    cy.viewport(375, 812)
+    cy.mount(<GuessHistory />)
+
+    cy.wait('@listGuessHistory')
+
+    cy.getByTestId('guess-history-mobile').within(() => {
+      cy.contains('DOWN').should('be.visible')
+      cy.contains('$99,000.00').should('be.visible')
+    })
+  })
 })

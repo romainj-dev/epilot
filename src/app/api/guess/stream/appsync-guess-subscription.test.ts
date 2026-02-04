@@ -58,7 +58,7 @@ describe('appsync-guess-subscription', () => {
     expect(ownerParam).toBe(owner)
   })
 
-  it('filters data to only pass SETTLED guesses', () => {
+  it('filters data to pass SETTLED and FAILED guesses', () => {
     const owner = 'user-123'
     const idToken = 'test-token'
     const onGuessUpdate = jest.fn()
@@ -81,12 +81,18 @@ describe('appsync-guess-subscription', () => {
       updatedAt: '2026-01-01T00:01:00Z',
     }
 
+    const failedGuess = {
+      ...settledGuess,
+      status: GuessStatus.Failed,
+    }
+
     const pendingGuess = {
       ...settledGuess,
       status: GuessStatus.Pending,
     }
 
     expect(filterData!(settledGuess)).toBe(true)
+    expect(filterData!(failedGuess)).toBe(true)
     expect(filterData!(pendingGuess)).toBe(false)
   })
 

@@ -145,6 +145,11 @@
     "countdown": "{seconds}s",
     "idleHint": "Predict whether BTC will be higher or lower in 60 seconds"
   },
+  "dashboardGuessSettlement": {
+    "error": {
+      "failed": "An error occurred while settling your guess"
+    }
+  },
   "dashboardGuessHistory": {
     "title": "Recent Predictions",
     "empty": "No predictions yet. Place your first guess!",
@@ -155,7 +160,8 @@
     "result": {
       "win": "Win",
       "loss": "Loss",
-      "draw": "Draw"
+      "draw": "Draw",
+      "failed": "Failed"
     },
     "table": {
       "direction": "Direction",

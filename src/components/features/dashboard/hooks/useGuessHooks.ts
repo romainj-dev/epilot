@@ -20,6 +20,8 @@ import {
   ModelSortDirection,
 } from '@/graphql/generated/graphql'
 import { queryKeys } from '@/lib/query-keys'
+import { useToast } from '@/hooks/use-toast'
+import { useTranslations } from 'next-intl'
 
 // ---------------------------------------------------------------------------
 // useActiveGuess - Query for the user's current PENDING guess
@@ -230,6 +232,10 @@ export function useGuessSettlementHandler(activeGuess: Guess | null) {
   const owner = session?.user?.id as string
   const queryClient = useQueryClient()
 
+  const t = useTranslations('dashboardGuessSettlement')
+  const { toast } = useToast()
+  const errorDescription = t('error.failed')
+
   const handleSettled = useCallback(
     (settledGuess: Guess) => {
       console.log('[Guess] Handling settlement:', settledGuess.id)
@@ -268,12 +274,22 @@ export function useGuessSettlementHandler(activeGuess: Guess | null) {
         }
       )
 
-      // 3. Invalidate user score to refetch
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.userState.get(owner),
-      })
+      // 3. Show toast for failed guesses
+      if (settledGuess.status === GuessStatus.Failed) {
+        toast({
+          variant: 'secondary',
+          description: errorDescription,
+        })
+      }
+
+      // 4. Invalidate user score to refetch (only for settled guesses)
+      if (settledGuess.status === GuessStatus.Settled) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.userState.get(owner),
+        })
+      }
     },
-    [queryClient, owner]
+    [queryClient, owner, toast, errorDescription]
   )
 
   useGuessSettlementStream({ activeGuess, onSettled: handleSettled })
