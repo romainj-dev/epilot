@@ -117,12 +117,18 @@ importers:
       '@types/ws':
         specifier: ^8.5.13
         version: 8.18.1
+      axe-core:
+        specifier: ^4.11.1
+        version: 4.11.1
       babel-plugin-react-compiler:
         specifier: 1.0.0
         version: 1.0.0
       cypress:
         specifier: ^15.9.0
         version: 15.9.0
+      cypress-axe:
+        specifier: ^1.7.0
+        version: 1.7.0(axe-core@4.11.1)(cypress@15.9.0)
       eslint:
         specifier: ^9
         version: 9.39.2(jiti@2.6.1)
@@ -2959,6 +2965,13 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  cypress-axe@1.7.0:
+    resolution: {integrity: sha512-zzJpvAAjauEB3GZl0KYXb8i3w6MztWAt2WM3czYTFyNVC30alDmqCm9E7GwZ4bgkldZJlmHakaVEyu73R5St4w==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      axe-core: ^3 || ^4
+      cypress: ^10 || ^11 || ^12 || ^13 || ^14 || ^15
 
   cypress@15.9.0:
     resolution: {integrity: sha512-Ks6Bdilz3TtkLZtTQyqYaqtL/WT3X3APKaSLhTV96TmTyudzSjc6EJsJCHmBb7DxO+3R12q3Jkbjgm/iPgmwfg==}
@@ -9067,6 +9080,11 @@ snapshots:
       cssom: 0.3.8
 
   csstype@3.2.3: {}
+
+  cypress-axe@1.7.0(axe-core@4.11.1)(cypress@15.9.0):
+    dependencies:
+      axe-core: 4.11.1
+      cypress: 15.9.0
 
   cypress@15.9.0:
     dependencies:

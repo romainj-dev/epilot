@@ -1,3 +1,4 @@
+import React from 'react'
 import { Button } from './Button'
 
 /**
@@ -21,5 +22,17 @@ describe('Button Component', () => {
     cy.get('a[href="/test"]').should('exist')
     cy.getByTestId('button-loading').should('exist')
     cy.contains('Link Button').should('exist')
+  })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      cy.mount(<Button>Submit</Button>)
+
+      cy.injectAxe()
+      // Check just the button; color-contrast disabled due to dark test background
+      cy.checkA11y('[data-slot="button"]', {
+        rules: { 'color-contrast': { enabled: false } },
+      })
+    })
   })
 })

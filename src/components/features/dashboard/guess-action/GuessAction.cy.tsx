@@ -183,4 +183,40 @@ describe('GuessAction Component', () => {
       )
     })
   })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      const mockSnapshot: PriceSnapshotStream = {
+        id: 'test-snapshot-1',
+        pk: 'BTCUSD',
+        priceUsd: 98765.43,
+        capturedAt: new Date().toISOString(),
+        sourceUpdatedAt: new Date().toISOString(),
+      }
+
+      cy.intercept('POST', '/api/graphql', (req) => {
+        if (req.body.operationName === 'GuessesByOwner') {
+          req.reply({
+            data: {
+              guessesByOwner: {
+                items: [],
+                nextToken: null,
+              },
+            },
+          })
+        }
+      }).as('getActiveGuess')
+
+      cy.mount(
+        <MockPriceSnapshotProvider snapshot={mockSnapshot}>
+          <GuessAction />
+        </MockPriceSnapshotProvider>
+      )
+
+      cy.wait('@getActiveGuess')
+
+      cy.injectAxe()
+      cy.checkA11y('[data-testid="guess-action"]')
+    })
+  })
 })

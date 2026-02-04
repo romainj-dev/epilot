@@ -18,6 +18,18 @@ export default defineConfig({
       runMode: 2,
       openMode: 0,
     },
+    setupNodeEvents(on) {
+      on('task', {
+        log(message) {
+          console.log(message)
+          return null
+        },
+        table(message) {
+          console.table(message)
+          return null
+        },
+      })
+    },
   },
   component: {
     devServer: {

@@ -55,4 +55,25 @@ describe('PriceTickerBig Component', () => {
     cy.getByTestId('price-trend-icon-down').should('exist')
     cy.getByTestId('price-updated-at').should('be.visible')
   })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      const mockSnapshot: PriceSnapshotStream = {
+        id: 'test-snapshot-1',
+        pk: 'BTCUSD',
+        priceUsd: 98765.43,
+        capturedAt: new Date().toISOString(),
+        sourceUpdatedAt: new Date().toISOString(),
+      }
+
+      cy.mount(
+        <MockPriceSnapshotProvider snapshot={mockSnapshot} priceDirection="up">
+          <PriceTickerBig />
+        </MockPriceSnapshotProvider>
+      )
+
+      cy.injectAxe()
+      cy.checkA11y('[data-testid="price-ticker-big"]')
+    })
+  })
 })

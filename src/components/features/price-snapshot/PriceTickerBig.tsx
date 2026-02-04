@@ -110,7 +110,7 @@ export function PriceTickerBig() {
   const animationKey = updatedAt ?? 'LOADING'
 
   return (
-    <Card className={styles.card}>
+    <Card className={styles.card} data-testid="price-ticker-big">
       <CardContent className={styles.content}>
         {error ? (
           <p className={styles.error}>{t('error')}</p>

@@ -27,4 +27,20 @@ describe('TextInput Component', () => {
       "We'll never share your email"
     )
   })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      cy.mount(
+        <TextInput
+          id="test-input"
+          label="Email Address"
+          hint="We'll never share your email"
+          placeholder="Enter your email"
+        />
+      )
+
+      cy.injectAxe()
+      cy.checkA11y('[data-testid="test-input-field"]')
+    })
+  })
 })

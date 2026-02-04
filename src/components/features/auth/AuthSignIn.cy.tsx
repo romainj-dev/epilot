@@ -28,8 +28,29 @@ describe('AuthSignIn Component', () => {
 
     cy.intercept('GET', '/api/auth/providers', {
       statusCode: 200,
-      body: { success: true },
+      body: { credentials: {} },
     }).as('providersRequest')
+
+    // Mock CSRF token endpoint
+    cy.intercept('GET', '/api/auth/csrf', {
+      statusCode: 200,
+      body: { csrfToken: 'mock-csrf-token' },
+    }).as('csrfRequest')
+
+    // Mock the NextAuth signin endpoint (returns success with no error)
+    cy.intercept('POST', '/api/auth/signin/credentials*', {
+      statusCode: 200,
+      body: { ok: true, url: 'http://localhost:8080/dashboard' },
+    }).as('signinRequest')
+
+    // Mock session endpoint (called after successful signin)
+    cy.intercept('GET', '/api/auth/session', {
+      statusCode: 200,
+      body: {
+        user: { email: 'test@example.com' },
+        expires: new Date(Date.now() + 86400000).toISOString(),
+      },
+    }).as('sessionRequest')
 
     cy.mount(<AuthSignIn setError={setError} />)
 
@@ -38,10 +59,22 @@ describe('AuthSignIn Component', () => {
 
     cy.getByTestId('signin-submit').click()
 
-    // Next auth providers request
+    // Wait for NextAuth API calls
     cy.wait('@providersRequest')
+    cy.wait('@signinRequest')
 
-    // Nextauth redirect
-    cy.url().should('include', '/api/auth/signin')
+    // Verify router.push was called with dashboard route (component uses mocked router)
+    cy.get('@router.push').should('have.been.calledWith', '/dashboard')
+  })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      const setError = cy.stub()
+
+      cy.mount(<AuthSignIn setError={setError} />)
+
+      cy.injectAxe()
+      cy.checkA11y('[data-testid="signin-form"]')
+    })
   })
 })

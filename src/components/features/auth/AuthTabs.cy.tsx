@@ -103,4 +103,13 @@ describe('AuthTabs Component', () => {
     // Should automatically switch to sign-in tab
     cy.getByTestId('tab-content-signin').should('be.visible')
   })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      cy.mount(<AuthTabs />)
+
+      cy.injectAxe()
+      cy.checkA11y('[data-testid="auth-tabs"]')
+    })
+  })
 })

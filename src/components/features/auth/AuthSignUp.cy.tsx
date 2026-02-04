@@ -102,4 +102,16 @@ describe('AuthSignUp Component', () => {
 
     cy.get('@onConfirmed').should('have.been.called')
   })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      const setError = cy.stub()
+      const onConfirmed = cy.stub()
+
+      cy.mount(<AuthSignUp setError={setError} onConfirmed={onConfirmed} />)
+
+      cy.injectAxe()
+      cy.checkA11y('[data-testid="signup-form"]')
+    })
+  })
 })

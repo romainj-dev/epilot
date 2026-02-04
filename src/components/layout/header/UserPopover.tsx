@@ -31,7 +31,11 @@ export function UserPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className={styles.avatarButton}>
+        <Button
+          variant="ghost"
+          className={styles.avatarButton}
+          aria-label="Open user menu"
+        >
           <Avatar className={styles.avatar}>
             <AvatarFallback className={styles.avatarFallback}>
               <User className={styles.avatarIcon} />

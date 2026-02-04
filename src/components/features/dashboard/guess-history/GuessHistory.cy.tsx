@@ -308,4 +308,42 @@ describe('GuessHistory Component', () => {
       cy.contains('$99,000.00').should('be.visible')
     })
   })
+
+  describe('Accessibility', () => {
+    it('has no detectable a11y violations', () => {
+      const mockGuesses: Guess[] = [
+        {
+          id: 'guess-1',
+          owner: 'test-user-id',
+          direction: GuessDirection.Up,
+          status: GuessStatus.Settled,
+          outcome: GuessOutcome.Win,
+          startPrice: 98000.0,
+          endPrice: 98500.0,
+          settleAt: new Date(Date.now() - 3600000).toISOString(),
+          createdAt: new Date(Date.now() - 3660000).toISOString(),
+          updatedAt: new Date(Date.now() - 3600000).toISOString(),
+        },
+      ]
+
+      cy.intercept('POST', '/api/graphql', (req) => {
+        if (req.body.operationName === 'GuessesByOwner') {
+          req.reply({
+            data: {
+              guessesByOwner: {
+                items: mockGuesses,
+                nextToken: null,
+              },
+            },
+          })
+        }
+      }).as('listGuessHistory')
+
+      cy.mount(<GuessHistory />)
+      cy.wait('@listGuessHistory')
+
+      cy.injectAxe()
+      cy.checkA11y('[data-testid="guess-history"]')
+    })
+  })
 })

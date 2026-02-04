@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
 
+// Import cypress-axe for accessibility testing
+import 'cypress-axe'
+
 /**
  * Custom Cypress Commands for E2E Testing
  * @see cypress/README.md for usage examples

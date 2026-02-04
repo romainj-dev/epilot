@@ -122,7 +122,8 @@
     "meta": {
       "title": "Dashboard | BitBet",
       "description": "Make your BTC price predictions and compete for the highest score."
-    }
+    },
+    "heading": "Dashboard"
   },
   "dashboardDirectionBadge": {
     "up": "UP",

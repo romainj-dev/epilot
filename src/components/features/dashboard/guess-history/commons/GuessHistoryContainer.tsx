@@ -23,7 +23,7 @@ export function GuessHistoryContainer({
   const t = useTranslations('dashboardGuessHistory')
 
   return (
-    <Card className={styles.card}>
+    <Card className={styles.card} data-testid="guess-history">
       <CardHeader>
         <CardTitle className={styles.cardTitle}>{t('title')}</CardTitle>
       </CardHeader>

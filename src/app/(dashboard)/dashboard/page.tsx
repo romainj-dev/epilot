@@ -29,6 +29,7 @@ export async function generateMetadata() {
 }
 
 export default async function DashboardPage() {
+  const t = await getTranslations('dashboardPage')
   const session = await auth()
   const owner = session?.user?.id
   const idToken = session?.cognitoIdToken
@@ -79,6 +80,7 @@ export default async function DashboardPage() {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className={styles.main}>
+        <h1 className={styles.hiddenPageTitle}>{t('heading')}</h1>
         <ErrorBoundary context="PriceTickerBig" inline>
           <PriceTickerBig />
         </ErrorBoundary>

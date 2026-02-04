@@ -50,7 +50,11 @@ export function AuthSignIn({ setError }: AuthSignInProps) {
   }
 
   return (
-    <form onSubmit={handleSignIn} className={styles.form}>
+    <form
+      onSubmit={handleSignIn}
+      className={styles.form}
+      data-testid="signin-form"
+    >
       <TextInput
         id="signin-email"
         label={t('labels.email')}

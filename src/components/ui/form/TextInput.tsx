@@ -24,7 +24,7 @@ export function TextInput({
   ...props
 }: TextInputProps) {
   return (
-    <div className={styles.field}>
+    <div className={styles.field} data-testid={`${id}-field`}>
       <label htmlFor={id} className={styles.label} data-testid={`${id}-label`}>
         {label}
       </label>

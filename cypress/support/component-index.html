@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -15,12 +15,43 @@
           Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
         background-color: hsl(226, 43%, 10%);
       }
+
+      .skip-link {
+        position: absolute;
+        left: -999px;
+        top: 8px;
+        padding: 8px 12px;
+        background: #ffffff;
+        color: #000000;
+        border-radius: 4px;
+        z-index: 1000;
+      }
+
+      .skip-link:focus {
+        left: 8px;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <!-- Next.js expects __next container -->
     <div id="__next">
-      <div data-cy-root></div>
+      <main id="main-content">
+        <h1 class="visually-hidden">Component Test</h1>
+        <div data-cy-root></div>
+      </main>
     </div>
   </body>
 </html>

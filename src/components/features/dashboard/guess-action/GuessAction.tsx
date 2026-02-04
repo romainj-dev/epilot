@@ -95,7 +95,7 @@ export function GuessAction() {
   const { data: activeGuess } = useActiveGuess()
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-testid="guess-action">
       <GuessButtons hasActiveGuess={!!activeGuess} />
 
       {activeGuess ? (
