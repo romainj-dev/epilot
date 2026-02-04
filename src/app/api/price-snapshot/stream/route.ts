@@ -1,3 +1,16 @@
+/**
+ * GET /api/price-snapshot/stream
+ *
+ * Server-Sent Events endpoint streaming real-time Bitcoin price updates.
+ * Sends initial snapshot immediately, then broadcasts updates as they're captured.
+ *
+ * Auth: Public (no authentication required)
+ * Response: text/event-stream
+ * Events:
+ *   - snapshot: { price: number, capturedAt: string, ... }
+ *   - error: { message: string }
+ */
+
 import { type NextRequest } from 'next/server'
 
 import {
@@ -18,9 +31,6 @@ export const dynamic = 'force-dynamic'
 
 const PRICE_SNAPSHOT_PK = 'PriceSnapshot'
 
-/**
- * Fetch the latest price snapshot via the GSI on capturedAt.
- */
 async function queryLatestPriceSnapshot(): Promise<PriceSnapshotStream | null> {
   const variables = {
     pk: PRICE_SNAPSHOT_PK,
@@ -39,7 +49,6 @@ async function queryLatestPriceSnapshot(): Promise<PriceSnapshotStream | null> {
 export async function GET(req: NextRequest) {
   const stream = createSSEStream<StreamMessage>(req, {
     async onStart(send) {
-      // Register with relay to receive broadcast updates
       addClient(send)
 
       // Send initial snapshot immediately so clients don't wait

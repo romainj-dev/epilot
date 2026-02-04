@@ -1,3 +1,16 @@
+/**
+ * NextAuth configuration with AWS Cognito authentication
+ *
+ * Implements server-side authentication using Cognito User Pools with automatic
+ * token refresh. Stores Cognito tokens in the JWT session for use in AppSync requests.
+ *
+ * Auth flow:
+ * 1. User signs in with email/password → Cognito validates
+ * 2. Cognito tokens stored in NextAuth JWT (encrypted)
+ * 3. JWT callback refreshes expired tokens automatically
+ * 4. Session callback exposes tokens to server-side code
+ */
+
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import {
@@ -22,8 +35,6 @@ function getCognitoClient(): CognitoIdentityProviderClient {
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
-  // Keep env validation lazy: don't throw at import-time. If this is misconfigured,
-  // auth flows will fail when invoked (and CI/prod should provide this env var).
   secret: getAuthSecret(),
   session: { strategy: 'jwt' },
   pages: { signIn: '/auth' },
@@ -56,7 +67,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const idToken = response.AuthenticationResult?.IdToken
         const refreshToken = response.AuthenticationResult?.RefreshToken
         if (!idToken) {
-          // MFA or other challenges are not handled in MVP.
           return null
         }
 

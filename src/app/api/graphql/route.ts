@@ -1,3 +1,14 @@
+/**
+ * POST /api/graphql
+ *
+ * GraphQL proxy endpoint for client-side requests to AppSync.
+ * Adds user authentication and forwards operations to AppSync backend.
+ *
+ * Auth: Required (Cognito ID token via NextAuth session)
+ * Body: { query: string, variables?: object, operationName?: string }
+ * Response: Standard GraphQL response { data } or { errors }
+ */
+
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { auth } from '@/lib/auth'
@@ -41,7 +52,7 @@ export async function POST(req: NextRequest) {
     if (error instanceof AppSyncError) {
       return NextResponse.json(
         { errors: error.errors ?? [{ message: error.message }] },
-        { status: 200 } // GraphQL convention: return 200 with errors
+        { status: 200 }
       )
     }
 

@@ -1,3 +1,11 @@
+/**
+ * Guess settlement SSE relay
+ *
+ * Bridges AppSync subscriptions to multiple SSE clients per user.
+ * Maintains one WebSocket per user, shared by multiple browser connections.
+ * Automatically manages lifecycle: connects on first client, disconnects when idle.
+ */
+
 import 'server-only'
 
 import type { OnUpdateGuessSubscription } from '@/graphql/generated/graphql'
@@ -22,9 +30,6 @@ export type GuessSettledPayload = NonNullable<
 // Map of owner -> relay state
 const relays = new Map<string, RelayState<GuessStreamMessage>>()
 
-/**
- * Get or create a relay state for a specific user
- */
 function getOrCreateRelay(owner: string): RelayState<GuessStreamMessage> {
   let relay = relays.get(owner)
   if (!relay) {
@@ -53,7 +58,6 @@ function startUpstream(owner: string, idToken: string): void {
 
   relay.upstreamHandle = ensureGuessSubscription(owner, idToken, {
     onGuessUpdate: (guess) => {
-      // Broadcast settled guesses (already filtered in subscription)
       broadcast(
         relay,
         { type: 'settled', payload: guess },
@@ -76,9 +80,6 @@ function startUpstream(owner: string, idToken: string): void {
   console.log(`[Guess Relay] Upstream subscription started for ${owner}`)
 }
 
-/**
- * Stop the upstream AppSync subscription for a specific user
- */
 function stopUpstream(owner: string): void {
   const relay = relays.get(owner)
   if (!relay || !relay.upstreamHandle) {
@@ -95,9 +96,6 @@ function stopUpstream(owner: string): void {
   }
 }
 
-/**
- * Register a new SSE client with the relay for a specific user
- */
 export function addGuessClient(
   owner: string,
   idToken: string,
@@ -113,9 +111,6 @@ export function addGuessClient(
   )
 }
 
-/**
- * Unregister an SSE client from the relay for a specific user
- */
 export function removeGuessClient(
   owner: string,
   send: ClientSendFunction<GuessStreamMessage>
@@ -133,9 +128,6 @@ export function removeGuessClient(
   }
 }
 
-/**
- * Get the current number of connected clients for a user (for debugging/logging)
- */
 export function getClientCount(owner: string): number {
   const relay = relays.get(owner)
   return relay?.clients.size ?? 0

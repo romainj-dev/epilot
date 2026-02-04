@@ -1,5 +1,25 @@
+/**
+ * AppSync HTTP client for Lambda functions
+ *
+ * Minimal GraphQL client using Node.js https module (no dependencies).
+ * Supports both API key and Cognito authentication for server-side Lambda operations.
+ */
+
 const https = require('https')
 
+/**
+ * Execute a GraphQL request against AppSync
+ *
+ * @param {Object} params - Request parameters
+ * @param {string} params.endpoint - AppSync HTTP endpoint URL
+ * @param {string} [params.apiKey] - AppSync API key (for public operations)
+ * @param {string} [params.idToken] - Cognito ID token (for user-specific operations)
+ * @param {string} params.query - GraphQL query or mutation string
+ * @param {Object} [params.variables] - GraphQL variables
+ * @param {Function} [params.onResponse] - Callback with raw response ({ statusCode, body })
+ * @returns {Promise<Object>} GraphQL response data
+ * @throws {Error} On network errors or GraphQL errors
+ */
 function makeAppSyncRequest({
   endpoint,
   apiKey,

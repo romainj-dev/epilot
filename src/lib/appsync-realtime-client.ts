@@ -1,36 +1,28 @@
+/**
+ * AppSync WebSocket realtime subscription client
+ *
+ * Manages persistent WebSocket connections to AppSync for GraphQL subscriptions.
+ * Supports per-user connections with automatic reconnection and graceful cleanup.
+ *
+ * Key features:
+ * - Multiple subscribers share a single WebSocket per user
+ * - Automatic reconnection on disconnect
+ * - Grace period before closing idle connections
+ * - Type-safe data validation and filtering
+ */
+
 import 'server-only'
 
 import { type DocumentNode, print } from 'graphql'
 import { WebSocket, type RawData } from 'ws'
 
-/**
- * Generic AppSync WebSocket realtime subscription client.
- *
- * Provides a reusable foundation for AppSync subscriptions with:
- * - Type-safe subscription management
- * - Automatic reconnection
- * - Per-owner or global subscription support
- * - API key or Cognito authentication
- * - Graceful cleanup with configurable grace periods
- */
-
-// ============================================================================
-// UTILITIES
-// ============================================================================
-
-/**
- * Base64-encode data and URL-encode the result for safe query param transmission.
- * AppSync requires base64-encoded auth headers in the WebSocket URL.
- */
+/** Base64-encode and URL-encode for AppSync auth headers */
 function encodeBase64(data: unknown): string {
   return encodeURIComponent(
     Buffer.from(JSON.stringify(data)).toString('base64')
   )
 }
 
-/**
- * Convert WebSocket RawData to string.
- */
 function rawDataToString(data: RawData): string {
   if (typeof data === 'string') {
     return data
@@ -41,13 +33,8 @@ function rawDataToString(data: RawData): string {
   if (Array.isArray(data)) {
     return Buffer.concat(data).toString()
   }
-  // ArrayBuffer
   return Buffer.from(data).toString()
 }
-
-// ============================================================================
-// APPSYNC PROTOCOL TYPES
-// ============================================================================
 
 type AppSyncMessageType =
   | 'connection_ack'
@@ -90,21 +77,16 @@ function isAppSyncMessage(value: unknown): value is AppSyncMessage {
   return isAppSyncMessageType(value.type)
 }
 
-// ============================================================================
-// AUTH CONFIGURATION
-// ============================================================================
-
 /**
- * AppSync authentication configuration.
- * Supports both API key and Cognito user pool authentication.
+ * AppSync authentication configuration
+ *
+ * Supports both API key (for public data) and Cognito (for user-specific data).
  */
 export type AppSyncAuthConfig =
   | { type: 'API_KEY'; apiKey: string }
   | { type: 'COGNITO_USER_POOLS'; idToken: string }
 
-/**
- * Convert AppSync HTTP endpoint to realtime WebSocket endpoint with auth.
- */
+/** Convert AppSync HTTP endpoint to WebSocket URL with auth headers */
 function getAppSyncRealtimeUrl(
   httpEndpoint: string,
   auth: AppSyncAuthConfig
@@ -123,9 +105,7 @@ function getAppSyncRealtimeUrl(
   return `wss://${host}${url.pathname}?header=${encodedHeader}&payload=${encodedPayload}`
 }
 
-/**
- * Build authorization extensions for subscription message.
- */
+/** Build authorization extensions for subscription start message */
 function getAuthExtensions(
   httpEndpoint: string,
   auth: AppSyncAuthConfig
@@ -145,13 +125,6 @@ function getAuthExtensions(
   }
 }
 
-// ============================================================================
-// SUBSCRIPTION CONFIGURATION
-// ============================================================================
-
-/**
- * Configuration for a GraphQL subscription.
- */
 export interface SubscriptionConfig<TData> {
   /** The GraphQL subscription document */
   document: DocumentNode
@@ -166,10 +139,6 @@ export interface SubscriptionConfig<TData> {
   /** Filter predicate (return false to skip broadcasting) */
   filterData?: (data: TData) => boolean
 }
-
-// ============================================================================
-// CLIENT CONFIGURATION
-// ============================================================================
 
 export interface AppSyncRealtimeClientConfig<TData> {
   /** AppSync HTTP endpoint */
@@ -186,10 +155,6 @@ export interface AppSyncRealtimeClientConfig<TData> {
   logPrefix?: string
 }
 
-// ============================================================================
-// CLIENT STATE
-// ============================================================================
-
 interface ClientState<TData> {
   ws: WebSocket | null
   subscriptionId: string | null
@@ -197,10 +162,6 @@ interface ClientState<TData> {
   subscribers: Set<DataCallback<TData>>
   config: AppSyncRealtimeClientConfig<TData>
 }
-
-// ============================================================================
-// PUBLIC API
-// ============================================================================
 
 export type DataCallback<TData> = (data: TData) => void
 
@@ -213,15 +174,11 @@ export interface SubscriptionHandle {
   stop: () => void
 }
 
-// ============================================================================
-// CLIENT IMPLEMENTATION
-// ============================================================================
-
 /**
- * Generic AppSync realtime subscription client.
+ * AppSync realtime subscription client
  *
- * Manages a single WebSocket connection per owner (or globally if owner is null).
- * Supports multiple subscribers sharing the same connection.
+ * Manages WebSocket connections to AppSync subscriptions with automatic lifecycle
+ * management. One connection per owner, shared by multiple subscribers.
  */
 export class AppSyncRealtimeClient<TData> {
   private readonly states = new Map<string | null, ClientState<TData>>()
@@ -252,7 +209,6 @@ export class AppSyncRealtimeClient<TData> {
     const { onData, onError } = callbacks
     const mergedConfig = { ...this.defaultConfig, ...config }
 
-    // Get or create state for this owner
     let state = this.states.get(owner)
     if (!state) {
       state = {
@@ -265,21 +221,18 @@ export class AppSyncRealtimeClient<TData> {
       this.states.set(owner, state)
     }
 
-    // Add subscriber
     state.subscribers.add(onData)
     this.log(
       mergedConfig.logPrefix,
       `Subscriber added${owner ? ` for owner ${owner}` : ''} (total: ${state.subscribers.size})`
     )
 
-    // Connect if not already connected
     if (!state.ws) {
       this.connect(owner, mergedConfig, onError)
     } else if (
       state.ws.readyState === WebSocket.OPEN &&
       !state.subscriptionId
     ) {
-      // Already connected but not subscribed - re-subscribe
       this.subscribeToAppSync(owner, mergedConfig)
     }
 
@@ -297,7 +250,6 @@ export class AppSyncRealtimeClient<TData> {
           `Subscriber removed${owner ? ` for owner ${owner}` : ''} (remaining: ${currentState.subscribers.size})`
         )
 
-        // Schedule cleanup if no more subscribers
         if (currentState.subscribers.size === 0) {
           this.log(
             mergedConfig.logPrefix,
@@ -320,7 +272,14 @@ export class AppSyncRealtimeClient<TData> {
   }
 
   /**
-   * Connect to AppSync WebSocket.
+   * Establish WebSocket connection to AppSync realtime endpoint
+   *
+   * Sets up event handlers for connection lifecycle (open, message, error, close)
+   * and manages automatic reconnection logic for active subscriptions.
+   *
+   * @param owner - Owner ID for per-user connections (null for global)
+   * @param config - Client configuration with endpoint and auth
+   * @param onError - Optional error callback for subscribers
    */
   private connect(
     owner: string | null,
@@ -376,7 +335,6 @@ export class AppSyncRealtimeClient<TData> {
       state.ws = null
       state.subscriptionId = null
 
-      // Attempt reconnection if there are active subscribers
       if (state.subscribers.size > 0 && !state.reconnectTimer) {
         this.log(
           config.logPrefix,
@@ -393,7 +351,15 @@ export class AppSyncRealtimeClient<TData> {
   }
 
   /**
-   * Handle incoming AppSync messages.
+   * Route and handle incoming WebSocket messages from AppSync
+   *
+   * Processes connection lifecycle events, subscription acknowledgments, data payloads,
+   * and errors. Validates and filters data before broadcasting to subscribers.
+   *
+   * @param owner - Owner ID for per-user connections (null for global)
+   * @param config - Client configuration with validation and filter functions
+   * @param message - Raw message from WebSocket
+   * @param onError - Optional error callback for subscribers
    */
   private handleMessage(
     owner: string | null,
@@ -437,7 +403,6 @@ export class AppSyncRealtimeClient<TData> {
           break
         }
 
-        // Apply optional filter
         if (
           config.subscription.filterData &&
           !config.subscription.filterData(rawData)
@@ -447,7 +412,6 @@ export class AppSyncRealtimeClient<TData> {
 
         this.log(config.logPrefix, 'Received data:', rawData)
 
-        // Broadcast to all subscribers
         state.subscribers.forEach((cb) => {
           try {
             cb(rawData)
@@ -474,16 +438,19 @@ export class AppSyncRealtimeClient<TData> {
         state.subscriptionId = null
         break
 
-      default: {
-        // Exhaustive check
-        const _exhaustive: never = message
+      default:
         break
-      }
     }
   }
 
   /**
-   * Send subscription message to AppSync.
+   * Send GraphQL subscription start message over WebSocket
+   *
+   * Generates unique subscription ID and sends start payload with query, variables,
+   * and auth extensions. Only sends if WebSocket is open and not already subscribed.
+   *
+   * @param owner - Owner ID for per-user connections (null for global)
+   * @param config - Client configuration with subscription document and auth
    */
   private subscribeToAppSync(
     owner: string | null,
@@ -534,7 +501,13 @@ export class AppSyncRealtimeClient<TData> {
   }
 
   /**
-   * Unsubscribe from AppSync.
+   * Send stop message to gracefully end AppSync subscription
+   *
+   * Sends stop message with subscription ID and clears the subscription state.
+   * Does nothing if no active subscription exists.
+   *
+   * @param owner - Owner ID for per-user connections (null for global)
+   * @param config - Client configuration with logging
    */
   private unsubscribe(
     owner: string | null,
@@ -561,7 +534,13 @@ export class AppSyncRealtimeClient<TData> {
   }
 
   /**
-   * Disconnect WebSocket.
+   * Close WebSocket connection and clean up state
+   *
+   * Unsubscribes from AppSync, closes socket, clears reconnect timer, and removes
+   * state entry if no subscribers remain. Safe to call multiple times.
+   *
+   * @param owner - Owner ID for per-user connections (null for global)
+   * @param config - Client configuration with logging
    */
   private disconnect(
     owner: string | null,
@@ -586,14 +565,17 @@ export class AppSyncRealtimeClient<TData> {
     state.ws.close()
     state.ws = null
 
-    // Clean up state if no subscribers
     if (state.subscribers.size === 0) {
       this.states.delete(owner)
     }
   }
 
   /**
-   * Log helper with consistent formatting.
+   * Log message with optional structured data
+   *
+   * @param prefix - Log prefix (from config.logPrefix)
+   * @param message - Log message
+   * @param data - Optional structured data to log
    */
   private log(prefix: string, message: string, data?: unknown): void {
     if (data !== undefined) {

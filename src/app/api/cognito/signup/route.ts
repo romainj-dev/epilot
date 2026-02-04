@@ -1,3 +1,15 @@
+/**
+ * POST /api/cognito/signup
+ *
+ * User registration endpoint for Cognito sign-up.
+ * Creates a new user account requiring email confirmation.
+ *
+ * Auth: Public (no authentication required)
+ * Body: { email: string, password: string }
+ * Response: { ok: true } on success
+ * Next step: Client calls /api/cognito/confirm with verification code
+ */
+
 import { NextResponse } from 'next/server'
 import {
   CognitoIdentityProviderClient,

@@ -1,3 +1,14 @@
+/**
+ * POST /api/cognito/confirm
+ *
+ * Email verification endpoint for confirming user sign-up.
+ * Completes the Cognito registration flow with the emailed verification code.
+ *
+ * Auth: Public (no authentication required)
+ * Body: { email: string, code: string }
+ * Response: { ok: true } on success, { error: string } on failure
+ */
+
 import { NextResponse } from 'next/server'
 import {
   CognitoIdentityProviderClient,

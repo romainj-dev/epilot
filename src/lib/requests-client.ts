@@ -1,3 +1,11 @@
+/**
+ * Client-side GraphQL request handler
+ *
+ * Routes GraphQL operations through Next.js API route (/api/graphql) to avoid
+ * exposing AppSync credentials to the browser. The API route handles authentication
+ * and forwards requests to AppSync with the user's Cognito token.
+ */
+
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import { print, type OperationDefinitionNode } from 'graphql'
 
@@ -10,6 +18,9 @@ function getOperationName<TData, TVariables>(
   return definition?.name?.value
 }
 
+/**
+ * GraphQL-specific error with additional error details from the server
+ */
 export class GraphQLError extends Error {
   constructor(
     message: string,
@@ -25,6 +36,17 @@ type GraphQLResponse<TData> = {
   errors?: Array<{ message: string }>
 }
 
+/**
+ * Execute a typed GraphQL operation via the Next.js API proxy
+ *
+ * Sends requests to /api/graphql which adds authentication and forwards to AppSync.
+ * Used by React Query hooks for all client-side data fetching.
+ *
+ * @param document - Code-generated typed GraphQL document
+ * @param variables - GraphQL variables (type-safe)
+ * @returns Typed GraphQL response data
+ * @throws {GraphQLError} On GraphQL errors or network failures
+ */
 export async function fetchGraphQLClient<TData, TVariables>(
   document: TypedDocumentNode<TData, TVariables>,
   variables?: TVariables

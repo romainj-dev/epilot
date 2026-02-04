@@ -1,3 +1,11 @@
+/**
+ * Price snapshot SSE relay
+ *
+ * Bridges AppSync subscription to multiple SSE clients (global broadcast).
+ * Maintains a single WebSocket shared by all connected users.
+ * Automatically manages lifecycle: connects on first client, disconnects when idle.
+ */
+
 import 'server-only'
 
 import type { OnCreatePriceSnapshotSubscription } from '@/graphql/generated/graphql'
@@ -18,9 +26,6 @@ export type StreamMessage =
 
 const relay: RelayState<StreamMessage> = createRelayState<StreamMessage>()
 
-/**
- * Convert an AppSync subscription snapshot to a stream message payload.
- */
 function toStreamPayload(
   snapshot: NonNullable<
     OnCreatePriceSnapshotSubscription['onCreatePriceSnapshot']
@@ -63,9 +68,6 @@ function startUpstream(): void {
   console.log('[Relay] Upstream subscription started')
 }
 
-/**
- * Stop the upstream AppSync subscription.
- */
 function stopUpstream(): void {
   if (!relay.upstreamHandle) {
     return
@@ -76,26 +78,14 @@ function stopUpstream(): void {
   relay.upstreamHandle = null
 }
 
-/**
- * Register a new SSE client with the relay.
- * Starts the upstream subscription on the first client.
- */
 export function addClient(send: ClientSendFunction<StreamMessage>): void {
   addClientGeneric(relay, send, startUpstream)
 }
 
-/**
- * Unregister an SSE client from the relay.
- * Stops the upstream subscription when the last client disconnects
- * (after a grace period handled by the upstream subscription itself).
- */
 export function removeClient(send: ClientSendFunction<StreamMessage>): void {
   removeClientGeneric(relay, send, stopUpstream)
 }
 
-/**
- * Get the current number of connected clients (for debugging/logging).
- */
 export function getClientCount(): number {
   return relay.clients.size
 }

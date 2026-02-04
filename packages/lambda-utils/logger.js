@@ -1,3 +1,10 @@
+/**
+ * Structured logger for Lambda functions
+ *
+ * Simple console wrapper with consistent formatting for CloudWatch Logs.
+ * Adds metadata support for structured logging and searchability.
+ */
+
 function logWithLevel(level, message, meta) {
   if (meta && Object.keys(meta).length > 0) {
     console[level](message, meta)
