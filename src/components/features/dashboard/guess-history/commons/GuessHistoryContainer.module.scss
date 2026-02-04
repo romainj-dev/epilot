@@ -1,0 +1,10 @@
+.card {
+  background: oklch(from var(--card) l c h / 0.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid oklch(from var(--border) l c h / 0.4);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.cardTitle {
+  font-size: theme.fontSize('base');
+}

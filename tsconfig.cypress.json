@@ -12,10 +12,5 @@
     "src/**/*.ts",
     "src/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "amplify/**"
-  ]
+  "exclude": ["node_modules", "**/*.test.ts", "**/*.test.tsx", "amplify/**"]
 }

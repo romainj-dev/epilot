@@ -162,7 +162,7 @@ Cypress.Commands.add('mount', mountWithProviders)
 const SHOULD_STUB_REQUESTS = false
 
 beforeEach(() => {
-  cy.window().then((win) => {
+  cy.window().then(() => {
     // Check if all requests should be stubbed in CI
     // Fails the test if a query is not mocked
     cy.intercept('/api/**', (req) => {
