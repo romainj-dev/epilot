@@ -6,6 +6,7 @@
  * Connects to SSE stream for settlement notifications.
  */
 
+import { useState } from 'react'
 import {
   Card,
   CardContent,
@@ -21,7 +22,7 @@ import {
   getFormattedDateTimeSnapshot,
 } from '@/components/features/price-snapshot/utils'
 import { GUESS_DURATION_MS } from '@/utils/guess'
-import { useGuessSettlementHandler } from '@/components/features/dashboard/hooks/useGuessHooks'
+import { useGuessSettlementStream } from '@/components/features/dashboard/hooks/useGuessSettlementStream'
 import styles from './ActiveGuess.module.scss'
 import { useCountdown } from './hooks/useCountdown'
 
@@ -40,14 +41,13 @@ function Info({ label, value }: InfoProps) {
 }
 
 interface CountdownProps {
-  timeRemaining: number
+  secondsRemaining: number
 }
 
-function Countdown({ timeRemaining }: CountdownProps) {
+function Countdown({ secondsRemaining }: CountdownProps) {
   const t = useTranslations('dashboardGuessAction')
 
-  const seconds = Math.ceil(timeRemaining / 1000)
-  const countdownText = t('countdown', { seconds })
+  const countdownText = t('countdown', { seconds: secondsRemaining })
 
   return (
     <span className={styles.countdown} data-testid="guess-countdown">
@@ -57,20 +57,27 @@ function Countdown({ timeRemaining }: CountdownProps) {
 }
 
 interface ProgressBarProps {
-  timeRemaining: number
+  createdAt: string
 }
 
-function ProgressBar({ timeRemaining }: ProgressBarProps) {
-  const progressPercent =
-    ((GUESS_DURATION_MS - timeRemaining) / GUESS_DURATION_MS) * 100
+function ProgressBar({ createdAt }: ProgressBarProps) {
+  // Calculate elapsed time to start animation at correct position
+  const [animationParams] = useState(() => {
+    const elapsedMs = Date.now() - new Date(createdAt).getTime()
+    const remainingMs = Math.max(0, GUESS_DURATION_MS - elapsedMs)
+    return { elapsed: elapsedMs, remaining: remainingMs }
+  })
 
   return (
     <div className={styles.progressBar}>
       <div
         className={styles.progressFill}
-        style={{
-          width: `${Math.min(100, Math.max(0, progressPercent))}%`,
-        }}
+        style={
+          {
+            '--duration': `${animationParams.remaining}ms`,
+            '--delay': `-${animationParams.elapsed}ms`,
+          } as React.CSSProperties
+        }
       />
     </div>
   )
@@ -78,10 +85,11 @@ function ProgressBar({ timeRemaining }: ProgressBarProps) {
 
 interface StatusProps {
   isWaitingTime: boolean
-  timeRemaining: number
+  secondsRemaining: number
+  createdAt: string
 }
 
-function Status({ isWaitingTime, timeRemaining }: StatusProps) {
+function Status({ isWaitingTime, secondsRemaining, createdAt }: StatusProps) {
   const t = useTranslations('dashboardGuessAction')
 
   return (
@@ -90,10 +98,10 @@ function Status({ isWaitingTime, timeRemaining }: StatusProps) {
         <span className={styles.statusLabel}>
           {isWaitingTime ? t('status.waitingTime') : t('status.waitingPrice')}
         </span>
-        {isWaitingTime && <Countdown timeRemaining={timeRemaining} />}
+        {isWaitingTime && <Countdown secondsRemaining={secondsRemaining} />}
       </div>
 
-      {isWaitingTime && <ProgressBar timeRemaining={timeRemaining} />}
+      {isWaitingTime && <ProgressBar createdAt={createdAt} />}
     </div>
   )
 }
@@ -104,15 +112,18 @@ interface ActiveGuessProps {
 
 export function ActiveGuess({ guess }: ActiveGuessProps) {
   const t = useTranslations('dashboardGuessAction')
+  const { secondsRemaining } = useCountdown({ settleAt: guess.settleAt })
+  const isWaitingTime = secondsRemaining !== null ? secondsRemaining > 0 : null
 
   // Set up SSE stream for guess settlement
-  // TODO: start the stream only after 60sec + keepAliveMs: 1_000,
-  useGuessSettlementHandler(guess)
+  useGuessSettlementStream({ guessId: guess.id, secondsRemaining })
 
-  const timeRemaining = useCountdown({ settleAt: guess.settleAt })
-  const isWaitingTime = timeRemaining > 0
+  const { startPrice, settleAt, direction } = guess
 
-  const { startPrice, createdAt, direction } = guess
+  // settleAt is the source of truth - guess.createdAt is the database timestamp
+  const createdAt = new Date(
+    new Date(settleAt).getTime() - GUESS_DURATION_MS
+  ).toISOString()
 
   return (
     <Card className={styles.activeCard} data-testid="guess-active">
@@ -148,7 +159,13 @@ export function ActiveGuess({ guess }: ActiveGuessProps) {
         </div>
 
         {/* Countdown / Status */}
-        <Status isWaitingTime={isWaitingTime} timeRemaining={timeRemaining} />
+        {isWaitingTime !== null && secondsRemaining !== null ? (
+          <Status
+            isWaitingTime={isWaitingTime}
+            secondsRemaining={secondsRemaining}
+            createdAt={createdAt}
+          />
+        ) : null}
       </CardContent>
     </Card>
   )

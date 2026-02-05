@@ -1,41 +1,49 @@
 /**
  * useCountdown - Live countdown timer for guess settlement
  *
- * Updates every 100ms for smooth progress bar animations.
+ * Updates every 1 second for countdown text display.
+ * Progress bar animation is handled by CSS for smooth rendering.
  * Auto-stops when countdown reaches zero to prevent unnecessary renders.
  */
 
 import { useEffect, useState } from 'react'
 
-const TICK_INTERVAL_MS = 100
+const TICK_INTERVAL_MS = 1_000
 
-function getTimeRemaining(settleAt: string): number {
-  return Math.max(0, new Date(settleAt).getTime() - Date.now())
+function getSecondsRemaining(settleAt: string): number {
+  return Math.max(
+    0,
+    Math.ceil((new Date(settleAt).getTime() - Date.now()) / 1000)
+  )
 }
 
 type UseCountdownParams = {
   settleAt: string
 }
 
-export function useCountdown({ settleAt }: UseCountdownParams): number {
-  const [timeRemaining, setTimeRemaining] = useState(0)
+export function useCountdown({ settleAt }: UseCountdownParams) {
+  const [secondsRemaining, setSecondsRemaining] = useState<number | null>(null)
 
   useEffect(() => {
     const tick = () => {
-      const remaining = getTimeRemaining(settleAt)
-      setTimeRemaining(remaining)
+      const remaining = getSecondsRemaining(settleAt)
+      setSecondsRemaining(remaining)
       return remaining
     }
 
-    // Do not start the countdown if it has already expired
-    if (tick() <= 0) return
+    const initialRemaining = tick()
+    if (initialRemaining <= 0) {
+      return
+    }
 
     const intervalId = setInterval(() => {
-      if (tick() <= 0) clearInterval(intervalId)
+      if (tick() <= 0) {
+        clearInterval(intervalId)
+      }
     }, TICK_INTERVAL_MS)
 
     return () => clearInterval(intervalId)
   }, [settleAt])
 
-  return settleAt ? timeRemaining : 0
+  return { secondsRemaining }
 }

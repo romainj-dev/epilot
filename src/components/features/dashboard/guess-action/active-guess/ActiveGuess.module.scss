@@ -115,5 +115,16 @@
 .progressFill {
   height: 100%;
   background: var(--primary);
-  transition: width 0.1s;
+  width: 0%;
+  animation: progress-fill var(--duration, 60000ms) linear forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes progress-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }

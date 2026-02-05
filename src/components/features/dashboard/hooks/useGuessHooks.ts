@@ -2,10 +2,8 @@
  * Guess management hooks for Bitcoin price prediction game
  *
  * Provides data fetching, mutations, and real-time settlement handling for user guesses.
- * Integrates optimistic updates and SSE streams for responsive UX.
  */
 
-import { useCallback, useEffect } from 'react'
 import { useSession } from '@/hooks/use-session'
 
 import {
@@ -27,8 +25,6 @@ import {
   ModelSortDirection,
 } from '@/graphql/generated/graphql'
 import { queryKeys } from '@/lib/query-keys'
-import { useToast } from '@/hooks/use-toast'
-import { useTranslations } from 'next-intl'
 
 /**
  * Fetches the user's current active (PENDING) guess
@@ -70,7 +66,7 @@ type CreateGuessContext = {
  *
  * Required because the cache stores query results, not raw entities.
  */
-function wrapGuessAsQueryData(guess: Guess | null): GuessesByOwnerQuery {
+export function wrapGuessAsQueryData(guess: Guess | null): GuessesByOwnerQuery {
   return {
     guessesByOwner: {
       __typename: 'ModelGuessConnection',
@@ -190,126 +186,4 @@ export function useGuessHistory() {
           page.guessesByOwner?.items?.filter(Boolean) ?? []
       ) as Guess[],
   })
-}
-
-type UseGuessSettlementStreamOptions = {
-  activeGuess: Guess | null
-  onSettled: (guess: Guess) => void
-}
-
-/**
- * Connects to SSE stream for real-time guess settlement notifications
- *
- * Avoids connecting during optimistic updates (temp- prefixed IDs).
- */
-export function useGuessSettlementStream({
-  activeGuess,
-  onSettled,
-}: UseGuessSettlementStreamOptions) {
-  // avoid connecting to the stream on optimistic update
-  const shouldConnect = !!activeGuess && !activeGuess.id.startsWith('temp-')
-
-  useEffect(() => {
-    if (!shouldConnect) return
-
-    console.log('[SSE] Connecting to guess settlement stream')
-    const source = new EventSource('/api/guess/stream')
-
-    function handleSettled(event: MessageEvent) {
-      try {
-        const guess = JSON.parse(event.data) as Guess
-        console.log('[SSE] Received settled event:', guess.id)
-        onSettled(guess)
-      } catch (error) {
-        console.error('[SSE] Failed to parse settled event:', error)
-      }
-    }
-
-    source.addEventListener('settled', handleSettled)
-
-    source.onerror = (error) => {
-      console.error('[SSE] Guess stream error:', error)
-      // EventSource will automatically reconnect on error
-    }
-
-    return () => {
-      console.log('[SSE] Disconnecting from guess settlement stream')
-      source.removeEventListener('settled', handleSettled)
-      source.close()
-    }
-  }, [shouldConnect, onSettled])
-}
-
-/**
- * Orchestrates guess settlement handling
- *
- * Combines SSE stream with cache updates, toast notifications, and score invalidation.
- * This is the integration layer between real-time events and React Query cache.
- */
-export function useGuessSettlementHandler(activeGuess: Guess | null) {
-  const { data: session } = useSession()
-  const owner = session?.user?.id as string
-  const queryClient = useQueryClient()
-
-  const t = useTranslations('dashboardGuessSettlement')
-  const { toast } = useToast()
-  const errorDescription = t('error.failed')
-
-  const handleSettled = useCallback(
-    (settledGuess: Guess) => {
-      console.log('[Guess] Handling settlement:', settledGuess.id)
-
-      // 1. Clear active guess (store empty query data shape)
-      queryClient.setQueryData(
-        queryKeys.guess.active(owner),
-        wrapGuessAsQueryData(null)
-      )
-
-      // 2. Prepend to history (optimistic insert)
-      queryClient.setQueryData<InfiniteData<GuessesByOwnerQuery> | undefined>(
-        queryKeys.guess.history(owner),
-        (old) => {
-          if (!old) return old
-
-          const firstPage = old.pages[0]
-          if (!firstPage) return old
-
-          return {
-            ...old,
-            pages: [
-              {
-                ...firstPage,
-                guessesByOwner: {
-                  ...firstPage.guessesByOwner,
-                  items: [
-                    settledGuess,
-                    ...(firstPage.guessesByOwner?.items ?? []),
-                  ],
-                },
-              },
-              ...old.pages.slice(1),
-            ],
-          }
-        }
-      )
-
-      // 3. Show toast for failed guesses
-      if (settledGuess.status === GuessStatus.Failed) {
-        toast({
-          variant: 'secondary',
-          description: errorDescription,
-        })
-      }
-
-      // 4. Invalidate user score to refetch (only for settled guesses)
-      if (settledGuess.status === GuessStatus.Settled) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.userState.get(owner),
-        })
-      }
-    },
-    [queryClient, owner, toast, errorDescription]
-  )
-
-  useGuessSettlementStream({ activeGuess, onSettled: handleSettled })
 }
