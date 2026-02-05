@@ -37,6 +37,10 @@ The repository contains `amplify/team-provider-info.json` with the original deve
 rm amplify/team-provider-info.json
 ```
 
+### 2.1 (Optional) Project name
+
+Rename the project before initializing if you like in `amplify/.config/project-config.json`
+
 ## 3. Initialize Amplify
 
 Run the Amplify init command:
@@ -64,6 +68,13 @@ Push all backend resources to AWS:
 amplify push
 ```
 
+You'll be prompted with questions:
+
+| Prompt                                    | Answer                 |
+| ----------------------------------------- | ---------------------------------- |
+| Do you want to generate code for your newly created GraphQL API?         | No |
+
+
 This creates:
 
 - **Cognito User Pool** - User authentication
@@ -81,7 +92,7 @@ After deployment, you need to collect several values from the AWS Console.
 ### 5.1 AppSync Endpoint
 
 1. Open [AWS AppSync Console](https://console.aws.amazon.com/appsync/)
-2. Select your API (named like `epilot-dev`)
+2. Select your API (named like `{projectName}-{env}`)
 3. Go to **Settings** in the left sidebar
 4. Copy the **API URL** (looks like `https://xxxxx.appsync-api.region.amazonaws.com/graphql`)
 
@@ -99,7 +110,7 @@ After deployment, you need to collect several values from the AWS Console.
 
 1. Open [AWS Cognito Console](https://console.aws.amazon.com/cognito/)
 2. Click **User pools**
-3. Select your pool (named like `epilotAuth-dev`)
+3. Select your pool (named like `epilotAuth-{env}`)
 4. Go to **App integration** tab
 5. Scroll to **App clients and analytics**
 6. Copy the **Client ID** (not the Client Secret)
@@ -116,11 +127,11 @@ The Lambda functions read configuration from AWS Systems Manager Parameter Store
 
 | Name                                          | Type         | Value                                       |
 | --------------------------------------------- | ------------ | ------------------------------------------- |
-| `/epilot/dev/appsync-endpoint`                | String       | Your AppSync GraphQL endpoint from step 5.1 |
-| `/epilot/dev/appsync-api-key`                 | SecureString | Your AppSync API key from step 5.2          |
-| `/epilot/dev/coingecko-api-key`               | SecureString | Your CoinGecko API key                      |
-| `/epilot/dev/price-snapshot-enabled`          | String       | `true`                                      |
-| `/epilot/dev/price-snapshot-interval-seconds` | String       | `60`                                        |
+| `/{projectName}/{env}/appsync-endpoint`                | String       | Your AppSync GraphQL endpoint from step 5.1 |
+| `/{projectName}/{env}/appsync-api-key`                 | SecureString | Your AppSync API key from step 5.2          |
+| `/{projectName}/{env}/coingecko-api-key`               | SecureString | Your CoinGecko API key                      |
+| `/{projectName}/{env}/price-snapshot-enabled`          | String       | `true`                                      |
+| `/{projectName}/{env}/price-snapshot-interval-seconds` | String       | `60`                                        |
 
 > **Note**: Replace `dev` with your environment name if you used something different in step 3.
 
@@ -131,35 +142,35 @@ ENV=dev
 
 # AppSync GraphQL endpoint (from step 5.1)
 aws ssm put-parameter \
-  --name "/epilot/${ENV}/appsync-endpoint" \
+  --name "/${PROJECT_NAME}/${ENV}/appsync-endpoint" \
   --type "String" \
   --value "<your-appsync-graphql-endpoint>" \
   --overwrite
 
 # AppSync API key (from step 5.2)
 aws ssm put-parameter \
-  --name "/epilot/${ENV}/appsync-api-key" \
+  --name "/${PROJECT_NAME}/${ENV}/appsync-api-key" \
   --type "SecureString" \
   --value "<your-appsync-api-key>" \
   --overwrite
 
 # CoinGecko API key (from your CoinGecko account)
 aws ssm put-parameter \
-  --name "/epilot/${ENV}/coingecko-api-key" \
+  --name "/${PROJECT_NAME}/${ENV}/coingecko-api-key" \
   --type "SecureString" \
   --value "<your-coingecko-api-key>" \
   --overwrite
 
 # Enable price snapshots
 aws ssm put-parameter \
-  --name "/epilot/${ENV}/price-snapshot-enabled" \
+  --name "/${PROJECT_NAME}/${ENV}/price-snapshot-enabled" \
   --type "String" \
   --value "true" \
   --overwrite
 
 # Snapshot interval (seconds)
 aws ssm put-parameter \
-  --name "/epilot/${ENV}/price-snapshot-interval-seconds" \
+  --name "/${PROJECT_NAME}/${ENV}/price-snapshot-interval-seconds" \
   --type "String" \
   --value "60" \
   --overwrite
@@ -197,7 +208,7 @@ The price snapshot job runs via Step Functions. You need to start an execution:
 
 1. Open [AWS Step Functions Console](https://console.aws.amazon.com/states/)
 2. Click **State machines**
-3. Select the scheduler (named like `priceSnapshotScheduler-dev`)
+3. Select the scheduler (named like `priceSnapshotScheduler-{env}`)
 4. Click **Start execution** button (top right)
 5. In the dialog, leave the input as `{}` or default
 6. Click **Start execution** to confirm
@@ -206,10 +217,10 @@ The scheduler will now fetch Bitcoin prices every 60 seconds (or your configured
 
 The web app receives updates via **Server-Sent Events** on `/api/price-snapshot/stream`. The Next.js BFF keeps a single AppSync subscription open and broadcasts new snapshots to connected clients.
 
-> 🛑 **To stop the scheduler**: Set the SSM parameter `/epilot/dev/price-snapshot-enabled` to `false`. The scheduler will stop after its next iteration.
+> 🛑 **To stop the scheduler**: Set the SSM parameter `/{projectName}/{env}/price-snapshot-enabled` to `false`. The scheduler will stop after its next iteration.
 >
 > ```bash
-> aws ssm put-parameter --name "/epilot/dev/price-snapshot-enabled" --type "String" --value "false" --overwrite
+> aws ssm put-parameter --name "/${PROJECT_NAME}/${ENV}/price-snapshot-enabled" --type "String" --value "false" --overwrite
 > ```
 
 ## 8.1 Guess Settlement Pipeline (EventBridge Scheduler)
@@ -281,3 +292,21 @@ These should use parameterized values like `${AWS::AccountId}` instead of hardco
 - Review the [README](./README.md) for architecture details
 - Explore the GraphQL schema in `amplify/backend/api/epilot/schema.graphql`
 - Check Lambda code in `amplify/backend/function/*/src/`
+
+## Delete the app
+
+Run the Amplify delete command:
+
+```bash
+amplify env remove
+```
+That will delete the CloudFormation stack for the env (and therefore most resources it created).
+
+### Troubleshhoting
+
+- If CloudFormation can’t delete everything automatically, go to CloudFormation in `eu-north-1` and delete the stack `amplify-{projectName}-{env}-...`. 
+
+- Typical blockers/leftovers to check:
+- S3 buckets not empty (deployment bucket: `amplify-{projectName}-{env}-...-deployment)`
+- CloudWatch Log Groups for Lambdas (sometimes retained)
+- SSM Parameters you created manually under `/{projectName}/{env}/...` (Amplify won’t delete manual params)

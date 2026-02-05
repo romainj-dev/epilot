@@ -1,5 +1,9 @@
 packages:
   - .
+  - packages/*
+  - amplify/backend/function/*/src
+  - '!amplify/#current-cloud-backend/**'
+  
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
