@@ -12,6 +12,7 @@ import {
   GuessesByOwnerDocument,
   GuessStatus,
   ModelSortDirection,
+  GetUserStateDocument,
 } from '@/graphql/generated/graphql'
 import styles from './page.module.scss'
 import { GuessAction } from '@/components/features/dashboard/guess-action/GuessAction'
@@ -36,7 +37,7 @@ export default async function DashboardPage() {
 
   const queryClient = new QueryClient()
 
-  // Prefetch active guess and first page of history in parallel
+  // Prefetch active guess, history, and user state in parallel
   if (owner && idToken) {
     await Promise.all([
       // Prefetch active guess (PENDING status)
@@ -73,6 +74,16 @@ export default async function DashboardPage() {
         getNextPageParam: (lastPage) =>
           lastPage.guessesByOwner?.nextToken ?? undefined,
         pages: 1,
+      }),
+      // Prefetch user state
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.userState.get(owner),
+        queryFn: () =>
+          fetchGraphQL({
+            document: GetUserStateDocument,
+            variables: { id: owner },
+            idToken,
+          }),
       }),
     ])
   }
