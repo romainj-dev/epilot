@@ -15,7 +15,7 @@ jest.mock('lambda-utils', () => ({
 const { handler } = require('../custom');
 const { ssm, appsync, logger } = require('lambda-utils');
 
-describe('epilotAuthPostConfirmation Lambda handler', () => {
+describe('bigbetAuthPostConfirmation Lambda handler', () => {
   const MOCK_ENDPOINT = 'https://mock-appsync.amazonaws.com/graphql';
   const MOCK_API_KEY = 'da2-mockApiKey123';
   const MOCK_SUB = '123e4567-e89b-12d3-a456-426614174000';

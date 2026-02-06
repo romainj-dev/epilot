@@ -5,7 +5,7 @@
     ],
     "Resource": [
       {
-        "Fn::Sub": "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/guess-settlements/*"
+        "Fn::Sub": "arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/bigbet-guess-settlements-${env}/*"
       }
     ]
   },
@@ -33,7 +33,7 @@
             ":",
             [
               {
-                "Ref": "apiepilotGraphQLAPIIdOutput"
+                "Ref": "apibigbetGraphQLAPIIdOutput"
               },
               "GetAtt:GuessTable:StreamArn"
             ]

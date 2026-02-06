@@ -34,27 +34,27 @@ function resolveTestConfigPartials(env = process.env) {
 
   const appsyncEndpoint =
     env.APPSYNC_ENDPOINT ||
-    amplifyMeta?.api?.epilot?.output?.GraphQLAPIEndpointOutput ||
+    amplifyMeta?.api?.bigbet?.output?.GraphQLAPIEndpointOutput ||
     amplifyConfig?.aws_appsync_graphqlEndpoint
 
   const appsyncApiKey =
     env.APPSYNC_API_KEY ||
-    amplifyMeta?.api?.epilot?.output?.GraphQLAPIKeyOutput ||
+    amplifyMeta?.api?.bigbet?.output?.GraphQLAPIKeyOutput ||
     amplifyConfig?.aws_appsync_apiKey
 
   const cognitoUserPoolId =
     env.COGNITO_USER_POOL_ID ||
-    amplifyMeta?.auth?.epilotAuth?.output?.UserPoolId ||
+    amplifyMeta?.auth?.bigbetAuth?.output?.UserPoolId ||
     amplifyConfig?.aws_user_pools_id
 
   const cognitoClientId =
     env.COGNITO_CLIENT_ID ||
-    amplifyMeta?.auth?.epilotAuth?.output?.AppClientIDWeb ||
+    amplifyMeta?.auth?.bigbetAuth?.output?.AppClientIDWeb ||
     amplifyConfig?.aws_user_pools_web_client_id
 
   const lambdaPostConfirmationArn =
     env.LAMBDA_POST_CONFIRMATION_ARN ||
-    amplifyMeta?.function?.epilotAuthPostConfirmation?.output?.Arn
+    amplifyMeta?.function?.bigbetAuthPostConfirmation?.output?.Arn
 
   const lambdaPriceSnapshotJobArn =
     env.LAMBDA_PRICE_SNAPSHOT_JOB_ARN ||

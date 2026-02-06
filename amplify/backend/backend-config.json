@@ -1,13 +1,13 @@
 {
   "api": {
-    "epilot": {
+    "bigbet": {
       "dependsOn": [
         {
           "attributes": [
             "UserPoolId"
           ],
           "category": "auth",
-          "resourceName": "epilotAuth"
+          "resourceName": "bigbetAuth"
         }
       ],
       "output": {
@@ -20,7 +20,7 @@
           "defaultAuthentication": {
             "authenticationType": "AMAZON_COGNITO_USER_POOLS",
             "userPoolConfig": {
-              "userPoolId": "authepilotAuth"
+              "userPoolId": "authbigbetAuth"
             }
           }
         }
@@ -30,7 +30,7 @@
     }
   },
   "auth": {
-    "epilotAuth": {
+    "bigbetAuth": {
       "customAuth": false,
       "dependsOn": [
         {
@@ -39,7 +39,7 @@
             "Name"
           ],
           "category": "function",
-          "resourceName": "epilotAuthPostConfirmation",
+          "resourceName": "bigbetAuthPostConfirmation",
           "triggerProvider": "Cognito"
         }
       ],
@@ -96,7 +96,7 @@
     }
   },
   "function": {
-    "epilotAuthPostConfirmation": {
+    "bigbetAuthPostConfirmation": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -128,7 +128,7 @@
             "GraphQLAPIIdOutput"
           ],
           "category": "api",
-          "resourceName": "epilot"
+          "resourceName": "bigbet"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -141,19 +141,19 @@
     }
   },
   "parameters": {
-    "AMPLIFY_function_epilotAuthPostConfirmation_deploymentBucketName": {
+    "AMPLIFY_function_bigbetAuthPostConfirmation_deploymentBucketName": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "epilotAuthPostConfirmation"
+          "resourceName": "bigbetAuthPostConfirmation"
         }
       ]
     },
-    "AMPLIFY_function_epilotAuthPostConfirmation_s3Key": {
+    "AMPLIFY_function_bigbetAuthPostConfirmation_s3Key": {
       "usedBy": [
         {
           "category": "function",
-          "resourceName": "epilotAuthPostConfirmation"
+          "resourceName": "bigbetAuthPostConfirmation"
         }
       ]
     },

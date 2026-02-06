@@ -1,11 +1,11 @@
 {
   "version": 1,
   "serviceConfiguration": {
-    "apiName": "epilot",
+    "apiName": "bigbet",
     "serviceName": "AppSync",
     "defaultAuthType": {
       "mode": "AMAZON_COGNITO_USER_POOLS",
-      "cognitoUserPoolId": "authepilotAuth"
+      "cognitoUserPoolId": "authbigbetAuth"
     },
     "additionalAuthTypes": [
       {

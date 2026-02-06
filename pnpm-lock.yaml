@@ -166,7 +166,7 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  amplify/backend/function/epilotAuthPostConfirmation/src:
+  amplify/backend/function/bigbetAuthPostConfirmation/src:
     dependencies:
       '@aws-sdk/client-ssm':
         specifier: ^3.0.0

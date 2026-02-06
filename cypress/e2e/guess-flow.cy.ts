@@ -115,7 +115,7 @@ describe('Core Game Loop - Guess Flow', () => {
     cy.wait(60000)
 
     // Increase timeout due to latency of the guess settlement > DDB update > SSE stream
-    cy.getByTestId('guess-active', { timeout: 30000 }).should('not.exist')
+    cy.getByTestId('guess-active', { timeout: 60000 }).should('not.exist')
     cy.getByTestId('guess-up').should('be.enabled')
     cy.getByTestId('guess-down').should('be.enabled')
 

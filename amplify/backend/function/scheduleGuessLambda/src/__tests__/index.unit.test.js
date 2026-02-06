@@ -24,11 +24,15 @@ describe('scheduleGuessLambda handler', () => {
       'arn:aws:lambda:eu-north-1:123456789012:function:settleGuessLambda-dev'
     process.env.SCHEDULER_ROLE_ARN =
       'arn:aws:iam::123456789012:role/scheduler-role'
+    process.env.SCHEDULER_GROUP_NAME = 'bigbet-guess-settlements-dev'
+    process.env.ENV = 'dev'
   })
 
   afterEach(() => {
     delete process.env.SETTLE_GUESS_LAMBDA_ARN
     delete process.env.SCHEDULER_ROLE_ARN
+    delete process.env.SCHEDULER_GROUP_NAME
+    delete process.env.ENV
   })
 
   it('creates a schedule for INSERT PENDING records', async () => {
@@ -54,7 +58,7 @@ describe('scheduleGuessLambda handler', () => {
     expect(__mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: expect.objectContaining({
-          GroupName: 'guess-settlements',
+          GroupName: 'bigbet-guess-settlements-dev',
           ScheduleExpression: expect.stringMatching(/^at\(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\)$/),
           ActionAfterCompletion: 'DELETE',
           Target: expect.objectContaining({

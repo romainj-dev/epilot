@@ -32,8 +32,8 @@ const setupSSMMocks = () => {
 describe('settleGuessLambda handler', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    process.env.APPSYNC_ENDPOINT_SSM_PATH = '/epilot/dev/appsync-endpoint'
-    process.env.APPSYNC_API_KEY_SSM_PATH = '/epilot/dev/appsync-api-key'
+    process.env.APPSYNC_ENDPOINT_SSM_PATH = '/bigbet/dev/appsync-endpoint'
+    process.env.APPSYNC_API_KEY_SSM_PATH = '/bigbet/dev/appsync-api-key'
     setupSSMMocks()
   })
 
@@ -201,8 +201,8 @@ describe('resolveEndSnapshot edge cases', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.useFakeTimers()
-    process.env.APPSYNC_ENDPOINT_SSM_PATH = '/epilot/dev/appsync-endpoint'
-    process.env.APPSYNC_API_KEY_SSM_PATH = '/epilot/dev/appsync-api-key'
+    process.env.APPSYNC_ENDPOINT_SSM_PATH = '/bigbet/dev/appsync-endpoint'
+    process.env.APPSYNC_API_KEY_SSM_PATH = '/bigbet/dev/appsync-api-key'
     setupSSMMocks()
   })
 

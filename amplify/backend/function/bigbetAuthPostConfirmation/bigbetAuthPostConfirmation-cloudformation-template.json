@@ -67,12 +67,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "epilotAuthPostConfirmation",
+            "bigbetAuthPostConfirmation",
             {
               "Fn::Join": [
                 "",
                 [
-                  "epilotAuthPostConfirmation",
+                  "bigbetAuthPostConfirmation",
                   "-",
                   {
                     "Ref": "env"
@@ -97,7 +97,7 @@
               "Fn::Join": [
                 "",
                 [
-                  "/epilot/",
+                  "/bigbet/",
                   {
                     "Ref": "env"
                   },
@@ -109,7 +109,7 @@
               "Fn::Join": [
                 "",
                 [
-                  "/epilot/",
+                  "/bigbet/",
                   {
                     "Ref": "env"
                   },
@@ -146,12 +146,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "epilotAuthPostConfirmation",
+            "bigbetAuthPostConfirmation",
             {
               "Fn::Join": [
                 "",
                 [
-                  "epilotAuthPostConfirmation",
+                  "bigbetAuthPostConfirmation",
                   "-",
                   {
                     "Ref": "env"
@@ -235,10 +235,10 @@
               ],
               "Resource": [
                 {
-                  "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-endpoint"
+                  "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bigbet/${env}/appsync-endpoint"
                 },
                 {
-                  "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-api-key"
+                  "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bigbet/${env}/appsync-api-key"
                 }
               ],
               "Effect": "Allow"

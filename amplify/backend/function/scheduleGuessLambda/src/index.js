@@ -94,12 +94,15 @@ exports.handler = async (event) => {
 }
 
 async function createSettlementSchedule({ guessId, settleAt }) {
-  const scheduleName = toScheduleName(guessId)
+  const scheduleName = toScheduleName(guessId, process.env.ENV)
   const targetArn = process.env.SETTLE_GUESS_LAMBDA_ARN
   const roleArn = process.env.SCHEDULER_ROLE_ARN
+  const groupName = getSchedulerGroupName()
 
-  if (!targetArn || !roleArn) {
-    throw new Error('Missing SETTLE_GUESS_LAMBDA_ARN or SCHEDULER_ROLE_ARN')
+  if (!targetArn || !roleArn || !groupName) {
+    throw new Error(
+      'Missing SETTLE_GUESS_LAMBDA_ARN, SCHEDULER_ROLE_ARN, or SCHEDULER_GROUP_NAME'
+    )
   }
 
   // EventBridge Scheduler `at()` doesn’t accept fractional seconds reliably; normalize to whole seconds.
@@ -108,7 +111,7 @@ async function createSettlementSchedule({ guessId, settleAt }) {
   await scheduler.send(
     new CreateScheduleCommand({
       Name: scheduleName,
-      GroupName: 'guess-settlements',
+      GroupName: groupName,
       ScheduleExpression: `at(${settleAtIso})`,
       ScheduleExpressionTimezone: 'UTC',
       FlexibleTimeWindow: { Mode: 'OFF' },
@@ -122,10 +125,24 @@ async function createSettlementSchedule({ guessId, settleAt }) {
   )
 }
 
-function toScheduleName(guessId) {
+function getSchedulerGroupName() {
+  if (process.env.SCHEDULER_GROUP_NAME) {
+    return process.env.SCHEDULER_GROUP_NAME
+  }
+
+  const env = process.env.ENV
+  if (!env) {
+    return null
+  }
+
+  return `bigbet-guess-settlements-${env}`
+}
+
+function toScheduleName(guessId, env) {
   // Scheduler name constraints: [0-9A-Za-z-_.] and <= 64 chars
   const safe = String(guessId).replace(/[^0-9A-Za-z-_.]/g, '-')
-  const name = `guess-settle-${safe}`
+  const prefix = env ? `bigbet-${env}-guess-settle-` : 'bigbet-guess-settle-'
+  const name = `${prefix}${safe}`
   return name.length <= 64 ? name : name.slice(0, 64)
 }
 

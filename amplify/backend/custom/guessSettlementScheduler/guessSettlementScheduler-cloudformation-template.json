@@ -13,7 +13,17 @@
     "GuessSettlementScheduleGroup": {
       "Type": "AWS::Scheduler::ScheduleGroup",
       "Properties": {
-        "Name": "guess-settlements"
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              "bigbet-guess-settlements-",
+              {
+                "Ref": "env"
+              }
+            ]
+          ]
+        }
       }
     },
     "SchedulerInvokeRole": {

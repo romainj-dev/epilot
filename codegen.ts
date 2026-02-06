@@ -3,7 +3,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli'
 const config: CodegenConfig = {
   schema: [
     './src/graphql/aws-scalars.graphql',
-    './amplify/backend/api/epilot/build/schema.graphql',
+    './amplify/backend/api/bigbet/build/schema.graphql',
   ],
   documents: [
     'src/**/*.graphql',

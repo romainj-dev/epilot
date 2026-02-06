@@ -17,7 +17,7 @@
           "Fn::Join": [
             "",
             [
-              "/epilot/",
+              "/bigbet/",
               {
                 "Ref": "env"
               },
@@ -37,7 +37,7 @@
           "Fn::Join": [
             "",
             [
-              "/epilot/",
+              "/bigbet/",
               {
                 "Ref": "env"
               },
@@ -100,7 +100,7 @@
           "Fn::Join": [
             "",
             [
-              "priceSnapshotScheduler-",
+              "bigbet-priceSnapshotScheduler-",
               {
                 "Ref": "env"
               }

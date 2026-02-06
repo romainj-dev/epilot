@@ -1,45 +1,48 @@
 {
-  "dev": {
+  "devoss": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-epilot-dev-8116b-authRole",
-      "UnauthRoleArn": "arn:aws:iam::555262464812:role/amplify-epilot-dev-8116b-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::555262464812:role/amplify-epilot-dev-8116b-authRole",
+      "AuthRoleName": "amplify-bigbet-devoss-e5fe7-authRole",
+      "UnauthRoleArn": "arn:aws:iam::555262464812:role/amplify-bigbet-devoss-e5fe7-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::555262464812:role/amplify-bigbet-devoss-e5fe7-authRole",
       "Region": "eu-north-1",
-      "DeploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-      "UnauthRoleName": "amplify-epilot-dev-8116b-unauthRole",
-      "StackName": "amplify-epilot-dev-8116b",
-      "StackId": "arn:aws:cloudformation:eu-north-1:555262464812:stack/amplify-epilot-dev-8116b/351d6180-f606-11f0-935c-0aead9dc5401",
-      "AmplifyAppId": "d3797sawyxy6gy",
-      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-epilot-dev-8116b-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+      "DeploymentBucketName": "amplify-bigbet-devoss-e5fe7-deployment",
+      "UnauthRoleName": "amplify-bigbet-devoss-e5fe7-unauthRole",
+      "StackName": "amplify-bigbet-devoss-e5fe7",
+      "StackId": "arn:aws:cloudformation:eu-north-1:555262464812:stack/amplify-bigbet-devoss-e5fe7/bb2837a0-0353-11f1-b5e5-0ed05b81c0b9",
+      "AmplifyAppId": "d24l4agz94b9ld",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-bigbet-devoss-e5fe7-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
-        "epilotAuth": {}
-      },
-      "api": {
-        "epilot": {}
-      },
-      "custom": {
-        "priceSnapshotScheduler": {},
-        "guessSettlementScheduler": {}
+        "bigbetAuth": {}
       },
       "function": {
-        "epilotAuthPostConfirmation": {
-          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/epilotAuthPostConfirmation-43646d6d583747396b67-build.zip"
+        "bigbetAuthPostConfirmation": {
+          "deploymentBucketName": "amplify-bigbet-devoss-e5fe7-deployment",
+          "s3Key": "amplify-builds/bigbetAuthPostConfirmation-3264556b3158716b6351-build.zip"
         },
         "priceSnapshotJob": {
-          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/priceSnapshotJob-31584436737575726678-build.zip"
+          "deploymentBucketName": "amplify-bigbet-devoss-e5fe7-deployment",
+          "s3Key": "amplify-builds/priceSnapshotJob-5a705347747933693079-build.zip"
         },
         "scheduleGuessLambda": {
-          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/scheduleGuessLambda-39557755585246545061-build.zip"
+          "deploymentBucketName": "amplify-bigbet-devoss-e5fe7-deployment",
+          "s3Key": "amplify-builds/scheduleGuessLambda-464444416e4c41437568-build.zip"
         },
         "settleGuessLambda": {
-          "deploymentBucketName": "amplify-epilot-dev-8116b-deployment",
-          "s3Key": "amplify-builds/settleGuessLambda-2b614d654a504d423431-build.zip"
-        }
+          "deploymentBucketName": "amplify-bigbet-devoss-e5fe7-deployment",
+          "s3Key": "amplify-builds/settleGuessLambda-746177666c336766716a-build.zip"
+        },
+        "guessSettlementScheduler": {},
+        "bigbet": {},
+        "bigbetAuth": {}
+      },
+      "api": {
+        "bigbet": {}
+      },
+      "custom": {
+        "guessSettlementScheduler": {},
+        "priceSnapshotScheduler": {}
       }
     }
   }

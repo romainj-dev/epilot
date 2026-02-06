@@ -5,19 +5,19 @@
     ],
     "Resource": [
       {
-        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-endpoint"
+        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bigbet/${env}/appsync-endpoint"
       },
       {
-        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/appsync-api-key"
+        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bigbet/${env}/appsync-api-key"
       },
       {
-        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/coingecko-api-key"
+        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bigbet/${env}/coingecko-api-key"
       },
       {
-        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/price-snapshot-enabled"
+        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bigbet/${env}/price-snapshot-enabled"
       },
       {
-        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/epilot/${env}/price-snapshot-interval-seconds"
+        "Fn::Sub": "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bigbet/${env}/price-snapshot-interval-seconds"
       }
     ]
   }

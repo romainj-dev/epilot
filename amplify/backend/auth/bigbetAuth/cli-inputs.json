@@ -1,10 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "epilot31343d33_identitypool_31343d33",
+    "identityPoolName": "bigbet31343d33_identitypool_31343d33",
     "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "epilotf62b3e6f",
-    "userPoolName": "epilot_userpool",
+    "resourceNameTruncated": "bigbetf62b3e6f",
+    "userPoolName": "bigbet_userpool",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -31,10 +31,10 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "epilotf62b3e6f_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "bigbetf62b3e6f_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
     "sharedId": "f62b3e6f",
-    "resourceName": "epilotAuth",
+    "resourceName": "bigbetAuth",
     "authSelections": "identityPoolAndUserPool",
     "useDefault": "manual",
     "usernameAttributes": [
@@ -68,7 +68,7 @@
     "dependsOn": [
       {
         "category": "function",
-        "resourceName": "epilotAuthPostConfirmation",
+        "resourceName": "bigbetAuthPostConfirmation",
         "triggerProvider": "Cognito",
         "attributes": [
           "Arn",
@@ -81,7 +81,7 @@
     },
     "permissions": [],
     "authProviders": [],
-    "authTriggerConnections": "[\n  {\n    \"triggerType\": \"PostConfirmation\",\n    \"lambdaFunctionName\": \"epilotAuthPostConfirmation\"\n  }\n]",
+    "authTriggerConnections": "[\n  {\n    \"triggerType\": \"PostConfirmation\",\n    \"lambdaFunctionName\": \"bigbetAuthPostConfirmation\"\n  }\n]",
     "thirdPartyAuth": false
   }
 }

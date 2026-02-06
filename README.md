@@ -142,8 +142,8 @@ src/
 
 amplify/
 └── backend/
-    ├── api/epilot/         # AppSync schema + resolvers
-    ├── auth/epilotAuth/    # Cognito configuration
+    ├── api/bigbet/         # AppSync schema + resolvers
+    ├── auth/bigbetAuth/    # Cognito configuration
     ├── function/           # Lambda functions
     └── custom/             # Step Functions + EventBridge Scheduler
 

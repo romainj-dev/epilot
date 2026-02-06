@@ -152,7 +152,7 @@ function httpsGetJson(urlString, apiKey) {
     const url = new URL(urlString)
     const headers = {
       accept: 'application/json',
-      'user-agent': 'epilot-bitbet-price-snapshot/1.0 (+https://epilot-bitbet.app)',
+      'user-agent': 'bigbet-price-snapshot/1.0 (+https://bigbet.app)',
     }
     if (apiKey) {
       headers[COINGECKO_API_KEY_HEADER] = apiKey

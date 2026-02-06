@@ -3,7 +3,7 @@
  * 
  * Tests the real wiring:
  * - Lambda invocation via AWS SDK
- * - epilotAuthPostConfirmation Lambda logic
+ * - bigbetAuthPostConfirmation Lambda logic
  * - SSM parameter retrieval (AppSync endpoint + API key)
  * - AppSync createUserState mutation (with API key)
  * - DynamoDB persistence via AppSync
