@@ -114,8 +114,10 @@ pnpm build     # Production build
 ## Testing
 
 ```bash
-pnpm test                       # Unit tests (Jest)
+pnpm test                       # All Unit tests (Jest)
 pnpm test:amplify:int           # AWS integration tests
+pnpm test:amplify:unit          # AWS unit tests
+pnpm test:web                   # Next.js unit tests (web + BFF)
 pnpm cypress:component          # Component tests (Cypress)
 pnpm cypress:e2e                # Component tests (Cypress)
 pnpm cypress:open               # Cypress interactive GUI
@@ -158,5 +160,4 @@ cypress/
 ## Conventions
 
 - **Strong typing**: Generated GraphQL types are the source of truth
-- **One active guess**: Enforced at the API layer
 - **BFF architecture**: Client → Next.js routes → AWS services

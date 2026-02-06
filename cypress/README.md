@@ -70,11 +70,11 @@ pnpm dev
 
 ### Tests Fail with "TEST_USER_EMAIL is undefined"
 
-**Solution**: Set test credentials via `cypress.env.json` or environment variables.
+**Solution**: Set test credentials via `cypress.env.json`.
 
 ### Tests Fail with "Invalid credentials"
 
-**Solution**: Ensure the test user exists in Cognito with email confirmed.
+**Solution**: Ensure the test user exists in Cognito with email confirmed (create via UI).
 
 ### Session Not Persisting
 

@@ -10,7 +10,7 @@ Pragmatic, risk-based approach focused on the **core game loop** (price snapshot
 
 | Layer           | Scope                         | I/O      | Status                   |
 | --------------- | ----------------------------- | -------- | ------------------------ |
-| **Unit**        | Lambdas, BFF routes, FE logic | Mocked   | ✅ Backend / 🔜 Frontend |
+| **Unit**        | Lambdas, BFF routes, FE logic | Mocked   | ✅ Backend / Frontend |
 | **Component**   | Critical UI components        | Mocked   | ✅                       |
 | **Integration** | AWS services wiring           | Real AWS | ✅                       |
 | **E2E**         | User journeys (1-2 paths)     | Real API | ✅                       |
@@ -19,7 +19,7 @@ Pragmatic, risk-based approach focused on the **core game loop** (price snapshot
 
 ```bash
 # Unit tests
-pnpm test                # All unit tests (Lambda + BFF)
+pnpm test                # All unit tests (Lambda + BFF + web)
 pnpm test:bff            # BFF only
 pnpm test:amplify:unit   # Lambda only
 

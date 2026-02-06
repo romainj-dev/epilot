@@ -13,7 +13,7 @@
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "codegen": "graphql-codegen --config codegen.ts",
-    "amplify:push": "amplify push && pnpm codegen",
+    "amplify:push": "amplify push",
     "amplify:compile": "amplify api gql-compile",
     "amplify:function:build": "amplify function build",
     "test": "jest",

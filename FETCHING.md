@@ -68,8 +68,8 @@ src/graphql/generated/
 | Command                | Description                                      |
 | ---------------------- | ------------------------------------------------ |
 | `pnpm codegen`         | Generate types from schema and query documents   |
-| `pnpm amplify:compile` | Compile Amplify schema + run codegen (no deploy) |
-| `pnpm amplify:push`    | Deploy to AWS + run codegen                      |
+| `pnpm amplify:compile` | Compile Amplify schema                           |
+| `pnpm amplify:push`    | Deploy to AWS                                    |
 
 ### Workflow
 
@@ -94,13 +94,10 @@ The app is wrapped with `QueryProvider` (TanStack Query) in the root layout:
 </QueryProvider>
 ```
 
-### Client-Side Fetching
-
-Use `fetchGraphQLClient` from `@/lib/requests-client`:
+### Declare queries -> run pnpm codegen
 
 ```tsx
 import { graphql } from '@/graphql/generated/gql'
-import { fetchGraphQLClient } from '@/lib/requests-client'
 
 const GetUserStateQuery = graphql(`
   query GetUserState($pk: String!) {
@@ -111,32 +108,29 @@ const GetUserStateQuery = graphql(`
     }
   }
 `)
-
-// In a client component
-const data = await fetchGraphQLClient(GetUserStateQuery, { pk: userId })
-// data is fully typed as GetUserStateQuery
 ```
 
-### With TanStack Query
-
-For React hooks with caching, use TanStack Query directly:
+### Use @/hooks/requests (TanStack Query wrappers)
 
 ```tsx
-import { useQuery } from '@tanstack/react-query'
-import { PriceSnapshotsByPkDocument } from '@/graphql/generated/graphql'
-import { fetchGraphQLClient } from '@/lib/requests-client'
+import { useQuery } from '@/hooks/requests'
+import { queryKeys } from '@/lib/query-keys'
+import { GetUserStateDocument } from '@/graphql/generated/graphql'
 
 function MyComponent() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['priceSnapshots', pk],
-    queryFn: () => fetchGraphQLClient(PriceSnapshotsByPkDocument, { pk }),
-  })
+  const { data, isLoading, error } = useQuery(
+    GetUserStateDocument,
+    { id: userId },
+    {
+      queryKey: queryKeys.userState.get(userId),
+    }
+  )
 }
 ```
 
 ### How It Works
 
-1. Client calls `fetchGraphQLClient(document, variables)`
+1. useQuery calls `fetchGraphQLClient(document, variables)`
 2. Request is sent to `/api/graphql` with the query string and variables
 3. BFF extracts the user's `idToken` from the NextAuth session
 4. BFF forwards the request to AppSync with the auth token
@@ -214,6 +208,7 @@ Key files:
 | `src/lib/requests-client.ts`      | Client-side BFF client (`fetchGraphQLClient`)                    |
 | `src/app/api/graphql/route.ts`    | GraphQL proxy endpoint                                           |
 | `src/providers/QueryProvider.tsx` | TanStack Query provider                                          |
+| `src/hooks/requests.ts          ` | TanStack Query hooks wrappers                                    |
 | `src/graphql/generated/`          | Generated types and documents                                    |
 | `src/graphql/aws-scalars.graphql` | AWS scalar type definitions                                      |
 | `codegen.ts`                      | GraphQL Codegen configuration                                    |
