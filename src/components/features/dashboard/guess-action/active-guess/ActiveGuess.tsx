@@ -64,8 +64,7 @@ function ProgressBar({ createdAt }: ProgressBarProps) {
   // Calculate elapsed time to start animation at correct position
   const [animationParams] = useState(() => {
     const elapsedMs = Date.now() - new Date(createdAt).getTime()
-    const remainingMs = Math.max(0, GUESS_DURATION_MS - elapsedMs)
-    return { elapsed: elapsedMs, remaining: remainingMs }
+    return { elapsed: elapsedMs }
   })
 
   return (
@@ -74,7 +73,7 @@ function ProgressBar({ createdAt }: ProgressBarProps) {
         className={styles.progressFill}
         style={
           {
-            '--duration': `${animationParams.remaining}ms`,
+            '--duration': `${GUESS_DURATION_MS}ms`,
             '--delay': `-${animationParams.elapsed}ms`,
           } as React.CSSProperties
         }
