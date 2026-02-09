@@ -141,7 +141,7 @@
     },
     "status": {
       "waitingTime": "Waiting for 60s...",
-      "waitingPrice": "Waiting for price change..."
+      "waitingPrice": "Waiting for the result..."
     },
     "countdown": "{seconds}s",
     "idleHint": "Predict whether BTC will be higher or lower in 60 seconds"
