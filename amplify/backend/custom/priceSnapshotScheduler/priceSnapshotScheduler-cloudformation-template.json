@@ -86,10 +86,10 @@
         ]
       }
     },
-    "PriceSnapshotStateMachine": {
+    "PriceSnapshotStateMachineV2": {
       "Type": "AWS::StepFunctions::StateMachine",
       "Properties": {
-        "StateMachineType": "EXPRESS",
+        "StateMachineType": "STANDARD",
         "RoleArn": {
           "Fn::GetAtt": [
             "PriceSnapshotStateMachineRole",
@@ -100,7 +100,7 @@
           "Fn::Join": [
             "",
             [
-              "bigbet-priceSnapshotScheduler-",
+              "bigbet-priceSnapshotSchedulerStd-",
               {
                 "Ref": "env"
               }
@@ -123,7 +123,7 @@
   "Outputs": {
     "PriceSnapshotStateMachineArn": {
       "Value": {
-        "Ref": "PriceSnapshotStateMachine"
+        "Ref": "PriceSnapshotStateMachineV2"
       }
     }
   }

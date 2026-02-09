@@ -88,7 +88,7 @@ flowchart TB
         UpstreamWS["AppSync Realtime WS (subscription)"]
     end
 
-    subgraph stepfunctions [Step_Functions_Express]
+    subgraph stepfunctions [Step_Functions_Standard]
         PriceSnapshotScheduler["priceSnapshotScheduler"]
     end
 

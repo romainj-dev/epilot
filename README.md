@@ -19,7 +19,7 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
 | Auth      | AWS Cognito + NextAuth (Credentials provider)        |
 | API       | AWS AppSync (GraphQL)                                |
 | Database  | AWS DynamoDB                                         |
-| Scheduler | AWS Step Functions (Express) + EventBridge Scheduler |
+| Scheduler | AWS Step Functions (Standard) + EventBridge Scheduler |
 | Secrets   | AWS SSM Parameter Store                              |
 | Hosting   | AWS Amplify                                          |
 
@@ -74,7 +74,7 @@ A real-time web app where players guess whether BTC/USD will be **higher or lowe
 - **BFF Pattern**: The browser never calls AWS services directly. All requests go through Next.js server routes, which handle auth tokens and API calls.
 - **Credentials Provider**: NextAuth uses the Credentials provider to exchange email/password with Cognito, storing sessions server-side.
 - **Dual Auth on AppSync**: Cognito auth for user requests, API key auth for Lambda-to-AppSync writes.
-- **Express Step Functions**: A looping state machine that invokes the price snapshot Lambda, waits the configured interval, then loops. Controlled via SSM parameters.
+- **Step Functions (Standard)**: A looping state machine that invokes the price snapshot Lambda, waits the configured interval, then loops. Controlled via SSM parameters.
 - **Guess settlement (EventBridge Scheduler)**: When a `Guess` is created, a DynamoDB Stream triggers `scheduleGuessLambda` which creates a one-time EventBridge Scheduler entry. At `settleAt`, Scheduler invokes `settleGuessLambda` to resolve snapshots, settle the guess, and update score.
 - **Settlement snapshot resolution**: For `createdAt` and `settleAt`, pick the **latest** `PriceSnapshot` with `sourceUpdatedAt <= timestamp`.
 - **Live price updates (SSE relay)**: The browser subscribes to `/api/price-snapshot/stream` (SSE). The BFF maintains an AppSync subscription (`onCreatePriceSnapshot`) and broadcasts new snapshots to all connected clients.

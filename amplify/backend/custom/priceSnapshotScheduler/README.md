@@ -1,6 +1,6 @@
 # Price Snapshot Scheduler
 
-The scheduler is a Step Functions Express state machine that invokes
+The scheduler is a Step Functions **Standard** state machine that invokes
 `priceSnapshotJob` in a loop. Control it with SSM parameters:
 
 - `/bigbet/<env>/price-snapshot-enabled` set to `true` or `false`

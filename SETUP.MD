@@ -205,7 +205,7 @@ The price snapshot job runs via Step Functions. You need to start an execution:
 0. Make sure `/bigbet/{env}/price-snapshot-enabled` is set to `true`
 1. Open [AWS Step Functions Console](https://console.aws.amazon.com/states/)
 2. Click **State machines**
-3. Select the scheduler (named like `bigbet-priceSnapshotScheduler-{env}`)
+3. Select the scheduler (named like `bigbet-priceSnapshotSchedulerStd-{env}`)
 4. Click **Start execution** button (top right)
 5. In the dialog, leave the input as `{}` or default
 6. Click **Start execution** to confirm
@@ -214,7 +214,7 @@ The scheduler will now fetch Bitcoin prices every 60 seconds (or your configured
 
 The web app receives updates via **Server-Sent Events** on `/api/price-snapshot/stream`. The Next.js BFF keeps a single AppSync subscription open and broadcasts new snapshots to connected clients.
 
-> 🛑 **Default timeout might be set**: The scheduler automatically stops after default 5min
+
 > 🛑 **To stop the scheduler**: Set the SSM parameter `/bigbet/{env}/price-snapshot-enabled` to `false`. It will stop after its next iteration.
 
 ## 8.1 Guess Settlement Pipeline (EventBridge Scheduler)
