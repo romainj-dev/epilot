@@ -37,6 +37,7 @@ function toStreamPayload(
     pk: snapshot.pk,
     capturedAt: snapshot.capturedAt,
     priceUsd: snapshot.priceUsd,
+    sourceUpdatedAt: snapshot.sourceUpdatedAt,
   }
 }
 
