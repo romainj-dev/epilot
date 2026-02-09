@@ -68,3 +68,4 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+!amplify/backend/api/bigbet/build/schema.graphql

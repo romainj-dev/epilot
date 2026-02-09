@@ -1,0 +1,510 @@
+enum GuessDirection {
+  UP
+  DOWN
+}
+
+enum GuessResultDirection {
+  UP
+  DOWN
+  EQUAL
+}
+
+enum GuessOutcome {
+  WIN
+  LOSS
+  DRAW
+}
+
+enum GuessStatus {
+  PENDING
+  SETTLED
+  FAILED
+}
+
+type Guess @aws_api_key @aws_cognito_user_pools {
+  id: ID!
+  owner: String
+  createdAt: AWSDateTime!
+  settleAt: AWSDateTime!
+  direction: GuessDirection!
+  startPriceSnapshotId: ID
+  endPriceSnapshotId: ID
+  startPrice: Float
+  endPrice: Float
+  status: GuessStatus!
+  result: GuessResultDirection
+  outcome: GuessOutcome
+  updatedAt: AWSDateTime!
+}
+
+type PriceSnapshot @aws_api_key @aws_cognito_user_pools {
+  id: ID!
+  pk: String!
+  capturedAt: AWSDateTime!
+  sourceUpdatedAt: AWSDateTime
+  priceUsd: Float!
+  source: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type UserState @aws_api_key @aws_cognito_user_pools {
+  id: ID!
+  owner: String!
+  email: AWSEmail!
+  username: String!
+  score: Int!
+  streak: Int!
+  lastUpdatedAt: AWSDateTime!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  in: [String]
+  notIn: [String]
+}
+
+input ModelSubscriptionIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  in: [Int]
+  notIn: [Int]
+}
+
+input ModelSubscriptionFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  in: [Float]
+  notIn: [Float]
+}
+
+input ModelSubscriptionBooleanInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelSubscriptionIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  in: [ID]
+  notIn: [ID]
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelGuessConnection @aws_api_key @aws_cognito_user_pools {
+  items: [Guess]!
+  nextToken: String
+}
+
+input ModelGuessDirectionInput {
+  eq: GuessDirection
+  ne: GuessDirection
+}
+
+input ModelGuessStatusInput {
+  eq: GuessStatus
+  ne: GuessStatus
+}
+
+input ModelGuessResultDirectionInput {
+  eq: GuessResultDirection
+  ne: GuessResultDirection
+}
+
+input ModelGuessOutcomeInput {
+  eq: GuessOutcome
+  ne: GuessOutcome
+}
+
+input ModelGuessFilterInput {
+  id: ModelIDInput
+  owner: ModelStringInput
+  createdAt: ModelStringInput
+  settleAt: ModelStringInput
+  direction: ModelGuessDirectionInput
+  startPriceSnapshotId: ModelIDInput
+  endPriceSnapshotId: ModelIDInput
+  startPrice: ModelFloatInput
+  endPrice: ModelFloatInput
+  status: ModelGuessStatusInput
+  result: ModelGuessResultDirectionInput
+  outcome: ModelGuessOutcomeInput
+  updatedAt: ModelStringInput
+  and: [ModelGuessFilterInput]
+  or: [ModelGuessFilterInput]
+  not: ModelGuessFilterInput
+}
+
+type Query {
+  getGuess(id: ID!): Guess @aws_api_key @aws_cognito_user_pools
+  listGuesses(filter: ModelGuessFilterInput, limit: Int, nextToken: String): ModelGuessConnection @aws_api_key @aws_cognito_user_pools
+  guessesByOwner(owner: String!, createdAt: ModelStringKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelGuessFilterInput, limit: Int, nextToken: String): ModelGuessConnection @aws_api_key @aws_cognito_user_pools
+  getPriceSnapshot(id: ID!): PriceSnapshot @aws_api_key @aws_cognito_user_pools
+  listPriceSnapshots(filter: ModelPriceSnapshotFilterInput, limit: Int, nextToken: String): ModelPriceSnapshotConnection @aws_api_key @aws_cognito_user_pools
+  priceSnapshotsByPk(pk: String!, capturedAt: ModelStringKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelPriceSnapshotFilterInput, limit: Int, nextToken: String): ModelPriceSnapshotConnection @aws_api_key @aws_cognito_user_pools
+  priceSnapshotsBySourceUpdatedAt(pk: String!, sourceUpdatedAt: ModelStringKeyConditionInput, sortDirection: ModelSortDirection, filter: ModelPriceSnapshotFilterInput, limit: Int, nextToken: String): ModelPriceSnapshotConnection @aws_api_key @aws_cognito_user_pools
+  getUserState(id: ID!): UserState @aws_api_key @aws_cognito_user_pools
+  listUserStates(filter: ModelUserStateFilterInput, limit: Int, nextToken: String): ModelUserStateConnection @aws_api_key @aws_cognito_user_pools
+}
+
+input ModelGuessConditionInput {
+  owner: ModelStringInput
+  createdAt: ModelStringInput
+  settleAt: ModelStringInput
+  direction: ModelGuessDirectionInput
+  startPriceSnapshotId: ModelIDInput
+  endPriceSnapshotId: ModelIDInput
+  startPrice: ModelFloatInput
+  endPrice: ModelFloatInput
+  status: ModelGuessStatusInput
+  result: ModelGuessResultDirectionInput
+  outcome: ModelGuessOutcomeInput
+  and: [ModelGuessConditionInput]
+  or: [ModelGuessConditionInput]
+  not: ModelGuessConditionInput
+  updatedAt: ModelStringInput
+}
+
+input CreateGuessInput {
+  id: ID
+  owner: String
+  createdAt: AWSDateTime
+  settleAt: AWSDateTime!
+  direction: GuessDirection!
+  startPriceSnapshotId: ID
+  endPriceSnapshotId: ID
+  startPrice: Float
+  endPrice: Float
+  status: GuessStatus!
+  result: GuessResultDirection
+  outcome: GuessOutcome
+}
+
+input UpdateGuessInput {
+  id: ID!
+  owner: String
+  createdAt: AWSDateTime
+  settleAt: AWSDateTime
+  direction: GuessDirection
+  startPriceSnapshotId: ID
+  endPriceSnapshotId: ID
+  startPrice: Float
+  endPrice: Float
+  status: GuessStatus
+  result: GuessResultDirection
+  outcome: GuessOutcome
+}
+
+input DeleteGuessInput {
+  id: ID!
+}
+
+type Mutation {
+  createGuess(input: CreateGuessInput!, condition: ModelGuessConditionInput): Guess
+  deleteGuess(input: DeleteGuessInput!, condition: ModelGuessConditionInput): Guess
+  updatePriceSnapshot(input: UpdatePriceSnapshotInput!, condition: ModelPriceSnapshotConditionInput): PriceSnapshot
+  deleteUserState(input: DeleteUserStateInput!, condition: ModelUserStateConditionInput): UserState
+  updateGuess(input: UpdateGuessInput!, condition: ModelGuessConditionInput): Guess @aws_api_key @aws_cognito_user_pools
+  createPriceSnapshot(input: CreatePriceSnapshotInput!, condition: ModelPriceSnapshotConditionInput): PriceSnapshot @aws_api_key
+  deletePriceSnapshot(input: DeletePriceSnapshotInput!, condition: ModelPriceSnapshotConditionInput): PriceSnapshot @aws_api_key
+  createUserState(input: CreateUserStateInput!, condition: ModelUserStateConditionInput): UserState @aws_api_key @aws_cognito_user_pools
+  updateUserState(input: UpdateUserStateInput!, condition: ModelUserStateConditionInput): UserState @aws_api_key @aws_cognito_user_pools
+}
+
+input ModelSubscriptionGuessFilterInput {
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  settleAt: ModelSubscriptionStringInput
+  direction: ModelSubscriptionStringInput
+  startPriceSnapshotId: ModelSubscriptionIDInput
+  endPriceSnapshotId: ModelSubscriptionIDInput
+  startPrice: ModelSubscriptionFloatInput
+  endPrice: ModelSubscriptionFloatInput
+  status: ModelSubscriptionStringInput
+  result: ModelSubscriptionStringInput
+  outcome: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionGuessFilterInput]
+  or: [ModelSubscriptionGuessFilterInput]
+  owner: ModelStringInput
+}
+
+type Subscription {
+  onCreateGuess(filter: ModelSubscriptionGuessFilterInput, owner: String): Guess @aws_subscribe(mutations: ["createGuess"]) @aws_api_key @aws_cognito_user_pools
+  onUpdateGuess(filter: ModelSubscriptionGuessFilterInput, owner: String): Guess @aws_subscribe(mutations: ["updateGuess"]) @aws_api_key @aws_cognito_user_pools
+  onDeleteGuess(filter: ModelSubscriptionGuessFilterInput, owner: String): Guess @aws_subscribe(mutations: ["deleteGuess"]) @aws_api_key @aws_cognito_user_pools
+  onCreatePriceSnapshot(filter: ModelSubscriptionPriceSnapshotFilterInput): PriceSnapshot @aws_subscribe(mutations: ["createPriceSnapshot"]) @aws_api_key @aws_cognito_user_pools
+  onUpdatePriceSnapshot(filter: ModelSubscriptionPriceSnapshotFilterInput): PriceSnapshot @aws_subscribe(mutations: ["updatePriceSnapshot"]) @aws_api_key @aws_cognito_user_pools
+  onDeletePriceSnapshot(filter: ModelSubscriptionPriceSnapshotFilterInput): PriceSnapshot @aws_subscribe(mutations: ["deletePriceSnapshot"]) @aws_api_key @aws_cognito_user_pools
+  onCreateUserState(filter: ModelSubscriptionUserStateFilterInput, owner: String): UserState @aws_subscribe(mutations: ["createUserState"]) @aws_api_key @aws_cognito_user_pools
+  onUpdateUserState(filter: ModelSubscriptionUserStateFilterInput, owner: String): UserState @aws_subscribe(mutations: ["updateUserState"]) @aws_api_key @aws_cognito_user_pools
+  onDeleteUserState(filter: ModelSubscriptionUserStateFilterInput, owner: String): UserState @aws_subscribe(mutations: ["deleteUserState"]) @aws_api_key @aws_cognito_user_pools
+}
+
+type ModelPriceSnapshotConnection @aws_api_key @aws_cognito_user_pools {
+  items: [PriceSnapshot]!
+  nextToken: String
+}
+
+input ModelPriceSnapshotFilterInput {
+  id: ModelIDInput
+  pk: ModelStringInput
+  capturedAt: ModelStringInput
+  sourceUpdatedAt: ModelStringInput
+  priceUsd: ModelFloatInput
+  source: ModelStringInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelPriceSnapshotFilterInput]
+  or: [ModelPriceSnapshotFilterInput]
+  not: ModelPriceSnapshotFilterInput
+}
+
+input ModelPriceSnapshotConditionInput {
+  pk: ModelStringInput
+  capturedAt: ModelStringInput
+  sourceUpdatedAt: ModelStringInput
+  priceUsd: ModelFloatInput
+  source: ModelStringInput
+  and: [ModelPriceSnapshotConditionInput]
+  or: [ModelPriceSnapshotConditionInput]
+  not: ModelPriceSnapshotConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreatePriceSnapshotInput {
+  id: ID
+  pk: String!
+  capturedAt: AWSDateTime!
+  sourceUpdatedAt: AWSDateTime
+  priceUsd: Float!
+  source: String
+}
+
+input UpdatePriceSnapshotInput {
+  id: ID!
+  pk: String
+  capturedAt: AWSDateTime
+  sourceUpdatedAt: AWSDateTime
+  priceUsd: Float
+  source: String
+}
+
+input DeletePriceSnapshotInput {
+  id: ID!
+}
+
+input ModelSubscriptionPriceSnapshotFilterInput {
+  id: ModelSubscriptionIDInput
+  pk: ModelSubscriptionStringInput
+  capturedAt: ModelSubscriptionStringInput
+  sourceUpdatedAt: ModelSubscriptionStringInput
+  priceUsd: ModelSubscriptionFloatInput
+  source: ModelSubscriptionStringInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionPriceSnapshotFilterInput]
+  or: [ModelSubscriptionPriceSnapshotFilterInput]
+}
+
+type ModelUserStateConnection @aws_api_key @aws_cognito_user_pools {
+  items: [UserState]!
+  nextToken: String
+}
+
+input ModelUserStateFilterInput {
+  id: ModelIDInput
+  owner: ModelStringInput
+  email: ModelStringInput
+  username: ModelStringInput
+  score: ModelIntInput
+  streak: ModelIntInput
+  lastUpdatedAt: ModelStringInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelUserStateFilterInput]
+  or: [ModelUserStateFilterInput]
+  not: ModelUserStateFilterInput
+}
+
+input ModelUserStateConditionInput {
+  owner: ModelStringInput
+  email: ModelStringInput
+  username: ModelStringInput
+  score: ModelIntInput
+  streak: ModelIntInput
+  lastUpdatedAt: ModelStringInput
+  and: [ModelUserStateConditionInput]
+  or: [ModelUserStateConditionInput]
+  not: ModelUserStateConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateUserStateInput {
+  id: ID
+  owner: String!
+  email: AWSEmail!
+  username: String!
+  score: Int!
+  streak: Int!
+  lastUpdatedAt: AWSDateTime!
+}
+
+input UpdateUserStateInput {
+  id: ID!
+  owner: String
+  email: AWSEmail
+  username: String
+  score: Int
+  streak: Int
+  lastUpdatedAt: AWSDateTime
+}
+
+input DeleteUserStateInput {
+  id: ID!
+}
+
+input ModelSubscriptionUserStateFilterInput {
+  id: ModelSubscriptionIDInput
+  email: ModelSubscriptionStringInput
+  username: ModelSubscriptionStringInput
+  score: ModelSubscriptionIntInput
+  streak: ModelSubscriptionIntInput
+  lastUpdatedAt: ModelSubscriptionStringInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionUserStateFilterInput]
+  or: [ModelSubscriptionUserStateFilterInput]
+  owner: ModelStringInput
+}
+
+input ModelStringKeyConditionInput {
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  between: [String]
+  beginsWith: String
+}
