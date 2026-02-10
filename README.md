@@ -2,6 +2,12 @@
 
 A real-time web app where players guess whether BTC/USD will be **higher or lower after one minute**. The app shows the latest price via live updates (default cadence is one snapshot per minute), tracks a persistent score, and enforces one active guess at a time.
 
+## Test deployment
+
+The app is currently deployed on Vercel (FE) + AWS (BE)
+
+Url: https://epilot-psi.vercel.app/
+
 ## Features
 
 - Real-time BTC/USD price display
